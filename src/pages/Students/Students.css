@@ -1,0 +1,94 @@
+.student-toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.student-toolbar-actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.student-toolbar-actions input{
+    width:280px;
+    padding:10px 14px;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+    outline:none;
+    font-size:14px;
+}
+
+.student-toolbar-actions input:focus{
+    border-color:#2563eb;
+}
+
+.student-toolbar-actions button{
+    padding:10px 18px;
+    border:none;
+    border-radius:8px;
+    background:#2563eb;
+    color:#fff;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.student-toolbar-actions button:hover{
+    background:#1d4ed8;
+}
+.student-form{
+
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+
+}
+
+.student-form h3{
+
+    margin-top:10px;
+    margin-bottom:5px;
+
+    color:#1f2937;
+
+}
+
+.form-group{
+
+    display:flex;
+    flex-direction:column;
+
+}
+
+.form-group label{
+
+    margin-bottom:6px;
+
+    font-weight:600;
+
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+
+    padding:10px 12px;
+
+    border:1px solid #d1d5db;
+
+    border-radius:8px;
+
+    font-size:14px;
+
+    outline:none;
+
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+
+    border-color:#2563eb;
+
+}
