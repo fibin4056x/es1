@@ -1,10 +1,38 @@
 :root {
-  --primary: #2563eb;
-  --secondary: #1e293b;
-  --background: #f8fafc;
-  --white: #ffffff;
-  --text: #1f2937;
-  --border: #e5e7eb;
-  --success: #16a34a;
-  --danger: #dc2626;
+
+  /* Primary */
+
+  --primary: #4F7CFF;
+  --primary-hover: #3B6DF5;
+
+  /* Background */
+
+  --bg-primary: #09090B;
+  --bg-secondary: #111827;
+
+  /* Glass */
+
+  --glass: rgba(255,255,255,.08);
+  --glass-border: rgba(255,255,255,.12);
+
+  /* Text */
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #A1A1AA;
+
+  /* Input */
+
+  --input-bg: rgba(255,255,255,.04);
+  --input-border: rgba(255,255,255,.12);
+
+  /* Radius */
+
+  --radius-lg:24px;
+  --radius-md:16px;
+
+  /* Shadow */
+
+  --shadow:
+      0 20px 80px rgba(0,0,0,.45);
+
 }

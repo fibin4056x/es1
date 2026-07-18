@@ -6,7 +6,7 @@ import DivisionToolbar from "./DivisionToolbar";
 import DivisionTable from "./DivisionTable";
 import DivisionModal from "./DivisionModel";
 import EditDivisionModal from "./EditDivisionModel";
-import Pagination from "../../components/pagination/Pagination";
+import Pagination from "../../components/common/pagination/Pagination";
 
 import "./Division.css";
 

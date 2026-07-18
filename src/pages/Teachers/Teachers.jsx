@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getTeachers } from "../../services/teacherService";
-import Pagination from "../../components/pagination/Pagination";
+import Pagination from "../../components/common/pagination/Pagination";
 import TeacherToolbar from "./TeacherToolbar";
 import TeacherTable from "./TeacherTable";
 import TeacherModal from "./TeacherModal";

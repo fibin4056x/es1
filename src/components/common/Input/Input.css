@@ -1,0 +1,152 @@
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input-label {
+  font-family: 'Geist', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  opacity: 0.8;
+  margin-left: 4px;
+}
+
+.input-container {
+  position: relative;
+  border-radius: 12px;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 20px;
+  height: 20px;
+
+  color: var(--outline);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.input-container:focus-within .input-icon {
+  color: var(--primary);
+  opacity: 1;
+}
+
+.text-input {
+  width: 100%;
+  height: 56px;
+  box-sizing: border-box;
+
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 12px;
+
+  padding-left: 50px !important;
+  padding-right: 52px;
+
+  color: var(--on-surface);
+  outline: none;
+
+  font-family: "Inter", sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: normal;
+
+  transition: all 0.3s ease;
+}
+.text-input::placeholder {
+  color: var(--outline);
+  opacity: 0.3;
+}
+
+.text-input:focus {
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+html:not(.dark) .text-input:focus {
+  border-color: rgba(79, 70, 229, 0.4);
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 24px;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  color: var(--outline);
+}
+
+.password-toggle-btn:hover {
+  color: var(--primary);
+  opacity: 1;
+}
+
+.password-toggle-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  border-radius: 4px;
+}
+
+/* Animations */
+@keyframes breathe {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(192, 193, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.2);
+  }
+}
+
+@keyframes scan {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.input-idle:not(:focus-within) {
+  animation: breathe 5s ease-in-out infinite;
+}
+
+.scanning-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanning-border::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent);
+  background-size: 200% 100%;
+  animation: scan 4s linear infinite;
+  pointer-events: none;
+}
+.password-toggle-btn .material-symbols-outlined {
+  font-size: 20px;
+}

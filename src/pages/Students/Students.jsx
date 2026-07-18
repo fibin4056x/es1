@@ -6,7 +6,8 @@ import StudentToolbar from "./StudentToolbar";
 import StudentTable from "./StudentTable";
 import StudentModal from "./StudentModal";
 import EditStudentModal from "./EditStudentModal";
-import Pagination from "../../components/pagination/Pagination";
+import Pagination from "../../components/common/pagination/Pagination";
+import StudentStats from "./StudentStats";
 
 import "./Students.css";
 
@@ -84,6 +85,10 @@ function Students() {
           setSearch(value);
           setCurrentPage(1);
         }}
+      />
+
+      <StudentStats
+        students={students}
       />
 
       {loading ? (

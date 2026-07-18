@@ -6,7 +6,7 @@ import ClassToolbar from "./ClassToolbar";
 import ClassTable from "./ClassTable";
 import ClassModal from "./ClassModal";
 import EditClassModal from "./EditClassModal";
-import Pagination from "../../components/pagination/Pagination";
+import Pagination from "../../components/common/pagination/Pagination";
 
 import "./Classes.css";
 
@@ -87,6 +87,7 @@ function Classes() {
         setSearch={(value) => {
           setSearch(value);
           setCurrentPage(1);
+          
         }}
       />
 

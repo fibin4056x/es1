@@ -170,15 +170,12 @@ useEffect(() => {
       onClose();
 
     } catch (error) {
+console.log(error.response?.data);
 
-      console.log(error);
-
-      toast.error(
-        isEdit
-          ? "Unable to update student"
-          : "Unable to create student"
-      );
-
+toast.error(
+  error.response?.data?.message ||
+  "Unable to create student"
+);
     }
   };
 

@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import "./Sidebar.css";
+import { useAuth } from "../../../context/AuthContext";
 
 function Sidebar() {
   return (
@@ -10,16 +11,16 @@ function Sidebar() {
       </div>
 
       <nav>
-
         <NavLink to="/dashboard">Dashboard</NavLink>
-
-        <NavLink to="/teachers">Teachers</NavLink>
-
-        <NavLink to="/students">Students</NavLink>
-
+       
+          <NavLink to="/teachers">Teachers</NavLink>
+        
         <NavLink to="/classes">Classes</NavLink>
+              <NavLink to="/students">Students</NavLink>
+        
 
         <NavLink to="/divisions">Divisions</NavLink>
+
 
         <NavLink to="/attendance">Attendance</NavLink>
 
