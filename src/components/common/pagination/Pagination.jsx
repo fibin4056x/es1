@@ -4,15 +4,9 @@ function Pagination({
   setCurrentPage,
 }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        gap: "10px",
-        marginTop: "20px",
-      }}
-    >
+    <div className="pagination-container">
       <button
+        className="pagination-btn btn-press"
         disabled={currentPage === 1}
         onClick={() =>
           setCurrentPage(currentPage - 1)
@@ -21,11 +15,12 @@ function Pagination({
         Previous
       </button>
 
-      <span>
+      <span className="pagination-label">
         Page {currentPage} of {totalPages}
       </span>
 
       <button
+        className="pagination-btn btn-press"
         disabled={currentPage === totalPages || totalPages === 0}
         onClick={() =>
           setCurrentPage(currentPage + 1)
@@ -37,4 +32,4 @@ function Pagination({
   );
 }
 
-export default Pagination;
+export default Pagination;

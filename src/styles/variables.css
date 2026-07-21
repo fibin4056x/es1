@@ -1,38 +1,73 @@
 :root {
+  /* Dark Theme (Default) */
+  --bg-main: #09090B;
+  --card-bg: rgba(20, 20, 25, 0.4);
+  --border-main: rgba(255, 255, 255, 0.08);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --nav-active-bg: linear-gradient(90deg, rgba(192, 193, 255, 0.1) 0%, transparent 100%);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
 
-  /* Primary */
+  /* Brand Colors */
+  --primary: #c0c1ff;
+  --on-primary: #1000a9;
+  --primary-container: #8083ff;
+  --on-primary-container: #0d0096;
+  --secondary: #ddb7ff;
+  --on-secondary: #490080;
+  --secondary-container: #6f00be;
+  --on-secondary-container: #d6a9ff;
+  --tertiary: #89ceff;
+  --tertiary-container: #4d8eff;
+  --success-accent: #4ade80;
+  --error: #ffb4ab;
+  --outline: #908fa0;
+  --outline-variant: #464554;
+  --surface: #131314;
+  --on-surface: var(--text-main);
+  --on-surface-variant: var(--text-muted);
+  --border-glass: var(--border-main);
+  --card-glass: var(--card-bg);
+  --surface-container-lowest: var(--bg-main);
 
-  --primary: #4F7CFF;
-  --primary-hover: #3B6DF5;
+  /* Border Radii */
+  --radius-sm: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
 
-  /* Background */
+  /* Spacings */
+  --sidebar-width: 280px;
+  --stack-lg: 32px;
+  --container-padding: 32px;
+  --gutter: 24px;
+  --stack-md: 16px;
+  --unit: 4px;
+  --stack-sm: 8px;
+  --card-padding: 24px;
 
-  --bg-primary: #09090B;
-  --bg-secondary: #111827;
-
-  /* Glass */
-
-  --glass: rgba(255,255,255,.08);
-  --glass-border: rgba(255,255,255,.12);
-
-  /* Text */
-
-  --text-primary: #FFFFFF;
-  --text-secondary: #A1A1AA;
-
-  /* Input */
-
-  --input-bg: rgba(255,255,255,.04);
-  --input-border: rgba(255,255,255,.12);
-
-  /* Radius */
-
-  --radius-lg:24px;
-  --radius-md:16px;
-
-  /* Shadow */
-
-  --shadow:
-      0 20px 80px rgba(0,0,0,.45);
-
+  /* Fonts */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-geist: 'Geist', monospace;
 }
+
+/* Light Theme Overrides */
+html:not(.dark) {
+  --bg-main: #F8FAFC;
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --border-main: #E5E7EB;
+  --text-main: #111827;
+  --text-muted: #6B7280;
+  --nav-active-bg: linear-gradient(90deg, rgba(192, 193, 255, 0.2) 0%, transparent 100%);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
+
+  --primary: #4f46e5;
+  --on-primary: #ffffff;
+  --secondary: #7c3aed;
+  --on-secondary: #ffffff;
+  --outline: #71717a;
+  --outline-variant: #e4e4e7;
+  --surface: #ffffff;
+}
