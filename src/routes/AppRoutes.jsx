@@ -18,14 +18,13 @@ import PrivateRoute from "./PrivateRoute";
 function AppRoutes() {
   return (
     <Routes>
-
-      {/* Login */}
+      {/* Authentication */}
       <Route element={<AuthLayout />}>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
       </Route>
 
-      {/* Protected Dashboard */}
+      {/* Protected Layout */}
       <Route
         element={
           <PrivateRoute>
@@ -33,18 +32,75 @@ function AppRoutes() {
           </PrivateRoute>
         }
       >
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/teachers" element={<Teachers />} />
-        <Route path="/students" element={<Students />} />
-        <Route path="/classes" element={<Classes />} />
-        <Route path="/divisions" element={<Divisions />} />
-        <Route path="/attendance" element={<Attendance />} />
-        <Route path="/profile" element={<Profile />} />
+        {/* Dashboard */}
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute allowedRoles={["principal", "teacher"]}>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Principal Only */}
+        <Route
+          path="/teachers"
+          element={
+            <PrivateRoute allowedRoles={["principal"]}>
+              <Teachers />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/classes"
+          element={
+            <PrivateRoute allowedRoles={["principal"]}>
+              <Classes />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/divisions"
+          element={
+            <PrivateRoute allowedRoles={["principal"]}>
+              <Divisions />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Principal & Teacher */}
+        <Route
+          path="/students"
+          element={
+            <PrivateRoute allowedRoles={["principal", "teacher"]}>
+              <Students />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/attendance"
+          element={
+            <PrivateRoute allowedRoles={["principal", "teacher"]}>
+              <Attendance />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute allowedRoles={["principal", "teacher"]}>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
       </Route>
 
       {/* 404 */}
       <Route path="*" element={<NotFound />} />
-
     </Routes>
   );
 }

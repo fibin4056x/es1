@@ -7,12 +7,26 @@ import RecentTeachers from "./RecentTeachers";
 import RecentStudents from "./RecentStudents";
 import {useAuth} from "../../context/AuthContext"
 function Dashboard() {
-  const [stats, setStats] = useState({
-    students: 0,
-    teachers: 0,
-    classes: 0,
-    attendance: 0,
-  });
+ const [stats, setStats] = useState({
+  students: 0,
+  teachers: 0,
+  classes: 0,
+
+  attendance: {
+    totalStudents: 0,
+    present: 0,
+    absent: 0,
+    late: 0,
+    percentage: 0,
+  },
+   attendanceChart: {
+    weekly: [],
+    monthly: [],
+  },
+
+  recentTeachers: [],
+  recentStudents: [],
+});
   const { user } = useAuth();
   useEffect(() => {
     loadDashboard();
@@ -21,18 +35,20 @@ function Dashboard() {
   const loadDashboard = async () => {
     try {
       const res = await getDashboardStats();
-
-      console.log("Dashboard Response:", res);
-      console.log("Dashboard Data:", res.data);
-
       setStats(res.data);
+console.log(res.data);
     } catch (error) {
       console.error("Dashboard Error:", error.response?.data || error.message);
     }
   };
 
-  console.log("Stats State:", stats);
 
+  const today = new Date().toLocaleDateString("en-US", {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
   return (
     <div className="dashboard-page">
       {/* Dashboard Top Header Section */}
@@ -44,7 +60,7 @@ function Dashboard() {
         <div>
           <button className="date-filter-btn btn-press">
             <span className="material-symbols-outlined">calendar_today</span>
-            <span>Aug 24 - Sep 24</span>
+            <span>{today}</span>
           </button>
         </div>
       </div>
@@ -78,29 +94,44 @@ function Dashboard() {
           variant="blue"
         />
 
-        <StatCard
-          title="Attendance Rate"
-          value={stats.attendance}
-          isPercentage={true}
-          icon="verified"
-          trendText="-0.8%"
-          trendType="down"
-          variant="success"
-        />
+              <StatCard
+                title="Attendance Rate"
+                value={stats.attendance.percentage}
+                isPercentage={true}
+                icon="verified"
+                trendText="-0.8%"
+                trendType="down"
+                variant="success"
+              />
       </div>
 
       {/* Main Grid: Chart & Activity */}
-      <div className="dashboard-body-grid">
+<div
+  className={`dashboard-body-grid ${
+    user?.role === "teacher"
+      ? "teacher-dashboard"
+      : ""
+  }`}
+>
         <div className="chart-column">
-          <AttendanceChart />
+     <AttendanceChart
+    weekly={stats.attendanceChart.weekly}
+    monthly={stats.attendanceChart.monthly}
+/>
         </div>
-        <div className="activity-column">
-          <RecentTeachers />
-        </div>
+        {user?.role === "principal" && (
+  <div className="activity-column">
+    <RecentTeachers
+      teachers={stats.recentTeachers || []}
+    />
+  </div>
+)}
       </div>
 
       {/* Bottom Enrollment Table */}
-      <RecentStudents />
+     <RecentStudents
+  students={stats.recentStudents || []}
+/>
     </div>
   );
 }

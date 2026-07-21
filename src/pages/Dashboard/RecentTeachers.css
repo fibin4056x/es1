@@ -1,0 +1,275 @@
+/* =====================================================
+   RECENT TEACHERS CARD
+===================================================== */
+
+.recent-teachers-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 32px;
+  text-align: left;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.recent-teachers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.recent-teachers-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.recent-teachers-see-all {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.recent-teachers-see-all:hover {
+  color: var(--secondary);
+}
+
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+
+.teachers-empty-state {
+  flex: 1;
+  min-height: 240px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  gap: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.teachers-empty-state .material-symbols-outlined {
+  font-size: 48px;
+  color: var(--primary);
+}
+
+/* =====================================================
+   TEACHERS LIST
+===================================================== */
+
+.teachers-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+/* =====================================================
+   TEACHER ITEM
+===================================================== */
+
+.teacher-item-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  padding: 16px;
+
+  border: 1px solid transparent;
+  border-radius: 18px;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+.teacher-item-row:hover {
+  background: rgba(139, 92, 246, 0.05);
+  border-color: rgba(139, 92, 246, 0.15);
+  transform: translateY(-2px);
+}
+
+/* =====================================================
+   AVATAR
+===================================================== */
+
+.teacher-avatar-box {
+  width: 52px;
+  height: 52px;
+
+  border-radius: 50%;
+  overflow: hidden;
+
+  flex-shrink: 0;
+
+  border: 1px solid var(--border-main);
+}
+
+.teacher-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  transition: transform 0.3s ease;
+}
+
+.teacher-item-row:hover .teacher-avatar-img {
+  transform: scale(1.08);
+}
+
+/* =====================================================
+   INFO
+===================================================== */
+
+.teacher-info-box {
+  flex: 1;
+  min-width: 0;
+}
+
+.teacher-name-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teacher-subject-label {
+  margin-top: 4px;
+
+  font-size: 13px;
+  color: var(--text-muted);
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =====================================================
+   STATUS BADGE
+===================================================== */
+
+.teacher-badge-chip {
+  min-width: 78px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 6px 12px;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+
+  flex-shrink: 0;
+}
+
+.badge-active {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.badge-inactive {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* =====================================================
+   BUTTON
+===================================================== */
+
+.onboard-faculty-dashed-btn {
+  margin-top: auto;
+
+  width: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+
+  padding: 14px;
+
+  border: 1px dashed var(--border-main);
+  border-radius: 16px;
+
+  background: transparent;
+
+  color: var(--text-muted);
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+.onboard-faculty-dashed-btn:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: rgba(139, 92, 246, 0.05);
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 768px) {
+
+  .recent-teachers-card {
+    padding: 20px;
+  }
+
+  .recent-teachers-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .recent-teachers-see-all {
+    width: 100%;
+    text-align: left;
+  }
+
+  .teacher-item-row {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .teacher-avatar-box {
+    width: 46px;
+    height: 46px;
+  }
+
+  .teacher-name-label {
+    font-size: 14px;
+  }
+
+  .teacher-subject-label {
+    font-size: 12px;
+  }
+
+  .teacher-badge-chip {
+    min-width: 70px;
+    font-size: 10px;
+    padding: 5px 10px;
+  }
+
+}

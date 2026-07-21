@@ -1,0 +1,299 @@
+/* ==========================
+   CARD
+========================== */
+
+.recent-students-card {
+  padding: 32px;
+  text-align: left;
+}
+
+/* ==========================
+   HEADER
+========================== */
+
+.recent-students-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.recent-students-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* ==========================
+   SORT
+========================== */
+
+.sort-select-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sort-select-input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background: var(--card-bg);
+  color: var(--text-main);
+
+  border: 1px solid var(--border-main);
+  border-radius: 12px;
+
+  padding: 12px 42px 12px 16px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+  outline: none;
+  transition: 0.25s;
+}
+
+.sort-select-input:hover {
+  border-color: var(--primary);
+}
+
+.sort-select-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.sort-select-arrow {
+  position: absolute;
+  right: 14px;
+  pointer-events: none;
+  color: var(--text-muted);
+}
+
+/* ==========================
+   TABLE
+========================== */
+
+.students-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.students-data-table {
+  width: 100%;
+  min-width: 950px;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.students-data-table thead tr {
+  border-bottom: 1px solid var(--border-main);
+}
+
+.students-data-table tbody tr {
+  border-bottom: 1px solid var(--border-main);
+  transition: background 0.25s ease;
+  cursor: pointer;
+}
+
+.students-data-table tbody tr:hover {
+  background: rgba(139, 92, 246, 0.06);
+}
+
+.students-data-table th,
+.students-data-table td {
+  padding: 18px 20px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* ==========================
+   TABLE HEADERS
+========================== */
+
+.students-data-table th {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.student-th-left {
+  width: 170px;
+  text-align: left;
+}
+
+.student-th:nth-child(2) {
+  width: 320px;
+  text-align: left;
+}
+
+.student-th:nth-child(3) {
+  width: 150px;
+  text-align: left;
+}
+
+.student-th:nth-child(4) {
+  width: 220px;
+  text-align: left;
+}
+
+.student-th-right {
+  width: 140px;
+  text-align: center;
+}
+
+/* ==========================
+   ADMISSION
+========================== */
+
+.student-cell-left {
+  min-width: 170px;
+}
+
+.student-admission-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* ==========================
+   STUDENT
+========================== */
+
+.student-avatar-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 240px;
+}
+
+.student-avatar-wrapper {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.student-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.student-name-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* ==========================
+   CLASS
+========================== */
+
+.student-class-label {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* ==========================
+   PROGRESS
+========================== */
+
+.student-progress-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.student-progress-bg {
+  width: 120px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.student-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+}
+
+.student-progress-pct {
+  min-width: 42px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ==========================
+   STATUS
+========================== */
+
+.student-cell-right {
+  text-align: center;
+}
+
+.status-badge {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  min-width: 90px;
+  padding: 6px 12px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.badge-active {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.badge-probation {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* ==========================
+   PROGRESS COLORS
+========================== */
+
+.status-primary {
+  background: #8b5cf6;
+}
+
+.status-error {
+  background: #ef4444;
+}
+
+/* ==========================
+   RESPONSIVE
+========================== */
+
+@media (max-width: 768px) {
+  .recent-students-card {
+    padding: 20px;
+  }
+
+  .recent-students-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sort-select-wrapper {
+    width: 100%;
+  }
+
+  .sort-select-input {
+    width: 100%;
+  }
+}

@@ -1,114 +1,17 @@
+/* =====================================================
+   STAT CARD
+===================================================== */
+
 .stat-card {
-  height: 176px; /* h-44 matching 11rem or 176px */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  height: 180px;
   padding: 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+
   text-align: left;
-}
 
-.stat-card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
-}
-.stat-icon-wrapper {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition:
-    transform 0.25s ease,
-    background-color 0.25s ease;
-
-}
-
-.stat-card:hover .stat-icon-wrapper {
-  transform: scale(1.05);
-}
-
-/* Variant color configurations (combines gradients/opacities) */
-.stat-variant-primary {
-  background: rgba(192, 193, 255, 0.1);
-  color: var(--primary);
-}
-
-.stat-variant-secondary {
-  background: rgba(221, 183, 255, 0.1);
-  color: var(--secondary);
-}
-
-.stat-variant-blue {
-  background: rgba(59, 130, 246, 0.1);
-  color: #60a5fa;
-}
-
-.stat-variant-success {
-  background: rgba(74, 222, 128, 0.1);
-  color: var(--success-accent);
-}
-
-/* Trend Badges */
-.trend-badge {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: var(--radius-lg);
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.trend-type-up {
-  background: rgba(74, 222, 128, 0.1);
-  color: var(--success-accent);
-}
-
-.trend-type-down {
-  background: rgba(255, 180, 171, 0.1);
-  color: #ef4444;
-}
-
-.trend-type-neutral {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-muted);
-}
-
-.trend-icon-small {
-  font-size: 12px !important;
-}
-
-/* Card Bottom Values */
-.stat-card-bottom {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-title {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-}
-.stat-value {
-font-size: 40px;
-font-weight: 800;
-letter-spacing: -0.03em;
-font-weight: 700;
-color: var(--text-main);
-line-height: 1.1;
-
-}
-
-.stat-value-small {
-  font-size: 24px;
-  font-weight: 700;
-  color: inherit;
-}
-.stat-card {
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease,
@@ -117,15 +20,201 @@ line-height: 1.1;
 
 .stat-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(192, 193, 255, 0.15);
+  border-color: rgba(139, 92, 246, 0.18);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
 }
-.trend-badge {
-  min-width: 60px;
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.stat-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* =====================================================
+   ICON
+===================================================== */
+
+.stat-icon-wrapper {
+  width: 56px;
+  height: 56px;
+
+  display: flex;
+  align-items: center;
   justify-content: center;
-  transition: transform 0.25s ease;
+
+  border-radius: 18px;
+
+  flex-shrink: 0;
+
+  transition:
+    transform .25s ease,
+    background-color .25s ease;
+}
+
+.stat-card:hover .stat-icon-wrapper {
+  transform: scale(1.06);
+}
+
+.stat-icon-wrapper .material-symbols-outlined {
+  font-size: 28px;
+}
+
+/* =====================================================
+   VARIANTS
+===================================================== */
+
+.stat-variant-primary {
+  background: rgba(192, 193, 255, 0.12);
+  color: var(--primary);
+}
+
+.stat-variant-secondary {
+  background: rgba(221, 183, 255, 0.12);
+  color: var(--secondary);
+}
+
+.stat-variant-blue {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+}
+
+.stat-variant-success {
+  background: rgba(74, 222, 128, 0.12);
+  color: var(--success-accent);
+}
+
+/* =====================================================
+   TREND BADGE
+===================================================== */
+
+.trend-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  min-width: 72px;
+
+  padding: 6px 10px;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  transition: transform .25s ease;
 }
 
 .stat-card:hover .trend-badge {
   transform: scale(1.05);
+}
+
+.trend-type-up {
+  background: rgba(74, 222, 128, 0.12);
+  color: var(--success-accent);
+}
+
+.trend-type-down {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.trend-type-neutral {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+}
+
+.trend-icon-small {
+  font-size: 14px !important;
+}
+
+/* =====================================================
+   CONTENT
+===================================================== */
+
+.stat-card-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stat-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1;
+
+  color: var(--text-main);
+}
+
+.stat-value-small {
+  font-size: 22px;
+  font-weight: 700;
+  color: inherit;
+  margin-bottom: 4px;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 992px) {
+
+  .stat-card {
+    height: 170px;
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .stat-card {
+    height: auto;
+    min-height: 165px;
+    padding: 20px;
+  }
+
+  .stat-icon-wrapper {
+    width: 50px;
+    height: 50px;
+  }
+
+  .stat-icon-wrapper .material-symbols-outlined {
+    font-size: 24px;
+  }
+
+  .trend-badge {
+    min-width: 64px;
+    font-size: 10px;
+    padding: 5px 8px;
+  }
+
+  .stat-title {
+    font-size: 11px;
+  }
+
+  .stat-value {
+    font-size: clamp(1.8rem, 8vw, 2.3rem);
+  }
+
+  .stat-value-small {
+    font-size: 18px;
+  }
+
 }

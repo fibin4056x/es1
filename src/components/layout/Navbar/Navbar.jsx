@@ -1,64 +1,88 @@
 import "./Navbar.css";
 import ThemeToggle from "../../common/ThemeToggle/ThemeToggle";
 
-function Navbar({ onMenuToggle , user}) {
+function Navbar({ onMenuToggle, user }) {
+  const roleLabel =
+    user?.role === "principal"
+      ? "Principal"
+      : user?.role === "teacher"
+      ? "Teacher"
+      : "Member";
 
-  console.log("user from navbar"+ user)
+  const avatar =
+    user?.profileImage ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      user?.name || "User"
+    )}&background=8b5cf6&color=ffffff`;
+
   return (
     <header className="navbar-header glass-panel">
-      {/* Search and Mobile toggle */}
+      {/* =========================
+          LEFT
+      ========================= */}
+
       <div className="navbar-left">
-        <button 
-          className="mobile-menu-btn btn-press" 
+        <button
+          type="button"
+          className="mobile-menu-btn btn-press"
           onClick={onMenuToggle}
-          aria-label="Toggle Navigation Menu"
+          aria-label="Open navigation menu"
         >
-          <span className="material-symbols-outlined">menu</span>
+          <span className="material-symbols-outlined">
+            menu
+          </span>
         </button>
 
-        <div className="search-container">
-         
-            <p>Dashboard</p>
-       </div>
+        <div className="navbar-page-title">
+          <h3>Dashboard</h3>
+          <p>Welcome back 👋</p>
+        </div>
       </div>
 
-      {/* User Actions */}
+      {/* =========================
+          RIGHT
+      ========================= */}
+
       <div className="navbar-right">
-        {/* Reusable Theme Toggle */}
+        {/* Theme Toggle */}
+
         <ThemeToggle />
 
         {/* Notifications */}
-        <div className="notifications-btn btn-press">
-          <span className="material-symbols-outlined">notifications</span>
+
+        <button
+          type="button"
+          className="notifications-btn btn-press"
+          aria-label="Notifications"
+        >
+          <span className="material-symbols-outlined">
+            notifications
+          </span>
+
           <span className="notification-badge-dot"></span>
-        </div>
+        </button>
 
         <div className="navbar-divider"></div>
 
-        {/* User Profile */}
+        {/* User */}
+
         <div className="user-profile-group">
           <div className="user-profile-details">
             <p className="user-profile-name">
-              {user?.name || "User"}</p>
+              {user?.name || "User"}
+            </p>
+
             <p className="user-profile-role">
-              {user?.role === "principal"
-                ? "Principal"
-                : user?.role === "teacher"
-                ? "Teacher"
-                : "Member"}
+              {roleLabel}
             </p>
           </div>
+
           <div className="user-avatar-wrapper">
-                            <img
-                  className="user-avatar-img"
-                  src={
-                    user?.profileImage ||
-                    "https://ui-avatars.com/api/?name=" +
-                      encodeURIComponent(user?.name || "User") +
-                      "&background=2563eb&color=fff"
-                  }
-                  alt={user?.name || "User Avatar"}
-                />
+            <img
+              className="user-avatar-img"
+              src={avatar}
+              alt={`${user?.name || "User"} Avatar`}
+            />
           </div>
         </div>
       </div>

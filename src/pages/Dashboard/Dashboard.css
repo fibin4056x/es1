@@ -1,9 +1,25 @@
+/* =====================================================
+   DASHBOARD PAGE
+===================================================== */
+
 .dashboard-page {
   display: flex;
   flex-direction: column;
-  gap: var(--stack-lg);
+  gap: 32px;
+  padding: 24px;
   animation: fadeIn 0.4s ease-out;
 }
+
+@media (max-width: 768px) {
+  .dashboard-page {
+    padding: 16px;
+    gap: 24px;
+  }
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
 
 .dashboard-header-section {
   display: flex;
@@ -12,62 +28,81 @@
   gap: 24px;
 }
 
-@media (max-width: 768px) {
-  .dashboard-header-section {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
 .dashboard-title-group h2 {
-  font-size: 36px;
+  font-size: clamp(2rem, 4vw, 2.4rem);
   font-weight: 700;
-  color: var(--text-main);
+  line-height: 1.1;
   letter-spacing: -0.03em;
+  color: var(--text-main);
   margin-bottom: 8px;
 }
 
-@media (max-width: 1024px) {
-  .dashboard-title-group h2 {
-    font-size: 28px;
+.dashboard-title-group p {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header-section {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 
-.dashboard-title-group p {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-muted);
-}
+/* =====================================================
+   DATE BUTTON
+===================================================== */
 
 .date-filter-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  border-radius: var(--radius-2xl);
-  background: var(--card-bg);
+  justify-content: center;
+  gap: 10px;
+
+  padding: 12px 22px;
+
   border: 1px solid var(--border-main);
+  border-radius: 16px;
+
+  background: var(--card-bg);
   color: var(--text-main);
+
   font-size: 14px;
   font-weight: 600;
+
+  cursor: pointer;
+
   box-shadow: var(--shadow-card);
-  transition: all 0.3s ease;
+
+  transition: all .25s ease;
 }
 
 .date-filter-btn:hover {
   border-color: var(--primary);
-  background: rgba(255, 255, 255, 0.05);
+  color: var(--primary);
+  transform: translateY(-2px);
 }
+
+@media (max-width: 768px) {
+  .date-filter-btn {
+    width: 100%;
+  }
+}
+
+/* =====================================================
+   STAT CARDS
+===================================================== */
 
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--gutter);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
 }
 
 @media (max-width: 1200px) {
   .cards-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -77,10 +112,15 @@
   }
 }
 
+/* =====================================================
+   MAIN CONTENT
+===================================================== */
+
 .dashboard-body-grid {
   display: grid;
-  grid-template-columns: 8fr 4fr;
-  gap: var(--gutter);
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+  gap: 24px;
+  align-items: start;
 }
 
 @media (max-width: 1024px) {
@@ -89,3 +129,18 @@
   }
 }
 
+/* =====================================================
+   RESPONSIVE SPACING
+===================================================== */
+
+@media (max-width: 640px) {
+
+  .dashboard-title-group h2 {
+    font-size: 1.8rem;
+  }
+
+  .dashboard-title-group p {
+    font-size: 14px;
+  }
+
+}
