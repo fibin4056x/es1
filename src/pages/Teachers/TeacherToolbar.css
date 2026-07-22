@@ -1,0 +1,17 @@
+.teachers-search-input {
+  width: 100%;
+}
+
+.teachers-search-input::placeholder {
+  color: var(--obsidian-text-muted);
+}
+
+.teachers-select {
+  cursor: pointer;
+}
+
+.teachers-select:focus,
+.teachers-search-input:focus {
+  outline: none;
+  border-color: var(--obsidian-primary);
+}

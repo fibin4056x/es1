@@ -1,96 +1,177 @@
 import { useEffect, useState } from "react";
-import { createTeacher, updateTeacher } from "../../services/teacherService";
-import  { toast } from "react-toastify";
+import { toast } from "react-toastify";
+import {
+  createTeacher,
+  updateTeacher,
+} from "../../services/teacherService";
+
+const INITIAL_FORM = {
+  name: "",
+  email: "",
+  password: "",
+};
+
 function TeacherForm({
   teacher,
   isEdit = false,
   onClose,
   reload,
 }) {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [form, setForm] = useState(INITIAL_FORM);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-  if (isEdit && teacher) {
-    setForm({
-      name: teacher.name || "",
-      email: teacher.email || "",
-      password: "",
-    });
-  }
-}, [isEdit, teacher]);
+    if (isEdit && teacher) {
+      setForm({
+        name: teacher.name || "",
+        email: teacher.email || "",
+        password: "",
+      });
+    } else {
+      setForm(INITIAL_FORM);
+    }
+  }, [isEdit, teacher]);
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+  const handleChange = ({ target }) => {
+    const { name, value } = target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    if (isEdit) {
-      await updateTeacher(teacher._id, form);
+    const payload = {
+      name: form.name.trim(),
+      email: form.email.trim().toLowerCase(),
+    };
 
-      toast.success("Teacher updated successfully");
-    } else {
-      await createTeacher(form);
-
-      toast.success("Teacher created successfully");
+    if (!isEdit || form.password.trim()) {
+      payload.password = form.password;
     }
 
-    reload();
-    onClose();
-  } catch (err) {
-    console.log(err);
+    setLoading(true);
 
-    toast.error(
-      isEdit
-        ? "Unable to update teacher"
-        : "Unable to create teacher"
-    );
-  }
-};
+    try {
+      if (isEdit) {
+        await updateTeacher(teacher._id, payload);
+        toast.success("Teacher updated successfully.");
+      } else {
+        await createTeacher(payload);
+        toast.success("Teacher created successfully.");
+      }
+
+      reload?.();
+      onClose?.();
+    } catch (err) {
+      console.error(err);
+
+      toast.error(
+        err.response?.data?.message ||
+          (isEdit
+            ? "Unable to update teacher."
+            : "Unable to create teacher.")
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
+    <form
+      className="obsidian-form"
+      onSubmit={handleSubmit}
+      noValidate
+    >
+      <div className="form-group">
+        <label htmlFor="teacher-name">
+          Teacher Name
+        </label>
 
-    <form onSubmit={handleSubmit}>
+        <input
+          id="teacher-name"
+          type="text"
+          name="name"
+          placeholder="e.g. Eleanor Vance"
+          autoComplete="name"
+          value={form.name}
+          onChange={handleChange}
+          required
+          disabled={loading}
+        />
+      </div>
 
-      <input
-        name="name"
-        placeholder="Teacher Name"
-        value={form.name}
-        onChange={handleChange}
-      />
+      <div className="form-group">
+        <label htmlFor="teacher-email">
+          Email Address
+        </label>
 
-      <input
-        name="email"
-        placeholder="Email"
-        value={form.email}
-        onChange={handleChange}
-      />
+        <input
+          id="teacher-email"
+          type="email"
+          name="email"
+          placeholder="e.g. teacher@school.edu"
+          autoComplete="email"
+          value={form.email}
+          onChange={handleChange}
+          required
+          disabled={loading}
+        />
+      </div>
 
-      <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        value={form.password}
-        onChange={handleChange}
-      />
+      <div className="form-group">
+        <label htmlFor="teacher-password">
+          {isEdit
+            ? "Password (Leave blank to keep current password)"
+            : "Password"}
+        </label>
 
-   <button type="submit">
-  {isEdit ? "Update Teacher" : "Save Teacher"}
-  </button>
+        <input
+          id="teacher-password"
+          type="password"
+          name="password"
+          placeholder={
+            isEdit
+              ? "Leave blank to keep current password"
+              : "Enter password"
+          }
+          autoComplete={
+            isEdit ? "new-password" : "current-password"
+          }
+          value={form.password}
+          onChange={handleChange}
+          required={!isEdit}
+          disabled={loading}
+        />
+      </div>
 
+      <div className="modal-actions">
+        <button
+          type="button"
+          className="cancel-btn"
+          onClick={onClose}
+          disabled={loading}
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          className="submit-btn"
+          disabled={loading}
+        >
+          {loading
+            ? "Saving..."
+            : isEdit
+            ? "Update Teacher"
+            : "Create Teacher"}
+        </button>
+      </div>
     </form>
-
   );
-
 }
 
 export default TeacherForm;

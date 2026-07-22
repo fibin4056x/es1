@@ -1,0 +1,157 @@
+/* ===========================
+   Skeleton Row
+=========================== */
+
+.skeleton-row {
+  pointer-events: none;
+}
+
+.skeleton {
+  border-radius: 8px;
+  background: var(--obsidian-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.18),
+    transparent
+  );
+  animation: skeleton-shimmer 1.5s infinite;
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Avatar */
+
+.skeleton-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+/* Profile */
+
+.skeleton-profile {
+  gap: 6px;
+}
+
+.skeleton-name {
+  width: 120px;
+  height: 14px;
+}
+
+.skeleton-role {
+  width: 80px;
+  height: 10px;
+}
+
+/* Table Columns */
+
+.skeleton-emp-id {
+  width: 55px;
+  height: 14px;
+}
+
+.skeleton-subject {
+  width: 90px;
+  height: 14px;
+}
+
+.skeleton-class {
+  width: 130px;
+  height: 14px;
+}
+
+.skeleton-contact {
+  gap: 6px;
+}
+
+.skeleton-email {
+  width: 160px;
+  height: 14px;
+}
+
+.skeleton-phone {
+  width: 100px;
+  height: 10px;
+}
+
+.skeleton-status {
+  width: 70px;
+  height: 22px;
+  border-radius: 999px;
+}
+
+.skeleton-action {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .skeleton-avatar {
+    width: 42px;
+    height: 42px;
+  }
+
+  .skeleton-name {
+    width: 90px;
+  }
+
+  .skeleton-email {
+    width: 120px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+.teacher-actions-header {
+  text-align: right;
+}
+
+.teachers-empty-cell {
+  padding: 0;
+}
+
+.empty-state-icon {
+  font-size: 52px;
+}
+
+.teachers-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 992px) {
+  .teachers-table {
+    min-width: 900px;
+  }
+}
+
+@media (max-width: 768px) {
+  .teachers-table {
+    min-width: 820px;
+  }
+}

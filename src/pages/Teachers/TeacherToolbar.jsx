@@ -1,39 +1,125 @@
+const SUBJECT_OPTIONS = [
+  "Malayalam",
+  "English",
+  "Mathematics",
+  "Environmental Studies",
+  "Arts",
+  "Music",
+  "Physical Education",
+];
+
+const SORT_OPTIONS = [
+  { value: "", label: "Sort By" },
+  { value: "name-asc", label: "Name (A–Z)" },
+  { value: "name-desc", label: "Name (Z–A)" },
+  { value: "email-asc", label: "Email (A–Z)" },
+];
+
 function TeacherToolbar({
-  onAdd,
   search,
   setSearch,
+  statusFilter,
+  setStatusFilter,
+  subjectFilter,
+  setSubjectFilter,
+  sortBy,
+  setSortBy,
 }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "20px",
-        gap: "15px",
-      }}
-    >
-      <h2>Teachers</h2>
+    <div className="teachers-toolbar">
 
-      <div
-        style={{
-          display: "flex",
-          gap: "10px",
-        }}
-      >
+      {/* Search */}
+
+      <div className="teachers-search-wrapper">
+        <span className="material-symbols-outlined">
+          search
+        </span>
+
         <input
-          type="text"
-          placeholder="Search by name or email..."
+          type="search"
+          className="teachers-search-input"
+          placeholder="Search by teacher name or email..."
           value={search}
-          onChange={(e) => {
-  setSearch(e.target.value);
-  setCurrentPage(1);
-}}
+          autoComplete="off"
+          aria-label="Search teachers"
+          onChange={(e) => setSearch(e.target.value)}
         />
+      </div>
 
-        <button onClick={onAdd}>
-          + Add Teacher
-        </button>
+      {/* Filters */}
+
+      <div className="teachers-filters-group">
+
+        {/* Status */}
+
+        <div className="teachers-select-wrapper">
+          <select
+            className="teachers-select"
+            aria-label="Filter by status"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">Status: All</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="leave">On Leave</option>
+          </select>
+
+          <span className="material-symbols-outlined">
+            expand_more
+          </span>
+        </div>
+
+        {/* Subject */}
+
+        <div className="teachers-select-wrapper">
+          <select
+            className="teachers-select"
+            aria-label="Filter by subject"
+            value={subjectFilter}
+            onChange={(e) => setSubjectFilter(e.target.value)}
+          >
+            <option value="">Subject: All</option>
+
+            {SUBJECT_OPTIONS.map((subject) => (
+              <option
+                key={subject}
+                value={subject}
+              >
+                {subject}
+              </option>
+            ))}
+          </select>
+
+          <span className="material-symbols-outlined">
+            expand_more
+          </span>
+        </div>
+
+        {/* Sort */}
+
+        <div className="teachers-select-wrapper">
+          <select
+            className="teachers-select"
+            aria-label="Sort teachers"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            {SORT_OPTIONS.map((option) => (
+              <option
+                key={option.value}
+                value={option.value}
+              >
+                {option.label}
+              </option>
+            ))}
+          </select>
+
+          <span className="material-symbols-outlined">
+            sort
+          </span>
+        </div>
+
       </div>
     </div>
   );
