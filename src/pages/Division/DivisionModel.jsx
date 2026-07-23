@@ -1,5 +1,5 @@
 import DivisionForm from "./DivisionForm";
-
+import "./DivisionModal.css"
 function DivisionModal({
   open,
   onClose,

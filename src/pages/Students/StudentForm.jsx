@@ -395,7 +395,7 @@ toast.error(
   </select>
 </div>
 
-<div className="form-group">
+<div className="form-group full-width">
   <label>Address</label>
 
   <textarea
@@ -449,11 +449,22 @@ toast.error(
   </select>
 </div>
 
-<button type="submit">
-  {isEdit
-    ? "Update Student"
-    : "Save Student"}
-</button>
+<div className="modal-actions full-width">
+  <button
+    type="button"
+    className="cancel-btn btn-press"
+    onClick={onClose}
+  >
+    Cancel
+  </button>
+
+  <button
+    type="submit"
+    className="submit-btn btn-press"
+  >
+    {isEdit ? "Update Student" : "Save Student"}
+  </button>
+</div>
 
     </form>
   );

@@ -1,0 +1,143 @@
+/* ==========================================
+   Division Toolbar
+========================================== */
+
+.division-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+
+  width: 100%;
+}
+
+.division-toolbar-title h2 {
+  margin: 0;
+
+  font-size: 28px;
+  font-weight: 700;
+
+  color: var(--text-primary);
+}
+
+/* ==========================================
+   Actions
+========================================== */
+
+.division-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ==========================================
+   Search
+========================================== */
+
+.division-search {
+  width: 320px;
+  height: 46px;
+
+  padding: 0 16px;
+
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+
+  background: var(--input-bg);
+  color: var(--text-primary);
+
+  font-size: 14px;
+
+  transition: all 0.25s ease;
+}
+
+.division-search::placeholder {
+  color: var(--text-secondary);
+}
+
+.division-search:focus {
+  outline: none;
+
+  border-color: var(--primary-color);
+
+  box-shadow: 0 0 0 3px rgba(79,70,229,.15);
+}
+
+/* ==========================================
+   Button
+========================================== */
+
+.division-add-btn {
+  height: 46px;
+
+  padding: 0 22px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: var(--primary-color);
+  color: #fff;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition: all .25s ease;
+}
+
+.division-add-btn:hover {
+  opacity: .95;
+}
+
+/* ==========================================
+   Tablet
+========================================== */
+
+@media (max-width: 992px) {
+
+  .division-search {
+    width: 260px;
+  }
+
+}
+
+/* ==========================================
+   Mobile
+========================================== */
+
+@media (max-width: 768px) {
+
+  .division-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .division-toolbar-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .division-search {
+    width: 100%;
+  }
+
+  .division-add-btn {
+    width: 100%;
+  }
+
+}
+
+/* ==========================================
+   Small Mobile
+========================================== */
+
+@media (max-width: 480px) {
+
+  .division-toolbar-title h2 {
+    font-size: 22px;
+  }
+
+}

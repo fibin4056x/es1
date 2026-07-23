@@ -1,3 +1,4 @@
+import "./DivisionToolbar.css"
 function DivisionToolbar({
   onAdd,
   search,
@@ -6,11 +7,14 @@ function DivisionToolbar({
   return (
     <div className="division-toolbar">
 
-      <h2>Divisions</h2>
+      <div className="division-toolbar-title">
+        <h2>Divisions</h2>
+      </div>
 
       <div className="division-toolbar-actions">
 
         <input
+          className="division-search"
           type="text"
           placeholder="Search division..."
           value={search}
@@ -19,7 +23,10 @@ function DivisionToolbar({
           }
         />
 
-        <button onClick={onAdd}>
+        <button
+          className="division-add-btn btn-press"
+          onClick={onAdd}
+        >
           + Add Division
         </button>
 

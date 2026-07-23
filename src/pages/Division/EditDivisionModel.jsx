@@ -1,4 +1,5 @@
 import DivisionForm from "./DivisionForm";
+import "./DivisionModal.css";
 
 function EditDivisionModal({
   open,

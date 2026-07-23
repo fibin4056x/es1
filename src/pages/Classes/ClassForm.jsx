@@ -138,14 +138,22 @@ function ClassForm({
 
       </div>
 
-      <button type="submit">
+      <div className="modal-actions">
+        <button
+          type="button"
+          className="cancel-btn btn-press"
+          onClick={onClose}
+        >
+          Cancel
+        </button>
 
-        {isEdit
-          ? "Update Class"
-          : "Save Class"}
-
-      </button>
-
+        <button
+          type="submit"
+          className="submit-btn btn-press"
+        >
+          {isEdit ? "Update Class" : "Save Class"}
+        </button>
+      </div>
     </form>
 
   );

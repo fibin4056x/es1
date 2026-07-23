@@ -79,7 +79,7 @@ function Classes() {
   );
 
   return (
-    <div>
+    <div className="classes-page animate-fade-in-up">
 
       <ClassToolbar
         onAdd={() => setOpen(true)}
@@ -87,25 +87,27 @@ function Classes() {
         setSearch={(value) => {
           setSearch(value);
           setCurrentPage(1);
-          
         }}
       />
 
       {loading ? (
-
-        <p>Loading classes...</p>
-
+        <div className="loading-state">
+          <p>Loading classes...</p>
+        </div>
       ) : (
-
         <>
-          <ClassTable
-            classes={currentClasses}
-            reload={loadClasses}
-            onEdit={(singleClass) => {
-              setSelectedClass(singleClass);
-              setEditOpen(true);
-            }}
-          />
+          <div className="glass-card table-card">
+            <div className="table-responsive">
+              <ClassTable
+                classes={currentClasses}
+                reload={loadClasses}
+                onEdit={(singleClass) => {
+                  setSelectedClass(singleClass);
+                  setEditOpen(true);
+                }}
+              />
+            </div>
+          </div>
 
           {filteredClasses.length > 0 && (
             <Pagination
@@ -115,7 +117,6 @@ function Classes() {
             />
           )}
         </>
-
       )}
 
       <ClassModal

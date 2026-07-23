@@ -1,0 +1,136 @@
+/* ========================================
+   Attendance Toolbar
+======================================== */
+
+.attendance-toolbar {
+  background: var(--card-bg);
+  border: 1px solid var(--border-main);
+  border-radius: var(--radius-2xl);
+  padding: var(--card-padding);
+  box-shadow: var(--shadow-card);
+}
+
+.attendance-toolbar-header {
+  margin-bottom: var(--space-6);
+}
+
+.attendance-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--text-main);
+}
+
+.attendance-toolbar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: var(--space-4);
+  align-items: end;
+}
+
+.toolbar-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.toolbar-field label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+}
+
+.toolbar-field input,
+.toolbar-field select {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+
+  border: 1px solid var(--border-main);
+  border-radius: var(--radius-lg);
+
+  background: var(--surface);
+  color: var(--text-main);
+
+  font-size: var(--text-sm);
+
+  transition: var(--transition);
+}
+
+.toolbar-field input:focus,
+.toolbar-field select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, .15);
+}
+
+.toolbar-field select:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.toolbar-button {
+  display: flex;
+}
+
+.attendance-load-btn {
+  width: 100%;
+  height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border: none;
+  border-radius: var(--radius-lg);
+
+  background: var(--primary);
+  color: var(--on-primary);
+
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+
+  cursor: pointer;
+
+  transition: var(--transition);
+}
+
+.attendance-load-btn:hover {
+  background: var(--primary-hover);
+}
+
+.attendance-load-btn:active {
+  transform: scale(.98);
+}
+
+/* ==========================
+   Tablet
+========================== */
+
+@media (max-width: 992px) {
+
+  .attendance-toolbar-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+/* ==========================
+   Mobile
+========================== */
+
+@media (max-width: 768px) {
+
+  .attendance-toolbar {
+    padding: 20px;
+  }
+
+  .attendance-toolbar-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-title {
+    font-size: var(--text-xl);
+  }
+
+}

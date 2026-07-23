@@ -76,7 +76,7 @@ function Students() {
   );
 
   return (
-    <div>
+    <div className="students-page animate-fade-in-up">
 
       <StudentToolbar
         onAdd={() => setOpen(true)}
@@ -92,25 +92,29 @@ function Students() {
       />
 
       {loading ? (
-        <p>Loading students...</p>
+        <div className="loading-state">
+          <p>Loading students...</p>
+        </div>
       ) : (
         <>
-          <StudentTable
-            students={currentStudents}
-            reload={loadStudents}
-            onEdit={(student) => {
-              setSelectedStudent(student);
-              setEditOpen(true);
-            }}
-          />
+          <div className="glass-card table-card">
+            <div className="table-responsive">
+              <StudentTable
+                students={currentStudents}
+                reload={loadStudents}
+                onEdit={(student) => {
+                  setSelectedStudent(student);
+                  setEditOpen(true);
+                }}
+              />
+            </div>
+          </div>
 
           {filteredStudents.length > 0 && (
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              setCurrentPage={
-                setCurrentPage
-              }
+              setCurrentPage={setCurrentPage}
             />
           )}
         </>
@@ -118,9 +122,7 @@ function Students() {
 
       <StudentModal
         open={open}
-        onClose={() =>
-          setOpen(false)
-        }
+        onClose={() => setOpen(false)}
         reload={loadStudents}
       />
 

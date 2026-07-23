@@ -24,55 +24,21 @@
   --obsidian-danger: #f87171;
   --obsidian-danger-bg: rgba(248, 113, 113, 0.1);
   --obsidian-danger-border: rgba(248, 113, 113, 0.2);
+
+  --obsidian-info: #3b82f6;
+  --obsidian-info-light: #60a5fa;
 }
 
-/* ==========================================================================
-   Base Layout
-   ========================================================================== */
+/* Base layout */
+.teachers-page-container { max-width: 1440px; margin: 0 auto; padding: 24px; color: var(--obsidian-text); font-family: "Inter", sans-serif; animation: fadeIn 0.4s ease-out; }
 
-.teachers-page-container {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 24px;
-  color: var(--obsidian-text);
-  font-family: "Inter", sans-serif;
-  animation: fadeIn 0.4s ease-out;
-}
-
-/* ==========================================================================
-   Header Section
-   ========================================================================== */
-
-.teachers-header-row {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 40px;
-}
-
+/* Header */
+.teachers-header-row { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 40px; }
 @media (min-width: 768px) {
-  .teachers-header-row {
-    flex-direction: row;
-    align-items: flex-end;
-  }
+  .teachers-header-row { flex-direction: row; align-items: flex-end; }
 }
-
-.teachers-title-group h1 {
-  font-size: 32px;
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-  color: var(--obsidian-text);
-  margin-bottom: 4px;
-}
-
-.teachers-title-group p {
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--obsidian-text-variant);
-}
+.teachers-title-group h1 { font-size: 32px; font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; margin-bottom: 4px; }
+.teachers-title-group p { font-size: 16px; line-height: 1.6; color: var(--obsidian-text-variant); }
 
 .teachers-add-btn {
   background: var(--obsidian-primary);
@@ -87,38 +53,13 @@
   transition: background-color 0.2s ease, transform 0.2s ease;
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
 }
+.teachers-add-btn:hover { background: var(--obsidian-primary-hover); transform: translateY(-1px); }
+.teachers-add-btn:active { transform: translateY(0); }
 
-.teachers-add-btn:hover {
-  background: var(--obsidian-primary-hover);
-  transform: translateY(-1px);
-}
-
-.teachers-add-btn:active {
-  transform: translateY(0);
-}
-
-/* ==========================================================================
-   Statistics Grid
-   ========================================================================== */
-
-.teachers-stats-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-@media (min-width: 576px) {
-  .teachers-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .teachers-stats-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
+/* Stats grid */
+.teachers-stats-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 24px; }
+@media (min-width: 576px) { .teachers-stats-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .teachers-stats-grid { grid-template-columns: repeat(4, 1fr); } }
 
 .teacher-stat-card {
   background: var(--obsidian-surface);
@@ -133,177 +74,45 @@
   overflow: hidden;
   transition: border-color 0.3s ease, transform 0.3s ease;
 }
+.teacher-stat-card:hover { border-color: rgba(139, 92, 246, 0.4); transform: translateY(-2px); }
 
-.teacher-stat-card:hover {
-  border-color: rgba(139, 92, 246, 0.4);
-  transform: translateY(-2px);
-}
+.teacher-stat-glow { position: absolute; top: -24px; right: -24px; width: 96px; height: 96px; border-radius: 50%; filter: blur(20px); opacity: 0.1; transition: opacity 0.3s ease; }
+.teacher-stat-card:hover .teacher-stat-glow { opacity: 0.2; }
+.teacher-stat-card.primary .teacher-stat-glow { background: var(--obsidian-primary); }
+.teacher-stat-card.success .teacher-stat-glow { background: var(--obsidian-success); }
+.teacher-stat-card.info .teacher-stat-glow { background: var(--obsidian-info); }
+.teacher-stat-card.danger .teacher-stat-glow { background: var(--obsidian-danger); }
 
-.teacher-stat-glow {
-  position: absolute;
-  top: -24px;
-  right: -24px;
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  filter: blur(20px);
-  opacity: 0.1;
-  transition: opacity 0.3s ease;
-}
+.teacher-stat-header { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: var(--obsidian-text-variant); z-index: 1; }
+.teacher-stat-header .material-symbols-outlined { font-size: 20px; }
+.teacher-stat-header.primary .material-symbols-outlined { color: var(--obsidian-primary); }
+.teacher-stat-header.success .material-symbols-outlined { color: var(--obsidian-success); }
+.teacher-stat-header.info .material-symbols-outlined { color: var(--obsidian-info-light); }
+.teacher-stat-header.danger .material-symbols-outlined { color: var(--obsidian-danger); }
 
-.teacher-stat-card:hover .teacher-stat-glow {
-  opacity: 0.2;
-}
+.teacher-stat-value { font-size: 32px; font-weight: 600; line-height: 1.2; z-index: 1; }
 
-.teacher-stat-card.primary .teacher-stat-glow {
-  background: var(--obsidian-primary);
-}
-.teacher-stat-card.success .teacher-stat-glow {
-  background: var(--obsidian-success);
-}
-.teacher-stat-card.info .teacher-stat-glow {
-  background: #3b82f6;
-}
-.teacher-stat-card.danger .teacher-stat-glow {
-  background: var(--obsidian-danger);
-}
+/* Main panel */
+.teachers-main-card { background: var(--obsidian-surface); border: 1px solid var(--obsidian-border); border-radius: 16px; overflow: visible; display: flex; flex-direction: column; }
 
-.teacher-stat-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--obsidian-text-variant);
-  z-index: 1;
-}
-
-.teacher-stat-header .material-symbols-outlined {
-  font-size: 20px;
-}
-
-.teacher-stat-header.primary .material-symbols-outlined {
-  color: var(--obsidian-primary);
-}
-.teacher-stat-header.success .material-symbols-outlined {
-  color: var(--obsidian-success);
-}
-.teacher-stat-header.info .material-symbols-outlined {
-  color: #60a5fa;
-}
-.teacher-stat-header.danger .material-symbols-outlined {
-  color: var(--obsidian-danger);
-}
-
-.teacher-stat-value {
-  font-size: 32px;
-  font-weight: 600;
-  line-height: 1.2;
-  color: var(--obsidian-text);
-  z-index: 1;
-}
-
-/* ==========================================================================
-   Main Table Panel
-   ========================================================================== */
-
-.teachers-main-card {
-  background: var(--obsidian-surface);
-  border: 1px solid var(--obsidian-border);
-  border-radius: 16px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ==========================================================================
-   Toolbar & Filters
-   ========================================================================== */
-
-.teachers-toolbar {
-  padding: 24px;
-  border-bottom: 1px solid var(--obsidian-border);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  justify-content: space-between;
-}
-
+/* Toolbar & filters */
+.teachers-toolbar { padding: 24px; border-bottom: 1px solid var(--obsidian-border); display: flex; flex-direction: column; gap: 16px; justify-content: space-between; }
 @media (min-width: 1024px) {
-  .teachers-toolbar {
-    flex-direction: row;
-    align-items: center;
-  }
+  .teachers-toolbar { flex-direction: row; align-items: center; }
+  .teachers-search-wrapper { width: 384px; }
 }
 
-.teachers-search-wrapper {
-  position: relative;
-  width: 100%;
-}
+.teachers-search-wrapper { position: relative; width: 100%; }
+.teachers-search-wrapper .material-symbols-outlined { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--obsidian-text-muted); pointer-events: none; font-size: 20px; }
+.teachers-search-input { width: 100%; background: var(--obsidian-surface-elevated); border: 1px solid var(--obsidian-border); border-radius: 8px; padding: 10px 16px 10px 40px; color: var(--obsidian-text); font-size: 16px; outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+.teachers-search-input:focus { border-color: var(--obsidian-primary); box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2); }
+.teachers-search-input::placeholder { color: rgba(203, 195, 215, 0.4); }
 
-@media (min-width: 1024px) {
-  .teachers-search-wrapper {
-    width: 384px;
-  }
-}
+.teachers-filters-group { display: flex; flex-wrap: wrap; gap: 16px; width: 100%; }
+@media (min-width: 1024px) { .teachers-filters-group { width: auto; justify-content: flex-end; } }
 
-.teachers-search-wrapper .material-symbols-outlined {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--obsidian-text-muted);
-  pointer-events: none;
-  font-size: 20px;
-}
-
-.teachers-search-input {
-  width: 100%;
-  background: var(--obsidian-surface-elevated);
-  border: 1px solid var(--obsidian-border);
-  border-radius: 8px;
-  padding: 10px 16px 10px 40px;
-  color: var(--obsidian-text);
-  font-size: 16px;
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.teachers-search-input:focus {
-  border-color: var(--obsidian-primary);
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
-}
-
-.teachers-search-input::placeholder {
-  color: rgba(203, 195, 215, 0.4);
-}
-
-.teachers-filters-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  width: 100%;
-}
-
-@media (min-width: 1024px) {
-  .teachers-filters-group {
-    width: auto;
-    justify-content: flex-end;
-  }
-}
-
-.teachers-select-wrapper {
-  position: relative;
-  flex: 1;
-  min-width: 140px;
-}
-
-@media (min-width: 768px) {
-  .teachers-select-wrapper {
-    flex: initial;
-  }
-}
-
+.teachers-select-wrapper { position: relative; flex: 1; min-width: 140px; }
+@media (min-width: 768px) { .teachers-select-wrapper { flex: initial; } }
 .teachers-select {
   width: 100%;
   background: var(--obsidian-surface-elevated);
@@ -316,202 +125,46 @@
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
+  -moz-appearance: none;
   transition: border-color 0.2s ease;
 }
+.teachers-select:focus { border-color: var(--obsidian-primary); }
+.teachers-select-wrapper .material-symbols-outlined { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--obsidian-text-muted); pointer-events: none; font-size: 20px; }
 
-.teachers-select:focus {
-  border-color: var(--obsidian-primary);
-}
+/* Data table */
+.teachers-table-wrapper { overflow-x: auto; width: 100%; }
+.teachers-table { width: 100%; border-collapse: collapse; text-align: left; min-width: 1000px; }
+.teachers-table thead { background: #0f0f17; border-bottom: 1px solid var(--obsidian-border); }
+.teachers-table th { padding: 12px 16px; font-family: "Geist", monospace; font-size: 12px; font-weight: 500; color: var(--obsidian-text-variant); text-transform: uppercase; letter-spacing: 0.04em; }
+.teachers-table th:first-child, .teachers-table td:first-child { padding-left: 24px; }
+.teachers-table th:last-child, .teachers-table td:last-child { padding-right: 24px; }
+.teachers-table tbody { background: var(--obsidian-surface); }
+.teachers-table tbody tr { border-bottom: 1px solid rgba(73, 68, 84, 0.4); transition: background-color 0.2s ease; cursor: pointer; }
+.teachers-table tbody tr:hover { background-color: var(--obsidian-surface-hover); }
+.teachers-table td { padding: 16px; font-size: 16px; color: var(--obsidian-text); vertical-align: middle; }
 
-.teachers-select-wrapper .material-symbols-outlined {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--obsidian-text-muted);
-  pointer-events: none;
-  font-size: 20px;
-}
+.teacher-info-cell { display: flex; align-items: center; gap: 16px; }
+.teacher-table-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid var(--obsidian-border); }
+.teacher-avatar-initials { width: 40px; height: 40px; border-radius: 50%; background: var(--obsidian-surface-elevated); border: 1px solid rgba(139, 92, 246, 0.3); color: var(--obsidian-primary); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
 
-/* ==========================================================================
-   Data Table
-   ========================================================================== */
+.teacher-name-title { display: flex; flex-direction: column; }
+.teacher-name-title .name { font-size: 14px; font-weight: 500; color: var(--obsidian-text); }
+.teacher-name-title .role { font-size: 12px; color: var(--obsidian-text-muted); }
 
-.teachers-table-wrapper {
-  overflow-x: auto;
-  width: 100%;
-}
+.teacher-email-phone { display: flex; flex-direction: column; }
+.teacher-email-phone .email { font-size: 16px; color: var(--obsidian-text); }
+.teacher-email-phone .phone { font-size: 12px; color: var(--obsidian-text-muted); }
 
-.teachers-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  min-width: 1000px;
-}
+/* Status badges */
+.teacher-badge { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; border: 1px solid transparent; }
+.teacher-badge.active { background: var(--obsidian-success-bg); color: var(--obsidian-success); border-color: var(--obsidian-success-border); }
+.teacher-badge.leave { background: var(--obsidian-warning-bg); color: var(--obsidian-warning); border-color: var(--obsidian-warning-border); }
+.teacher-badge.inactive { background: var(--obsidian-danger-bg); color: var(--obsidian-danger); border-color: var(--obsidian-danger-border); }
 
-.teachers-table thead {
-  background: #0f0f17;
-  border-bottom: 1px solid var(--obsidian-border);
-}
-
-.teachers-table th {
-  padding: 12px 16px;
-  font-family: "Geist", monospace;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--obsidian-text-variant);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.teachers-table th:first-child {
-  padding-left: 24px;
-}
-
-.teachers-table th:last-child {
-  padding-right: 24px;
-}
-
-.teachers-table tbody {
-  background: var(--obsidian-surface);
-}
-
-.teachers-table tbody tr {
-  border-bottom: 1px solid rgba(73, 68, 84, 0.4);
-  transition: background-color 0.2s ease;
-  cursor: pointer;
-}
-
-.teachers-table tbody tr:hover {
-  background-color: var(--obsidian-surface-hover);
-}
-
-.teachers-table td {
-  padding: 16px;
-  font-size: 16px;
-  color: var(--obsidian-text);
-  vertical-align: middle;
-}
-
-.teachers-table td:first-child {
-  padding-left: 24px;
-}
-
-.teachers-table td:last-child {
-  padding-right: 24px;
-}
-
-.teacher-info-cell {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.teacher-table-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid var(--obsidian-border);
-}
-
-.teacher-avatar-initials {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--obsidian-surface-elevated);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  color: var(--obsidian-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.teacher-name-title {
-  display: flex;
-  flex-direction: column;
-}
-
-.teacher-name-title .name {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--obsidian-text);
-}
-
-.teacher-name-title .role {
-  font-size: 12px;
-  color: var(--obsidian-text-muted);
-}
-
-.teacher-email-phone {
-  display: flex;
-  flex-direction: column;
-}
-
-.teacher-email-phone .email {
-  font-size: 16px;
-  color: var(--obsidian-text);
-}
-
-.teacher-email-phone .phone {
-  font-size: 12px;
-  color: var(--obsidian-text-muted);
-}
-
-/* ==========================================================================
-   Status Badges
-   ========================================================================== */
-
-.teacher-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 8px;
-  border-radius: 9999px;
-  font-size: 12px;
-  font-weight: 500;
-  border: 1px solid transparent;
-}
-
-.teacher-badge.active {
-  background: var(--obsidian-success-bg);
-  color: var(--obsidian-success);
-  border-color: var(--obsidian-success-border);
-}
-
-.teacher-badge.leave {
-  background: var(--obsidian-warning-bg);
-  color: var(--obsidian-warning);
-  border-color: var(--obsidian-warning-border);
-}
-
-.teacher-badge.inactive {
-  background: var(--obsidian-danger-bg);
-  color: var(--obsidian-danger);
-  border-color: var(--obsidian-danger-border);
-}
-
-/* ==========================================================================
-   Action Dropdown Menu
-   ========================================================================== */
-
-.teacher-action-cell {
-  position: relative;
-  text-align: right;
-}
-
-.teacher-action-btn {
-  padding: 4px;
-  color: var(--obsidian-text-variant);
-  border-radius: 4px;
-  transition: color 0.2s ease, background-color 0.2s ease;
-}
-
-.teacher-action-btn:hover {
-  color: var(--obsidian-text);
-  background: var(--obsidian-surface-elevated);
-}
+/* Action dropdown */
+.teacher-action-cell { position: relative; text-align: right; }
+.teacher-action-btn { padding: 4px; color: var(--obsidian-text-variant); border-radius: 4px; transition: color 0.2s ease, background-color 0.2s ease; }
+.teacher-action-btn:hover { color: var(--obsidian-text); background: var(--obsidian-surface-elevated); }
 
 .teacher-action-dropdown {
   position: absolute;
@@ -527,216 +180,51 @@
   overflow: hidden;
   animation: dropdownFadeIn 0.15s ease-out;
 }
+.teacher-action-dropdown button { width: 100%; padding: 8px 16px; font-size: 14px; text-align: left; color: var(--obsidian-text-variant); display: flex; align-items: center; gap: 8px; transition: background-color 0.2s ease, color 0.2s ease; }
+.teacher-action-dropdown button:hover { background-color: var(--obsidian-surface-hover); color: var(--obsidian-text); }
+.teacher-action-dropdown button.danger { color: var(--obsidian-danger); }
+.teacher-action-dropdown button.danger:hover { background-color: var(--obsidian-danger-bg); }
 
-.teacher-action-dropdown button {
-  width: 100%;
-  padding: 8px 16px;
-  font-size: 14px;
-  text-align: left;
-  color: var(--obsidian-text-variant);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
+/* Pagination */
+.teachers-pagination-row { padding: 16px 24px; border-top: 1px solid var(--obsidian-border); background: var(--obsidian-surface); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.teachers-pagination-label { font-size: 12px; color: var(--obsidian-text-muted); }
+.teachers-pagination-actions { display: flex; align-items: center; gap: 8px; }
+.teachers-pagination-btn { padding: 4px 12px; border: 1px solid var(--obsidian-border); border-radius: 4px; font-size: 12px; font-weight: 500; color: var(--obsidian-text-variant); transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease; }
+.teachers-pagination-btn:hover:not(:disabled) { color: var(--obsidian-text); background: var(--obsidian-surface-elevated); border-color: var(--obsidian-primary); }
+.teachers-pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.teachers-pagination-info { font-size: 12px; color: var(--obsidian-text); padding: 0 8px; }
 
-.teacher-action-dropdown button:hover {
-  background-color: var(--obsidian-surface-hover);
-  color: var(--obsidian-text);
-}
+/* Empty state */
+.teachers-empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 64px 24px; text-align: center; min-height: 400px; }
+.empty-state-icon-box { width: 96px; height: 96px; border-radius: 50%; background: var(--obsidian-surface-elevated); border: 1px solid var(--obsidian-border); display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 24px; }
+.empty-state-icon-box .blur-bg { position: absolute; inset: 0; background: var(--obsidian-primary); filter: blur(16px); opacity: 0.05; border-radius: 50%; }
+.empty-state-icon-box .material-symbols-outlined { font-size: 36px; color: var(--obsidian-text-muted); z-index: 1; }
+.teachers-empty-state h3 { font-size: 24px; font-weight: 600; color: var(--obsidian-text); margin-bottom: 8px; }
+.teachers-empty-state p { font-size: 16px; color: var(--obsidian-text-muted); max-width: 448px; margin-bottom: 24px; }
 
-.teacher-action-dropdown button.danger {
-  color: var(--obsidian-danger);
-}
+.clear-filters-btn { background: var(--obsidian-surface-elevated); border: 1px solid var(--obsidian-border); color: var(--obsidian-text); padding: 8px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: background-color 0.2s ease, border-color 0.2s ease; display: flex; align-items: center; gap: 8px; }
+.clear-filters-btn:hover { background: var(--obsidian-surface-hover); border-color: var(--obsidian-primary); }
 
-.teacher-action-dropdown button.danger:hover {
-  background-color: var(--obsidian-danger-bg);
-}
+/* Error state (inside main panel) */
+.teachers-error-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; text-align: center; min-height: 320px; }
+.teachers-error-state__icon { font-size: 48px; margin-bottom: 16px; color: var(--obsidian-danger); }
+.teachers-error-state__title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+.teachers-error-state__message { color: var(--obsidian-text-muted); margin-bottom: 16px; max-width: 420px; }
+.teachers-error-state .clear-filters-btn { margin: 0 auto; }
 
-/* ==========================================================================
-   Pagination Row
-   ========================================================================== */
-
-.teachers-pagination-row {
-  padding: 16px 24px;
-  border-top: 1px solid var(--obsidian-border);
-  background: var(--obsidian-surface);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.teachers-pagination-label {
-  font-size: 12px;
-  color: var(--obsidian-text-muted);
-}
-
-.teachers-pagination-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.teachers-pagination-btn {
-  padding: 4px 12px;
-  border: 1px solid var(--obsidian-border);
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--obsidian-text-variant);
-  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
-}
-
-.teachers-pagination-btn:hover:not(:disabled) {
-  color: var(--obsidian-text);
-  background: var(--obsidian-surface-elevated);
-  border-color: var(--obsidian-primary);
-}
-
-.teachers-pagination-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.teachers-pagination-info {
-  font-size: 12px;
-  color: var(--obsidian-text);
-  padding: 0 8px;
-}
-
-/* ==========================================================================
-   Empty State
-   ========================================================================== */
-
-.teachers-empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 64px 24px;
-  text-align: center;
-  min-height: 400px;
-}
-
-.empty-state-icon-box {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  background: var(--obsidian-surface-elevated);
-  border: 1px solid var(--obsidian-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  margin-bottom: 24px;
-}
-
-.empty-state-icon-box .blur-bg {
-  position: absolute;
-  inset: 0;
-  background: var(--obsidian-primary);
-  filter: blur(16px);
-  opacity: 0.05;
-  border-radius: 50%;
-}
-
-.empty-state-icon-box .material-symbols-outlined {
-  font-size: 36px;
-  color: var(--obsidian-text-muted);
-  z-index: 1;
-}
-
-.teachers-empty-state h3 {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--obsidian-text);
-  margin-bottom: 8px;
-}
-
-.teachers-empty-state p {
-  font-size: 16px;
-  color: var(--obsidian-text-muted);
-  max-width: 448px;
-  margin-bottom: 24px;
-}
-
-.clear-filters-btn {
-  background: var(--obsidian-surface-elevated);
-  border: 1px solid var(--obsidian-border);
-  color: var(--obsidian-text);
-  padding: 8px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.clear-filters-btn:hover {
-  background: var(--obsidian-surface-hover);
-  border-color: var(--obsidian-primary);
-}
-
-/* ==========================================================================
-   Error State (loading failure inside the main panel)
-   ========================================================================== */
-
-.teachers-error-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 24px;
-  text-align: center;
-  min-height: 320px;
-}
-
-.teachers-error-state__icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-  color: var(--obsidian-danger);
-}
-
-.teachers-error-state__title {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: var(--obsidian-text);
-}
-
-.teachers-error-state__message {
-  color: var(--obsidian-text-muted);
-  margin-bottom: 16px;
-  max-width: 420px;
-}
-
-.teachers-error-state .clear-filters-btn {
-  margin: 0 auto;
-}
-
-/* ==========================================================================
-   Right Slide-over Drawer
-   ========================================================================== */
-
+/* Right slide-over drawer */
 .teacher-drawer-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   z-index: 999;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
-.teacher-drawer-overlay.open {
-  opacity: 1;
-  pointer-events: auto;
-}
+.teacher-drawer-overlay.open { opacity: 1; pointer-events: auto; }
 
 .teacher-drawer {
   position: fixed;
@@ -754,316 +242,219 @@
   display: flex;
   flex-direction: column;
 }
+.teacher-drawer.open { transform: translateX(0); }
 
-.teacher-drawer.open {
-  transform: translateX(0);
-}
+.drawer-header { padding: 24px; border-bottom: 1px solid var(--obsidian-border); display: flex; align-items: center; justify-content: space-between; }
+.drawer-header h2 { font-size: 20px; font-weight: 600; }
+.drawer-close-btn { color: var(--obsidian-text-muted); font-size: 20px; transition: color 0.2s ease; padding: 4px; border-radius: 4px; }
+.drawer-close-btn:hover { color: var(--obsidian-text); background: var(--obsidian-surface-hover); }
 
-.drawer-header {
-  padding: 24px;
-  border-bottom: 1px solid var(--obsidian-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+.drawer-body { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 28px; }
 
-.drawer-header h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--obsidian-text);
-}
+.drawer-profile-section { display: flex; align-items: center; gap: 20px; background: var(--obsidian-surface); border: 1px solid var(--obsidian-border); border-radius: 12px; padding: 16px; }
+.drawer-profile-avatar { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 2px solid var(--obsidian-border); }
+.drawer-profile-initials { width: 72px; height: 72px; border-radius: 50%; background: var(--obsidian-surface-elevated); border: 2px solid rgba(139, 92, 246, 0.3); color: var(--obsidian-primary); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; }
+.drawer-profile-info { display: flex; flex-direction: column; gap: 4px; }
+.drawer-profile-info h3 { font-size: 18px; font-weight: 600; }
+.drawer-profile-info .emp-id { font-family: "Geist", monospace; font-size: 13px; color: var(--obsidian-text-muted); }
+.drawer-profile-info .teacher-badge { align-self: flex-start; margin-top: 4px; }
 
-.drawer-close-btn {
-  color: var(--obsidian-text-muted);
-  font-size: 20px;
-  transition: color 0.2s ease;
-  padding: 4px;
-  border-radius: 4px;
-}
+.drawer-details-grid { display: flex; flex-direction: column; gap: 16px; }
+.drawer-detail-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(73, 68, 84, 0.3); font-size: 14px; }
+.drawer-detail-item:last-child { border-bottom: none; padding-bottom: 0; }
+.drawer-detail-item .label { color: var(--obsidian-text-muted); font-weight: 500; flex-shrink: 0; }
+.drawer-detail-item .value { color: var(--obsidian-text); font-weight: 500; text-align: right; max-width: 260px; word-break: break-word; }
 
-.drawer-close-btn:hover {
-  color: var(--obsidian-text);
-  background: var(--obsidian-surface-hover);
-}
+.drawer-actions-section { background: var(--obsidian-surface); border: 1px solid var(--obsidian-border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.drawer-actions-section h4 { font-size: 14px; font-weight: 600; color: var(--obsidian-text-variant); margin-bottom: 4px; }
+.drawer-actions-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.drawer-action-card-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 10px 4px; background: var(--obsidian-surface-elevated); border: 1px solid var(--obsidian-border); border-radius: 8px; color: var(--obsidian-text-variant); font-size: 11px; font-weight: 500; transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+.drawer-action-card-btn:hover { background: var(--obsidian-surface-hover); border-color: var(--obsidian-primary); color: var(--obsidian-text); }
+.drawer-action-card-btn .material-symbols-outlined { font-size: 20px; color: var(--obsidian-primary); }
 
-.drawer-body {
-  padding: 24px;
-  overflow-y: auto;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
+/* Modals */
+.modal.obsidian-modal { background: var(--obsidian-surface-elevated); border-color: var(--obsidian-border); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); color: var(--obsidian-text); }
+.obsidian-form input, .obsidian-form select, .obsidian-form textarea { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--obsidian-border); color: var(--obsidian-text); }
+.obsidian-form input:focus, .obsidian-form select:focus, .obsidian-form textarea:focus { border-color: var(--obsidian-primary); box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2); }
+.modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+.cancel-btn { background: transparent; border: 1px solid var(--obsidian-border); color: var(--obsidian-text); padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: background-color 0.2s ease; }
+.cancel-btn:hover { background: var(--obsidian-surface-hover); }
+.submit-btn { background: var(--obsidian-primary); color: var(--obsidian-on-primary); padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; transition: filter 0.2s ease; }
+.submit-btn:hover { filter: brightness(1.1); }
+.close-modal-btn { color: var(--obsidian-text-muted); font-size: 18px; transition: color 0.2s ease; }
+.close-modal-btn:hover { color: var(--obsidian-text); }
 
-.drawer-profile-section {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  background: var(--obsidian-surface);
-  border: 1px solid var(--obsidian-border);
-  border-radius: 12px;
-  padding: 16px;
-}
+/* Skeleton loader */
+.skeleton-shimmer { background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+.skeleton-text { height: 14px; border-radius: 4px; }
+.skeleton-avatar { width: 40px; height: 40px; border-radius: 50%; }
 
-.drawer-profile-avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--obsidian-border);
-}
+/* Keyframes */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes dropdownFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+/* ==========================================================
+   Additional responsive rules (mobile/tablet)
+   Appended — nothing above this line was changed.
+   ========================================================== */
 
-.drawer-profile-initials {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: var(--obsidian-surface-elevated);
-  border: 2px solid rgba(139, 92, 246, 0.3);
-  color: var(--obsidian-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.drawer-profile-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.drawer-profile-info h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--obsidian-text);
-}
-
-.drawer-profile-info .emp-id {
-  font-family: "Geist", monospace;
-  font-size: 13px;
-  color: var(--obsidian-text-muted);
-}
-
-.drawer-profile-info .teacher-badge {
-  align-self: flex-start;
-  margin-top: 4px;
-}
-
-.drawer-details-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.drawer-detail-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(73, 68, 84, 0.3);
-  font-size: 14px;
-}
-
-.drawer-detail-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.drawer-detail-item .label {
-  color: var(--obsidian-text-muted);
-  font-weight: 500;
-  flex-shrink: 0;
-}
-
-.drawer-detail-item .value {
-  color: var(--obsidian-text);
-  font-weight: 500;
-  text-align: right;
-  max-width: 260px;
-  word-break: break-word;
-}
-
-.drawer-actions-section {
-  background: var(--obsidian-surface);
-  border: 1px solid var(--obsidian-border);
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.drawer-actions-section h4 {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--obsidian-text-variant);
-  margin-bottom: 4px;
-}
-
-.drawer-actions-buttons {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.drawer-action-card-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 4px;
-  background: var(--obsidian-surface-elevated);
-  border: 1px solid var(--obsidian-border);
-  border-radius: 8px;
-  color: var(--obsidian-text-variant);
-  font-size: 11px;
-  font-weight: 500;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.drawer-action-card-btn:hover {
-  background: var(--obsidian-surface-hover);
-  border-color: var(--obsidian-primary);
-  color: var(--obsidian-text);
-}
-
-.drawer-action-card-btn .material-symbols-outlined {
-  font-size: 20px;
-  color: var(--obsidian-primary);
-}
-
-/* ==========================================================================
-   Premium Modal Styling
-   ========================================================================== */
-
-.modal.obsidian-modal {
-  background: var(--obsidian-surface-elevated);
-  border-color: var(--obsidian-border);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-  color: var(--obsidian-text);
-}
-
-.obsidian-form input,
-.obsidian-form select,
-.obsidian-form textarea {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--obsidian-border);
-  color: var(--obsidian-text);
-}
-
-.obsidian-form input:focus,
-.obsidian-form select:focus,
-.obsidian-form textarea:focus {
-  border-color: var(--obsidian-primary);
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
-}
-
-.cancel-btn {
-  background: transparent;
-  border: 1px solid var(--obsidian-border);
-  color: var(--obsidian-text);
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
-}
-
-.cancel-btn:hover {
-  background: var(--obsidian-surface-hover);
-}
-
-.submit-btn {
-  background: var(--obsidian-primary);
-  color: #fff !important;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  transition: filter 0.2s ease;
-}
-
-.submit-btn:hover {
-  filter: brightness(1.1);
-}
-
-.close-modal-btn {
-  color: var(--obsidian-text-muted);
-  font-size: 18px;
-  transition: color 0.2s ease;
-}
-
-.close-modal-btn:hover {
-  color: var(--obsidian-text);
-}
-
-/* ==========================================================================
-   Skeleton Loader
-   ========================================================================== */
-
-.skeleton-shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.03) 25%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.03) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-.skeleton-text {
-  height: 14px;
-  border-radius: 4px;
-}
-
-.skeleton-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-}
-
-/* ==========================================================================
-   Keyframes
-   ========================================================================== */
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
+@media (max-width: 768px) {
+  .teachers-page-container {
+    padding: 16px;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .teachers-title-group h1 {
+    font-size: 24px;
+  }
+
+  .teachers-title-group p {
+    font-size: 14px;
+  }
+
+  .teachers-add-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .teacher-stat-card {
+    height: auto;
+    padding: 16px;
+    min-height: 96px;
+  }
+
+  .teacher-stat-value {
+    font-size: 24px;
+  }
+
+  .teachers-toolbar {
+    padding: 16px;
+  }
+
+  .teachers-filters-group {
+    gap: 10px;
+  }
+
+  .teachers-select-wrapper {
+    min-width: 0;
+    flex: 1 1 45%;
+  }
+
+  /* Table: hide secondary columns instead of forcing a wide horizontal
+     scroll on every visit. Column order assumed: 1 Teacher, 2 Emp ID,
+     3 Subject, 4 Assigned Class, 5 Contact, 6 Status, 7 Actions —
+     adjust the nth-child indices if your <thead> order differs. */
+  .teachers-table {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .teachers-table th:nth-child(2),
+  .teachers-table td:nth-child(2),
+  .teachers-table th:nth-child(3),
+  .teachers-table td:nth-child(3),
+  .teachers-table th:nth-child(4),
+  .teachers-table td:nth-child(4) {
+    display: none;
+  }
+
+  .teachers-table th,
+  .teachers-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .teacher-info-cell {
+    gap: 10px;
+  }
+
+  .teacher-table-avatar,
+  .teacher-avatar-initials {
+    width: 34px;
+    height: 34px;
+  }
+
+  .teacher-name-title .name {
+    font-size: 13px;
+  }
+
+  .teacher-email-phone .email {
+    font-size: 13px;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .teacher-action-dropdown {
+    width: 150px;
+  }
+
+  .drawer-actions-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .drawer-profile-section {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .drawer-detail-item {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .drawer-detail-item .value {
+    text-align: left;
+    max-width: 100%;
+  }
+
+  .teachers-empty-state {
+    padding: 40px 16px;
+    min-height: 300px;
+  }
+
+  .teachers-empty-state h3 {
+    font-size: 18px;
+  }
+
+  .teachers-empty-state p {
+    font-size: 14px;
+  }
+
+  .empty-state-icon-box {
+    width: 72px;
+    height: 72px;
   }
 }
 
-@keyframes dropdownFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
+@media (max-width: 480px) {
+  .teachers-stats-grid {
+    gap: 10px;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
+  .teacher-stat-header {
+    font-size: 12px;
   }
-  100% {
-    background-position: 200% 0;
+
+  .teacher-stat-value {
+    font-size: 20px;
+  }
+
+  .teachers-select-wrapper {
+    flex: 1 1 100%;
+  }
+
+  .teacher-email-phone .email {
+    max-width: 100px;
+  }
+
+  .drawer-actions-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .teachers-pagination-row {
+    justify-content: center;
+    text-align: center;
   }
 }

@@ -40,44 +40,51 @@ function StudentRow({
 
   };
 
+  const avatarUrl = student.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.nameEnglish || "Student")}`;
+
   return (
-
     <tr>
-
       <td>{student.admissionNumber}</td>
-
-      <td>{student.nameEnglish}</td>
-
       <td>
-        {student.classId?.name || "-"}
+        <div className="student-avatar-group">
+          <div className="student-avatar-wrapper">
+            <img
+              className="student-avatar-img"
+              src={avatarUrl}
+              alt={student.nameEnglish}
+            />
+          </div>
+          <span className="student-name-label">
+            {student.nameEnglish}
+          </span>
+        </div>
       </td>
-
+      <td>{student.classId?.name || "-"}</td>
+      <td>{student.divisionId?.name || "-"}</td>
       <td>
-        {student.divisionId?.name || "-"}
+        <span className={`status-badge ${student.status === "active" ? "badge-active" : "badge-inactive"}`}>
+          {student.status || "inactive"}
+        </span>
       </td>
-
       <td>
-        {student.status}
+        <div className="table-actions">
+          <button
+            className="action-btn edit-btn btn-press"
+            onClick={() => onEdit(student)}
+            title="Edit"
+          >
+            <span className="material-symbols-outlined">edit</span>
+          </button>
+          <button
+            className="action-btn delete-btn btn-press"
+            onClick={handleDelete}
+            title="Delete"
+          >
+            <span className="material-symbols-outlined">delete</span>
+          </button>
+        </div>
       </td>
-
-      <td>
-
-        <button
-          onClick={() => onEdit(student)}
-        >
-          Edit
-        </button>
-
-        <button
-          onClick={handleDelete}
-        >
-          Delete
-        </button>
-
-      </td>
-
     </tr>
-
   );
 
 }

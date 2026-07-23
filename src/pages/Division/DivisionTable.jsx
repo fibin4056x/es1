@@ -1,12 +1,12 @@
 import DivisionRow from "./DivisionRow";
-
+import "./DivisionTable.css"
 function DivisionTable({
   divisions,
   reload,
   onEdit,
 }) {
   return (
-    <table width="100%">
+    <table className="division-table">
 
       <thead>
 
@@ -36,10 +36,7 @@ function DivisionTable({
 
             <td
               colSpan="6"
-              style={{
-                textAlign: "center",
-                padding: "40px",
-              }}
+              className="division-empty"
             >
               <h3>No divisions found</h3>
 

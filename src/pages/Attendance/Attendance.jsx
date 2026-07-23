@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import "./Attendance.css";
 
 function Attendance() {
-
+console.log("Attendance page rendered");
   const [students, setStudents] = useState([]);
   const [divisionId, setDivisionId] = useState("");
   const [classId, setClassId] = useState("");
@@ -52,32 +52,50 @@ function Attendance() {
 
   };
   return (
-
-    <div>
-
-          <AttendanceToolbar
-            setStudents={setStudents}
-            setAttendance={setAttendance}
-
-            classId={classId}
-            setClassId={setClassId}
-
-            divisionId={divisionId}
-            setDivisionId={setDivisionId}
-
-            date={date}
-            setDate={setDate}
-          />
-      <AttendanceTable
-        students={students}
-        attendance={attendance}
+    <div className="attendance-page animate-fade-in-up">
+      <AttendanceToolbar
+        setStudents={setStudents}
         setAttendance={setAttendance}
+        classId={classId}
+        setClassId={setClassId}
+        divisionId={divisionId}
+        setDivisionId={setDivisionId}
+        date={date}
+        setDate={setDate}
       />
-  <button
-  onClick={handleSaveAttendance}
->
-  Save Attendance
-</button>
+
+      {students.length === 0 ? (
+        <div className="glass-card empty-state-card">
+          <span className="material-symbols-outlined empty-icon">assignment_late</span>
+          <h3>No students loaded</h3>
+          <p>Please select a class and division, then click "Load Students".</p>
+        </div>
+      ) : (
+        <>
+          <div className="glass-card table-card">
+            <div className="table-responsive">
+              <AttendanceTable
+                students={students}
+                attendance={attendance}
+                setAttendance={setAttendance}
+              />
+            </div>
+          </div>
+
+          <div className="attendance-actions">
+           <button
+              className="save-attendance-btn btn-press"
+              onClick={handleSaveAttendance}
+            >
+              <span className="material-symbols-outlined">
+                save
+              </span>
+
+              <span>Save Attendance</span>
+            </button>
+                      </div>
+        </>
+      )}
     </div>
 
   );

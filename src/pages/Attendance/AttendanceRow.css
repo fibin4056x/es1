@@ -1,0 +1,109 @@
+/* ==========================================
+   Attendance Row
+========================================== */
+
+.attendance-row {
+  transition: background-color var(--transition);
+}
+
+.attendance-row:hover {
+  background: rgba(79, 70, 229, 0.06);
+}
+
+.student-admission {
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+}
+
+.student-name {
+  font-weight: var(--font-semibold);
+  color: var(--text-main);
+}
+
+.attendance-status {
+  width: 180px;
+}
+
+.attendance-select {
+  width: 140px;
+  height: 40px;
+
+  padding: 0 12px;
+
+  border: 1px solid var(--border-main);
+  border-radius: var(--radius-lg);
+
+  background: var(--surface);
+  color: var(--text-main);
+
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+
+  cursor: pointer;
+
+  transition: var(--transition);
+}
+
+.attendance-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+/* Status Colors */
+
+.status-present {
+  color: var(--success);
+}
+
+.status-absent {
+  color: var(--danger);
+}
+
+.status-late {
+  color: var(--warning);
+}
+
+@media (max-width: 768px) {
+
+  .attendance-status {
+    width: auto;
+  }
+
+  .attendance-select {
+    width: 100%;
+    min-width: 120px;
+  }
+
+}
+/* ==========================================
+   Reason Input
+========================================== */
+
+.attendance-reason-input {
+  width: 100%;
+  min-width: 180px;
+
+  padding: 10px 12px;
+
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+
+  background: var(--input-bg);
+  color: var(--text-primary);
+
+  font-size: 13px;
+
+  transition: all .25s ease;
+}
+
+.attendance-reason-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79,70,229,.15);
+}
+
+.attendance-reason-input:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}

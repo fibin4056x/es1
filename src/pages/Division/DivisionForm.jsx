@@ -14,6 +14,8 @@ import {
   getTeachers,
 } from "../../services/teacherService";
 
+import "./DivisionForm.css";
+
 function DivisionForm({
   division,
   isEdit = false,
@@ -41,8 +43,7 @@ function DivisionForm({
       setForm({
         name: division.name || "",
         classId: division.classId?._id || "",
-        assignedTeacher:
-          division.assignedTeacher?._id || "",
+        assignedTeacher: division.assignedTeacher?._id || "",
         capacity: division.capacity || 40,
         status: division.status || "active",
       });
@@ -52,12 +53,9 @@ function DivisionForm({
   const loadDropdowns = async () => {
     try {
       const classRes = await getClasses();
-
-      const teacherRes =
-        await getTeachers();
+      const teacherRes = await getTeachers();
 
       setClasses(classRes.data);
-
       setTeachers(teacherRes.data);
 
     } catch (error) {
@@ -68,8 +66,7 @@ function DivisionForm({
   const handleChange = (e) => {
     setForm({
       ...form,
-      [e.target.name]:
-        e.target.value,
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -78,52 +75,34 @@ function DivisionForm({
 
     try {
       if (isEdit) {
-        await updateDivision(
-          division._id,
-          form
-        );
-
-        toast.success(
-          "Division updated successfully"
-        );
-
+        await updateDivision(division._id, form);
+        toast.success("Division updated successfully");
       } else {
-
         await createDivision(form);
-
-        toast.success(
-          "Division created successfully"
-        );
-
+        toast.success("Division created successfully");
       }
 
       reload();
-
       onClose();
 
     } catch (error) {
-
       console.log(error);
 
       toast.error(
         error.response?.data?.message ||
         "Something went wrong"
       );
-
     }
   };
 
   return (
     <form
-      className="division-form"
+      className="division-form division-form-grid"
       onSubmit={handleSubmit}
     >
 
       <div className="form-group">
-
-        <label>
-          Division Name
-        </label>
+        <label>Division Name</label>
 
         <input
           type="text"
@@ -133,14 +112,10 @@ function DivisionForm({
           onChange={handleChange}
           required
         />
-
       </div>
 
       <div className="form-group">
-
-        <label>
-          Class
-        </label>
+        <label>Class</label>
 
         <select
           name="classId"
@@ -148,70 +123,42 @@ function DivisionForm({
           onChange={handleChange}
           required
         >
+          <option value="">Select Class</option>
 
-          <option value="">
-            Select Class
-          </option>
-
-          {classes.map(
-            (singleClass) => (
-
-              <option
-                key={singleClass._id}
-                value={
-                  singleClass._id
-                }
-              >
-                {singleClass.name}
-              </option>
-
-            )
-          )}
-
+          {classes.map((singleClass) => (
+            <option
+              key={singleClass._id}
+              value={singleClass._id}
+            >
+              {singleClass.name}
+            </option>
+          ))}
         </select>
-
       </div>
 
       <div className="form-group">
-
-        <label>
-          Class Teacher
-        </label>
+        <label>Class Teacher</label>
 
         <select
           name="assignedTeacher"
           value={form.assignedTeacher}
           onChange={handleChange}
         >
+          <option value="">Not Assigned</option>
 
-          <option value="">
-            Not Assigned
-          </option>
-
-          {teachers.map(
-            (teacher) => (
-
-              <option
-                key={teacher._id}
-                value={
-                  teacher._id
-                }
-              >
-                {teacher.name}
-              </option>
-
-            )
-          )}
-
+          {teachers.map((teacher) => (
+            <option
+              key={teacher._id}
+              value={teacher._id}
+            >
+              {teacher.name}
+            </option>
+          ))}
         </select>
-
       </div>
 
       <div className="form-group">
-
-        <label>
-          Capacity
-        </label>
+        <label>Capacity</label>
 
         <input
           type="number"
@@ -221,21 +168,16 @@ function DivisionForm({
           min="1"
           required
         />
-
       </div>
 
       <div className="form-group">
-
-        <label>
-          Status
-        </label>
+        <label>Status</label>
 
         <select
           name="status"
           value={form.status}
           onChange={handleChange}
         >
-
           <option value="active">
             Active
           </option>
@@ -243,18 +185,27 @@ function DivisionForm({
           <option value="inactive">
             Inactive
           </option>
-
         </select>
-
       </div>
 
-      <button type="submit">
+      <div className="division-form-actions modal-actions">
 
-        {isEdit
-          ? "Update Division"
-          : "Save Division"}
+        <button
+          type="button"
+          className="cancel-btn btn-press"
+          onClick={onClose}
+        >
+          Cancel
+        </button>
 
-      </button>
+        <button
+          type="submit"
+          className="submit-btn btn-press"
+        >
+          {isEdit ? "Update Division" : "Save Division"}
+        </button>
+
+      </div>
 
     </form>
   );

@@ -43,35 +43,33 @@ function ClassRow({
   };
 
   return (
-
     <tr>
-
       <td>{classData.name}</td>
-
       <td>{classData.academicYear}</td>
-
-      <td>{classData.status}</td>
-
       <td>
-
-        <button
-          onClick={() =>
-            onEdit(classData)
-          }
-        >
-          Edit
-        </button>
-
-        <button
-          onClick={handleDelete}
-        >
-          Delete
-        </button>
-
+        <span className={`status-badge ${classData.status === "active" ? "badge-active" : "badge-inactive"}`}>
+          {classData.status || "inactive"}
+        </span>
       </td>
-
+      <td>
+        <div className="table-actions">
+          <button
+            className="action-btn edit-btn btn-press"
+            onClick={() => onEdit(classData)}
+            title="Edit"
+          >
+            <span className="material-symbols-outlined">edit</span>
+          </button>
+          <button
+            className="action-btn delete-btn btn-press"
+            onClick={handleDelete}
+            title="Delete"
+          >
+            <span className="material-symbols-outlined">delete</span>
+          </button>
+        </div>
+      </td>
     </tr>
-
   );
 }
 

@@ -84,7 +84,7 @@ function Division() {
   );
 
   return (
-    <div>
+    <div className="divisions-page animate-fade-in-up">
 
       <DivisionToolbar
         onAdd={() => setOpen(true)}
@@ -96,20 +96,23 @@ function Division() {
       />
 
       {loading ? (
-
-        <p>Loading divisions...</p>
-
+        <div className="loading-state">
+          <p>Loading divisions...</p>
+        </div>
       ) : (
-
         <>
-          <DivisionTable
-            divisions={currentDivisions}
-            reload={loadDivisions}
-            onEdit={(division) => {
-              setSelectedDivision(division);
-              setEditOpen(true);
-            }}
-          />
+          <div className="glass-card table-card">
+            <div className="table-responsive">
+              <DivisionTable
+                divisions={currentDivisions}
+                reload={loadDivisions}
+                onEdit={(division) => {
+                  setSelectedDivision(division);
+                  setEditOpen(true);
+                }}
+              />
+            </div>
+          </div>
 
           {filteredDivisions.length > 0 && (
             <Pagination
@@ -119,7 +122,6 @@ function Division() {
             />
           )}
         </>
-
       )}
 
       <DivisionModal

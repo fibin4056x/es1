@@ -1,0 +1,161 @@
+/* ==========================================
+   Division Form
+========================================== */
+
+.division-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.division-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.division-form label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.division-form input,
+.division-form select,
+.division-form textarea {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+
+  background: var(--input-bg);
+  color: var(--text-primary);
+
+  font-size: 14px;
+
+  transition: all .25s ease;
+  box-sizing: border-box;
+}
+
+.division-form textarea {
+  min-height: 120px;
+  padding: 12px 14px;
+  resize: vertical;
+}
+
+.division-form input::placeholder,
+.division-form textarea::placeholder {
+  color: var(--text-secondary);
+}
+
+.division-form input:focus,
+.division-form select:focus,
+.division-form textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.division-form input:hover,
+.division-form select:hover,
+.division-form textarea:hover {
+  border-color: var(--primary-color);
+}
+
+/* ==========================================
+   Modal Buttons
+========================================== */
+
+.division-form .modal-actions {
+  grid-column: 1 / -1;
+
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  margin-top: 8px;
+  padding-top: 16px;
+
+  border-top: 1px solid var(--border-color);
+}
+
+.division-form .modal-actions button {
+  min-width: 140px;
+  height: 44px;
+
+  padding: 0 20px;
+
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  transition: all .25s ease;
+}
+
+.division-form .cancel-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.division-form .cancel-btn:hover {
+  background: var(--hover-bg);
+}
+
+.division-form .submit-btn {
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+}
+
+.division-form .submit-btn:hover {
+  opacity: .95;
+}
+
+/* ==========================================
+   Tablet
+========================================== */
+
+@media (max-width: 768px) {
+
+  .division-form {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .division-form .modal-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .division-form .modal-actions button {
+    width: 100%;
+  }
+
+}
+
+/* ==========================================
+   Mobile
+========================================== */
+
+@media (max-width: 480px) {
+
+  .division-form {
+    gap: 16px;
+  }
+
+  .division-form input,
+  .division-form select,
+  .division-form textarea {
+    font-size: 13px;
+  }
+
+  .division-form label {
+    font-size: 13px;
+  }
+
+}
