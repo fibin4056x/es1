@@ -1,23 +1,28 @@
 /* ==========================================
-   Division Toolbar
+   Toolbar
 ========================================== */
 
 .division-toolbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 20px;
-
-  width: 100%;
+  flex-wrap: wrap;
 }
 
-.division-toolbar-title h2 {
+/* ==========================================
+   Title
+========================================== */
+
+.division-title {
   margin: 0;
 
-  font-size: 28px;
+  font-size: 1.8rem;
   font-weight: 700;
 
   color: var(--text-primary);
+
+  letter-spacing: -0.02em;
 }
 
 /* ==========================================
@@ -27,7 +32,7 @@
 .division-toolbar-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 /* ==========================================
@@ -35,20 +40,20 @@
 ========================================== */
 
 .division-search {
-  width: 320px;
-  height: 46px;
+  width: 260px;
+  height: 44px;
 
   padding: 0 16px;
 
   border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: 12px;
 
-  background: var(--input-bg);
+  background: var(--card-bg);
   color: var(--text-primary);
 
   font-size: 14px;
 
-  transition: all 0.25s ease;
+  transition: all .25s ease;
 }
 
 .division-search::placeholder {
@@ -57,25 +62,27 @@
 
 .division-search:focus {
   outline: none;
-
-  border-color: var(--primary-color);
-
-  box-shadow: 0 0 0 3px rgba(79,70,229,.15);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99,102,241,.12);
 }
 
 /* ==========================================
-   Button
+   Add Button
 ========================================== */
 
 .division-add-btn {
-  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 
-  padding: 0 22px;
+  height: 44px;
+  padding: 0 18px;
 
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
 
-  background: var(--primary-color);
+  background: linear-gradient(135deg,#6366f1,#4f46e5);
   color: #fff;
 
   font-size: 14px;
@@ -83,61 +90,41 @@
 
   cursor: pointer;
 
-  white-space: nowrap;
-
   transition: all .25s ease;
 }
 
 .division-add-btn:hover {
-  opacity: .95;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(79,70,229,.28);
+}
+
+.division-add-btn .material-symbols-outlined {
+  font-size: 20px;
 }
 
 /* ==========================================
-   Tablet
+   Responsive
 ========================================== */
 
-@media (max-width: 992px) {
+@media (max-width:768px){
 
-  .division-search {
-    width: 260px;
-  }
-
-}
-
-/* ==========================================
-   Mobile
-========================================== */
-
-@media (max-width: 768px) {
-
-  .division-toolbar {
+  .division-toolbar{
     flex-direction: column;
     align-items: stretch;
   }
 
-  .division-toolbar-actions {
+  .division-toolbar-actions{
     flex-direction: column;
-    width: 100%;
+    width:100%;
   }
 
-  .division-search {
-    width: 100%;
+  .division-search,
+  .division-add-btn{
+    width:100%;
   }
 
-  .division-add-btn {
-    width: 100%;
-  }
-
-}
-
-/* ==========================================
-   Small Mobile
-========================================== */
-
-@media (max-width: 480px) {
-
-  .division-toolbar-title h2 {
-    font-size: 22px;
+  .division-title{
+    font-size:1.5rem;
   }
 
 }

@@ -14,7 +14,9 @@ function DivisionModal({
 
         <div className="modal-header">
 
-          <h2>Add Division</h2>
+          <h2 className="modal-title">
+                Add Division
+              </h2>
 
           <button onClick={onClose}>
             ✖

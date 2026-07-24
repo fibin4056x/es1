@@ -1,20 +1,17 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import Select from "react-select";
 
 import {
   createDivision,
   updateDivision,
 } from "../../services/divisionService";
 
-import {
-  getClasses,
-} from "../../services/classService";
-
-import {
-  getTeachers,
-} from "../../services/teacherService";
+import { getClasses } from "../../services/classService";
+import { getTeachers } from "../../services/teacherService";
 
 import "./DivisionForm.css";
+import reactSelectStyles from "../../styles/reactSelectStyles";
 
 function DivisionForm({
   division,
@@ -23,7 +20,6 @@ function DivisionForm({
   reload,
 }) {
   const [classes, setClasses] = useState([]);
-
   const [teachers, setTeachers] = useState([]);
 
   const [form, setForm] = useState({
@@ -57,11 +53,37 @@ function DivisionForm({
 
       setClasses(classRes.data);
       setTeachers(teacherRes.data);
-
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
+
+  const classOptions = classes.map((singleClass) => ({
+    value: singleClass._id,
+    label: singleClass.name,
+  }));
+
+  const teacherOptions = [
+    {
+      value: "",
+      label: "Not Assigned",
+    },
+    ...teachers.map((teacher) => ({
+      value: teacher._id,
+      label: teacher.name,
+    })),
+  ];
+
+  const statusOptions = [
+    {
+      value: "active",
+      label: "Active",
+    },
+    {
+      value: "inactive",
+      label: "Inactive",
+    },
+  ];
 
   const handleChange = (e) => {
     setForm({
@@ -84,13 +106,12 @@ function DivisionForm({
 
       reload();
       onClose();
-
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       toast.error(
         error.response?.data?.message ||
-        "Something went wrong"
+          "Something went wrong"
       );
     }
   };
@@ -100,7 +121,6 @@ function DivisionForm({
       className="division-form division-form-grid"
       onSubmit={handleSubmit}
     >
-
       <div className="form-group">
         <label>Division Name</label>
 
@@ -117,44 +137,44 @@ function DivisionForm({
       <div className="form-group">
         <label>Class</label>
 
-        <select
-          name="classId"
-          value={form.classId}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select Class</option>
-
-          {classes.map((singleClass) => (
-            <option
-              key={singleClass._id}
-              value={singleClass._id}
-            >
-              {singleClass.name}
-            </option>
-          ))}
-        </select>
+        <Select
+          options={classOptions}
+          styles={reactSelectStyles()}
+          placeholder="Select Class"
+          value={
+            classOptions.find(
+              (option) => option.value === form.classId
+            ) || null
+          }
+          onChange={(selected) =>
+            setForm({
+              ...form,
+              classId: selected?.value || "",
+            })
+          }
+        />
       </div>
 
       <div className="form-group">
         <label>Class Teacher</label>
 
-        <select
-          name="assignedTeacher"
-          value={form.assignedTeacher}
-          onChange={handleChange}
-        >
-          <option value="">Not Assigned</option>
-
-          {teachers.map((teacher) => (
-            <option
-              key={teacher._id}
-              value={teacher._id}
-            >
-              {teacher.name}
-            </option>
-          ))}
-        </select>
+        <Select
+          options={teacherOptions}
+          styles={reactSelectStyles()}
+          placeholder="Select Teacher"
+          value={
+            teacherOptions.find(
+              (option) =>
+                option.value === form.assignedTeacher
+            ) || teacherOptions[0]
+          }
+          onChange={(selected) =>
+            setForm({
+              ...form,
+              assignedTeacher: selected?.value || "",
+            })
+          }
+        />
       </div>
 
       <div className="form-group">
@@ -173,23 +193,22 @@ function DivisionForm({
       <div className="form-group">
         <label>Status</label>
 
-        <select
-          name="status"
-          value={form.status}
-          onChange={handleChange}
-        >
-          <option value="active">
-            Active
-          </option>
-
-          <option value="inactive">
-            Inactive
-          </option>
-        </select>
+        <Select
+          options={statusOptions}
+          styles={reactSelectStyles()}
+          value={statusOptions.find(
+            (option) => option.value === form.status
+          )}
+          onChange={(selected) =>
+            setForm({
+              ...form,
+              status: selected.value,
+            })
+          }
+        />
       </div>
 
       <div className="division-form-actions modal-actions">
-
         <button
           type="button"
           className="cancel-btn btn-press"
@@ -202,11 +221,11 @@ function DivisionForm({
           type="submit"
           className="submit-btn btn-press"
         >
-          {isEdit ? "Update Division" : "Save Division"}
+          {isEdit
+            ? "Update Division"
+            : "Save Division"}
         </button>
-
       </div>
-
     </form>
   );
 }

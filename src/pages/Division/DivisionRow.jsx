@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-
+import "./DivisionRow.css"
 import {
   deleteDivision,
 } from "../../services/divisionService";
