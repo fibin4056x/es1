@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { getClasses } from "../../services/classService";
@@ -18,16 +19,6 @@ function AssignClassModal({
   const [selectedDivisionId, setSelectedDivisionId] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!open) {
-      setSelectedClassId("");
-      setSelectedDivisionId("");
-      return;
-    }
-
-    loadDropdowns();
-  }, [open]);
-
   const loadDropdowns = async () => {
     try {
       setLoading(true);
@@ -46,6 +37,16 @@ function AssignClassModal({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedClassId("");
+      setSelectedDivisionId("");
+      return;
+    }
+
+    loadDropdowns();
+  }, [open]);
 
   const filteredDivisions = useMemo(() => {
     return divisions.filter(

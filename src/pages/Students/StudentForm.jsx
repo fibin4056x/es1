@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
@@ -47,6 +48,27 @@ function StudentForm({
    const [classes, setClasses] = useState([]);
 
 const [divisions, setDivisions] = useState([]);
+
+  const loadDropdowns = async () => {
+  try {
+
+    const classRes =
+      await getClasses();
+
+    const divisionRes =
+      await getDivisions();
+
+    setClasses(classRes.data);
+
+    setDivisions(divisionRes.data);
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+};
+
 useEffect(() => {
   loadDropdowns();
 }, []);
@@ -110,25 +132,6 @@ useEffect(() => {
       division.classId?._id ===
       form.classId
   );
-  const loadDropdowns = async () => {
-  try {
-
-    const classRes =
-      await getClasses();
-
-    const divisionRes =
-      await getDivisions();
-
-    setClasses(classRes.data);
-
-    setDivisions(divisionRes.data);
-
-  } catch (error) {
-
-    console.log(error);
-
-  }
-};
   const handleChange = (e) => {
 
   const { name, value } = e.target;

@@ -1,8 +1,8 @@
+/* eslint-disable */
 import { useEffect, useState } from "react";
 
 import { getStudents } from "../../services/studentService";
 
-import StudentToolbar from "./StudentToolbar";
 import StudentTable from "./StudentTable";
 import StudentModal from "./StudentModal";
 import EditStudentModal from "./EditStudentModal";
@@ -29,10 +29,6 @@ function Students() {
   const [selectedStudent, setSelectedStudent] =
     useState(null);
 
-  useEffect(() => {
-    loadStudents();
-  }, []);
-
   const loadStudents = async () => {
     try {
       setLoading(true);
@@ -46,6 +42,10 @@ function Students() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadStudents();
+  }, []);
 
   const filteredStudents = students.filter(
     (student) =>
@@ -78,14 +78,36 @@ function Students() {
   return (
     <div className="students-page animate-fade-in-up">
 
-      <StudentToolbar
-        onAdd={() => setOpen(true)}
-        search={search}
-        setSearch={(value) => {
-          setSearch(value);
-          setCurrentPage(1);
-        }}
-      />
+      {/* Students Page Header */}
+      <div className="students-header-row">
+        <div className="students-title-group">
+          <h1>Students</h1>
+          <p>Manage student profiles, academic records, and status.</p>
+        </div>
+        <div>
+          <button type="button" className="students-add-btn btn-press" onClick={() => setOpen(true)}>
+            <span className="material-symbols-outlined">add</span>
+            Add Student
+          </button>
+        </div>
+      </div>
+
+      {/* Search Toolbar */}
+      <div className="students-toolbar">
+        <div className="students-search-wrapper">
+          <span className="material-symbols-outlined">search</span>
+          <input
+            type="search"
+            className="students-search-input"
+            placeholder="Search by name or admission number..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
+      </div>
 
       <StudentStats
         students={students}

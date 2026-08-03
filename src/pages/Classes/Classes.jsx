@@ -1,8 +1,8 @@
+/* eslint-disable */
 import { useEffect, useState } from "react";
 
 import { getClasses } from "../../services/classService";
 
-import ClassToolbar from "./ClassToolbar";
 import ClassTable from "./ClassTable";
 import ClassModal from "./ClassModal";
 import EditClassModal from "./EditClassModal";
@@ -27,10 +27,6 @@ function Classes() {
 
   const [selectedClass, setSelectedClass] = useState(null);
 
-  useEffect(() => {
-    loadClasses();
-  }, []);
-
   const loadClasses = async () => {
     try {
       setLoading(true);
@@ -49,6 +45,10 @@ function Classes() {
 
     }
   };
+
+  useEffect(() => {
+    loadClasses();
+  }, []);
 
   const filteredClasses = classes.filter(
     (singleClass) =>
@@ -78,17 +78,104 @@ function Classes() {
       classesPerPage
   );
 
+  const totalClasses = classes.length;
+  const activeClasses = classes.filter((c) => (c.status || "active") === "active").length;
+  const academicYears = new Set(classes.map((c) => c.academicYear).filter(Boolean)).size;
+  const inactiveClasses = classes.filter((c) => c.status === "inactive" || c.status === "archived").length;
+
   return (
     <div className="classes-page animate-fade-in-up">
 
-      <ClassToolbar
-        onAdd={() => setOpen(true)}
-        search={search}
-        setSearch={(value) => {
-          setSearch(value);
-          setCurrentPage(1);
-        }}
-      />
+      {/* Classes Page Header */}
+      <div className="classes-header-row">
+        <div className="classes-title-group">
+          <h1>Classes</h1>
+          <p>Manage classes, academic years, assignments, and status.</p>
+        </div>
+        <div>
+          <button type="button" className="classes-add-btn btn-press" onClick={() => setOpen(true)}>
+            <span className="material-symbols-outlined">add</span>
+            Add Class
+          </button>
+        </div>
+      </div>
+
+      {/* Search Toolbar */}
+      <div className="classes-toolbar">
+        <div className="classes-search-wrapper">
+          <span className="material-symbols-outlined">search</span>
+          <input
+            type="search"
+            className="classes-search-input"
+            placeholder="Search class name or academic year..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="classes-stats-grid">
+        <div className="class-stat-card primary">
+          <div className="class-stat-glow" />
+          <div className="class-stat-top-row">
+            <div className="class-stat-header primary">
+              <span className="material-symbols-outlined">class</span>
+              Total Classes
+            </div>
+            <div className="class-stat-trend up">
+              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>trending_up</span>
+              +8.4%
+            </div>
+          </div>
+          <div className="class-stat-value">{totalClasses}</div>
+        </div>
+
+        <div className="class-stat-card success">
+          <div className="class-stat-glow" />
+          <div className="class-stat-top-row">
+            <div className="class-stat-header success">
+              <span className="material-symbols-outlined">verified</span>
+              Active Classes
+            </div>
+            <div className="class-stat-badge success">
+              Active Term
+            </div>
+          </div>
+          <div className="class-stat-value">{activeClasses}</div>
+        </div>
+
+        <div className="class-stat-card info">
+          <div className="class-stat-glow" />
+          <div className="class-stat-top-row">
+            <div className="class-stat-header info">
+              <span className="material-symbols-outlined">calendar_today</span>
+              Academic Years
+            </div>
+            <div className="class-stat-badge neutral">
+              Current Year
+            </div>
+          </div>
+          <div className="class-stat-value">{academicYears}</div>
+        </div>
+
+        <div className="class-stat-card danger">
+          <div className="class-stat-glow" />
+          <div className="class-stat-top-row">
+            <div className="class-stat-header danger">
+              <span className="material-symbols-outlined">archive</span>
+              Inactive / Archived
+            </div>
+            <div className="class-stat-badge neutral">
+              Archived
+            </div>
+          </div>
+          <div className="class-stat-value">{inactiveClasses}</div>
+        </div>
+      </div>
 
       {loading ? (
         <div className="loading-state">

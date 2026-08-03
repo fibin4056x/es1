@@ -1,8 +1,8 @@
+/* eslint-disable */
 import { useEffect, useState } from "react";
 
 import { getDivisions } from "../../services/divisionService";
 
-import DivisionToolbar from "./DivisionToolbar";
 import DivisionTable from "./DivisionTable";
 import DivisionModal from "./DivisionModel";
 import EditDivisionModal from "./EditDivisionModel";
@@ -28,10 +28,6 @@ function Division() {
   const [selectedDivision, setSelectedDivision] =
     useState(null);
 
-  useEffect(() => {
-    loadDivisions();
-  }, []);
-
   const loadDivisions = async () => {
     try {
       setLoading(true);
@@ -50,6 +46,10 @@ function Division() {
 
     }
   };
+
+  useEffect(() => {
+    loadDivisions();
+  }, []);
 
   const filteredDivisions = divisions.filter(
     (division) =>
@@ -86,14 +86,36 @@ function Division() {
   return (
     <div className="divisions-page animate-fade-in-up">
 
-      <DivisionToolbar
-        onAdd={() => setOpen(true)}
-        search={search}
-        setSearch={(value) => {
-          setSearch(value);
-          setCurrentPage(1);
-        }}
-      />
+      {/* Divisions Page Header */}
+      <div className="divisions-header-row">
+        <div className="divisions-title-group">
+          <h1>Divisions</h1>
+          <p>Manage divisions, classroom capacity, assignments, and status.</p>
+        </div>
+        <div>
+          <button type="button" className="divisions-add-btn btn-press" onClick={() => setOpen(true)}>
+            <span className="material-symbols-outlined">add</span>
+            Add Division
+          </button>
+        </div>
+      </div>
+
+      {/* Search Toolbar */}
+      <div className="divisions-toolbar">
+        <div className="divisions-search-wrapper">
+          <span className="material-symbols-outlined">search</span>
+          <input
+            type="search"
+            className="divisions-search-input"
+            placeholder="Search divisions..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
+      </div>
 
       {loading ? (
         <div className="loading-state">

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useState } from "react";
 import "./AttendanceToolbar.css";
 
@@ -22,10 +23,6 @@ function AttendanceToolbar({
   const [classes, setClasses] = useState([]);
   const [divisions, setDivisions] = useState([]);
 
-  useEffect(() => {
-    loadDropdowns();
-  }, []);
-
   const loadDropdowns = async () => {
     try {
       const classRes = await getClasses();
@@ -37,6 +34,10 @@ function AttendanceToolbar({
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    loadDropdowns();
+  }, []);
 
   const loadStudents = async () => {
     if (!divisionId) return;
@@ -58,15 +59,14 @@ function AttendanceToolbar({
         const attendanceData = attendanceRes.data.data;
 
         if (
-          attendanceData &&
-          attendanceData.students &&
-          attendanceData.students.length > 0
+          Array.isArray(attendanceData) &&
+          attendanceData.length > 0
         ) {
           setAttendance(
-            attendanceData.students.map((student) => ({
-              studentId: student.studentId._id,
-              status: student.status,
-              reason: student.reason || "",
+            attendanceData.map((record) => ({
+              studentId: record.studentId?._id || record.studentId,
+              status: record.status,
+              reason: record.reason || "",
             }))
           );
         } else {

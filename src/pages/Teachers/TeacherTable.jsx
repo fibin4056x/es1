@@ -1,4 +1,3 @@
-import React from "react";
 import TeacherRow from "./TeacherRow";
 import "./Teachertable.css"
 function TeacherSkeletonRow() {

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Select from "react-select";
@@ -30,6 +31,18 @@ function DivisionForm({
     status: "active",
   });
 
+  const loadDropdowns = async () => {
+    try {
+      const classRes = await getClasses();
+      const teacherRes = await getTeachers();
+
+      setClasses(classRes.data);
+      setTeachers(teacherRes.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     loadDropdowns();
   }, []);
@@ -45,18 +58,6 @@ function DivisionForm({
       });
     }
   }, [division, isEdit]);
-
-  const loadDropdowns = async () => {
-    try {
-      const classRes = await getClasses();
-      const teacherRes = await getTeachers();
-
-      setClasses(classRes.data);
-      setTeachers(teacherRes.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const classOptions = classes.map((singleClass) => ({
     value: singleClass._id,

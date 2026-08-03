@@ -8,3 +8,8 @@ export const loginUser = async (email, password) => {
 
   return response.data;
 };
+
+export const updateProfile = async (profileData) => {
+  const response = await api.put("/auth/profile", profileData);
+  return response.data;
+};

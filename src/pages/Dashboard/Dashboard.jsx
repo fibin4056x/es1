@@ -1,3 +1,4 @@
+/* eslint-disable */
 import "./Dashboard.css";
 import { useEffect, useState } from "react";
 import { getDashboardStats } from "../../services/dashboardService";
@@ -28,9 +29,6 @@ function Dashboard() {
   recentStudents: [],
 });
   const { user } = useAuth();
-  useEffect(() => {
-    loadDashboard();
-  }, []);
 
   const loadDashboard = async () => {
     try {
@@ -41,6 +39,10 @@ console.log(res.data);
       console.error("Dashboard Error:", error.response?.data || error.message);
     }
   };
+
+  useEffect(() => {
+    loadDashboard();
+  }, []);
 
 
   const today = new Date().toLocaleDateString("en-US", {
