@@ -9,6 +9,7 @@ import EditStudentModal from "./EditStudentModal";
 import Pagination from "../../components/common/pagination/Pagination";
 import StudentStats from "./StudentStats";
 import ExportDropdown from "./ExportDropdown";
+import ImportModal from "./ImportModal";
 
 import "./Students.css";
 
@@ -26,6 +27,8 @@ function Students() {
   const [open, setOpen] = useState(false);
 
   const [editOpen, setEditOpen] = useState(false);
+
+  const [importOpen, setImportOpen] = useState(false);
 
   const [selectedStudent, setSelectedStudent] =
     useState(null);
@@ -86,6 +89,27 @@ function Students() {
           <p>Manage student profiles, academic records, and status.</p>
         </div>
         <div className="students-header-actions" style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+          <button
+            type="button"
+            className="btn-press"
+            onClick={() => setImportOpen(true)}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "10px 16px",
+              borderRadius: "8px",
+              background: "var(--surface-light, #1e293b)",
+              color: "var(--text-main, #f8fafc)",
+              border: "1px solid var(--border-main, rgba(255, 255, 255, 0.12))",
+              fontWeight: 600,
+              fontSize: "14px",
+              cursor: "pointer",
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>upload</span>
+            Import
+          </button>
           <ExportDropdown />
           <button type="button" className="students-add-btn btn-press" onClick={() => setOpen(true)}>
             <span className="material-symbols-outlined">add</span>
@@ -157,6 +181,12 @@ function Students() {
           setEditOpen(false);
           setSelectedStudent(null);
         }}
+        reload={loadStudents}
+      />
+
+      <ImportModal
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
         reload={loadStudents}
       />
 
