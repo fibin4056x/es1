@@ -1,13 +1,17 @@
 /* eslint-disable */
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { isSameStudent } from "../../util/helpers";
+
 import "./AttendanceToolbar.css";
 
-import { getClasses } from "../../services/classService";
-import { getDivisions } from "../../services/divisionService";
-import { getStudentsByDivision } from "../../services/studentService";
-import { getAttendanceByDate } from "../../services/attendanceService";
+import { getClasses } from "../../services/ClassService";
+import { getDivisions } from "../../services/DivisionService";
+import { getStudentsByDivision } from "../../services/StudentService";
+import { getAttendanceByDate } from "../../services/AttendanceService";
 
 function AttendanceToolbar({
+  students,
   setStudents,
   setAttendance,
 
@@ -19,118 +23,200 @@ function AttendanceToolbar({
 
   date,
   setDate,
+
+  loading,
+  setLoading,
 }) {
   const [classes, setClasses] = useState([]);
   const [divisions, setDivisions] = useState([]);
 
-  const loadDropdowns = async () => {
-    try {
-      const classRes = await getClasses();
-      const divisionRes = await getDivisions();
 
-      setClasses(classRes.data);
-      setDivisions(divisionRes.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  /* =========================================
+     LOAD CLASSES & DIVISIONS
+  ========================================= */
 
   useEffect(() => {
+    let isMounted = true;
+    const loadDropdowns = async () => {
+      try {
+        const [classRes, divisionRes] = await Promise.all([
+          getClasses(),
+          getDivisions(),
+        ]);
+
+        if (isMounted) {
+          setClasses(classRes.data || []);
+          setDivisions(divisionRes.data || []);
+        }
+      } catch (error) {
+        console.error(error);
+        if (isMounted) {
+          toast.error("Failed to load classes and divisions.");
+        }
+      }
+    };
+
     loadDropdowns();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
+  /* =========================================
+     LOAD STUDENTS & ATTENDANCE
+  ========================================= */
+
   const loadStudents = async () => {
-    if (!divisionId) return;
+    if (!classId) {
+      return toast.error("Please select a class.");
+    }
+
+    if (!divisionId) {
+      return toast.error("Please select a division.");
+    }
 
     try {
-      // Load students
-      const studentRes = await getStudentsByDivision(divisionId);
-      const studentList = studentRes.data;
+      setLoading(true);
 
-      setStudents(studentList);
+      /* ==========================
+         LOAD STUDENTS (if not already loaded)
+      ========================== */
+      let studentList = students;
+      if (!studentList || studentList.length === 0) {
+        const studentRes = await getStudentsByDivision(divisionId);
+        studentList = studentRes.data || [];
+        setStudents(studentList);
+      }
 
-      try {
-        // Load attendance for selected date
-        const attendanceRes = await getAttendanceByDate(
-          divisionId,
-          date
-        );
+      /* ==========================
+         LOAD ATTENDANCE
+      ========================== */
+      const attendanceRes = await getAttendanceByDate(divisionId, date);
+      const attendanceData = attendanceRes.data;
 
-        const attendanceData = attendanceRes.data.data;
+      // Merge students and attendanceData to ensure every student has a record in state
+      const mergedAttendance = studentList.map((student) => {
+        const record = Array.isArray(attendanceData)
+          ? attendanceData.find(
+              (r) => isSameStudent(r.studentId, student._id)
+            )
+          : null;
 
-        if (
-          Array.isArray(attendanceData) &&
-          attendanceData.length > 0
-        ) {
-          setAttendance(
-            attendanceData.map((record) => ({
-              studentId: record.studentId?._id || record.studentId,
-              status: record.status,
-              reason: record.reason || "",
-            }))
-          );
+        if (record) {
+          return {
+            ...record,
+            studentId: record.studentId,
+            documents: record.documents || [],
+          };
         } else {
-          throw new Error("No attendance found");
-        }
-      } catch {
-        // No attendance found → default present
-        setAttendance(
-          studentList.map((student) => ({
+          return {
+            _id: null,
             studentId: student._id,
             status: "present",
             reason: "",
-          }))
-        );
-      }
+            documents: [],
+          };
+        }
+      });
+
+      setAttendance(mergedAttendance);
+      toast.success("Students loaded successfully.");
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      toast.error(
+        error.response?.data?.message || "Failed to load students."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
-  const filteredDivisions = divisions.filter(
-    (division) => division.classId?._id === classId
-  );
+  /* =========================================
+     FILTER DIVISIONS
+  ========================================= */
+
+  const filteredDivisions =
+    divisions.filter(
+      (division) =>
+        division.classId?._id ===
+        classId
+    );
 
   return (
     <div className="attendance-toolbar">
       <div className="attendance-toolbar-header">
-        <h2 className="attendance-title">
-          Attendance
-        </h2>
+        <div>
+          <h2 className="attendance-title">
+            Attendance Management
+          </h2>
+
+          <p className="attendance-subtitle">
+            Mark and manage
+            student attendance.
+          </p>
+        </div>
       </div>
 
       <div className="attendance-toolbar-grid">
+        {/* DATE */}
+
         <div className="toolbar-field">
           <label>Date</label>
 
           <input
             type="date"
             value={date}
-            onChange={(e) => setDate(e.target.value)}
+            onChange={(e) =>
+              setDate(
+                e.target.value
+              )
+            }
           />
         </div>
+
+        {/* CLASS */}
 
         <div className="toolbar-field">
           <label>Class</label>
 
           <select
             value={classId}
-            onChange={(e) => setClassId(e.target.value)}
+            onChange={(e) => {
+              setClassId(
+                e.target.value
+              );
+
+              setDivisionId("");
+
+              setStudents([]);
+
+              setAttendance([]);
+            }}
           >
             <option value="">
               Select Class
             </option>
 
-            {classes.map((singleClass) => (
-              <option
-                key={singleClass._id}
-                value={singleClass._id}
-              >
-                {singleClass.name}
-              </option>
-            ))}
+            {classes.map(
+              (singleClass) => (
+                <option
+                  key={
+                    singleClass._id
+                  }
+                  value={
+                    singleClass._id
+                  }
+                >
+                  {
+                    singleClass.name
+                  }
+                </option>
+              )
+            )}
           </select>
         </div>
+
+        {/* DIVISION */}
 
         <div className="toolbar-field">
           <label>Division</label>
@@ -138,7 +224,9 @@ function AttendanceToolbar({
           <select
             value={divisionId}
             onChange={(e) =>
-              setDivisionId(e.target.value)
+              setDivisionId(
+                e.target.value
+              )
             }
             disabled={!classId}
           >
@@ -146,27 +234,48 @@ function AttendanceToolbar({
               Select Division
             </option>
 
-            {filteredDivisions.map((division) => (
-              <option
-                key={division._id}
-                value={division._id}
-              >
-                {division.name}
-              </option>
-            ))}
+            {filteredDivisions.map(
+              (division) => (
+                <option
+                  key={
+                    division._id
+                  }
+                  value={
+                    division._id
+                  }
+                >
+                  {division.name}
+                </option>
+              )
+            )}
           </select>
         </div>
+
+        {/* LOAD BUTTON */}
 
         <div className="toolbar-button">
           <button
             className="attendance-load-btn btn-press"
-            onClick={loadStudents}
+            onClick={
+              loadStudents
+            }
+            disabled={
+              loading ||
+              !classId ||
+              !divisionId
+            }
           >
             <span className="material-symbols-outlined">
-              sync
+              {loading
+                ? "progress_activity"
+                : "sync"}
             </span>
 
-            Load Students
+            <span>
+              {loading
+                ? "Loading..."
+                : "Load Students"}
+            </span>
           </button>
         </div>
       </div>

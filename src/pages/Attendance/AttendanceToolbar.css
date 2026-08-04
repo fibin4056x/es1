@@ -1,136 +1,262 @@
-/* ========================================
+/* ==========================================
    Attendance Toolbar
-======================================== */
+========================================== */
 
 .attendance-toolbar {
+  position: relative;
+
   background: var(--card-bg);
   border: 1px solid var(--border-main);
-  border-radius: var(--radius-2xl);
-  padding: var(--card-padding);
-  box-shadow: var(--shadow-card);
+  border-radius: 22px;
+
+  padding: 28px;
+
+  box-shadow:
+    0 10px 35px rgba(15, 23, 42, 0.08);
+
+  overflow: hidden;
 }
 
+.attendance-toolbar::before {
+  content: "";
+
+  position: absolute;
+  inset: 0 0 auto 0;
+
+  height: 4px;
+
+  background: linear-gradient(
+    90deg,
+    #6366f1,
+    #8b5cf6,
+    #06b6d4
+  );
+}
+
+/* ==========================================
+   Header
+========================================== */
+
 .attendance-toolbar-header {
-  margin-bottom: var(--space-6);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 26px;
 }
 
 .attendance-title {
-  font-size: var(--text-2xl);
-  font-weight: var(--font-bold);
+  font-size: 1.7rem;
+  font-weight: 700;
+
   color: var(--text-main);
 }
 
+.attendance-subtitle {
+  margin-top: 6px;
+
+  color: var(--text-secondary);
+
+  font-size: .95rem;
+  line-height: 1.6;
+}
+
+/* ==========================================
+   Grid
+========================================== */
+
 .attendance-toolbar-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(180px, 1fr));
-  gap: var(--space-4);
+
+  grid-template-columns:
+    repeat(4, minmax(190px,1fr));
+
+  gap: 22px;
+
   align-items: end;
 }
+
+/* ==========================================
+   Form Fields
+========================================== */
 
 .toolbar-field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 10px;
 }
 
 .toolbar-field label {
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
+  font-size: .88rem;
+  font-weight: 600;
+
   color: var(--text-secondary);
 }
 
 .toolbar-field input,
 .toolbar-field select {
+
   width: 100%;
-  height: 46px;
-  padding: 0 14px;
+  height: 52px;
+
+  padding: 0 16px;
 
   border: 1px solid var(--border-main);
-  border-radius: var(--radius-lg);
+  border-radius: 14px;
 
   background: var(--surface);
+
   color: var(--text-main);
 
-  font-size: var(--text-sm);
+  font-size: .95rem;
 
-  transition: var(--transition);
+  transition: .25s ease;
+}
+
+.toolbar-field input:hover,
+.toolbar-field select:hover{
+  border-color:#6366f1;
 }
 
 .toolbar-field input:focus,
-.toolbar-field select:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, .15);
+.toolbar-field select:focus{
+
+  outline:none;
+
+  border-color:#6366f1;
+
+  box-shadow:
+      0 0 0 4px rgba(99,102,241,.15);
 }
 
-.toolbar-field select:disabled {
-  opacity: .6;
-  cursor: not-allowed;
+.toolbar-field select:disabled{
+
+  opacity:.55;
+
+  cursor:not-allowed;
 }
 
-.toolbar-button {
-  display: flex;
+/* ==========================================
+   Button
+========================================== */
+
+.toolbar-button{
+  display:flex;
 }
 
-.attendance-load-btn {
-  width: 100%;
-  height: 46px;
+.attendance-load-btn{
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  width:100%;
+  height:52px;
 
-  border: none;
-  border-radius: var(--radius-lg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
 
-  background: var(--primary);
-  color: var(--on-primary);
+  border:none;
+  border-radius:14px;
 
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
+  background:linear-gradient(
+      135deg,
+      #6366f1,
+      #4f46e5
+  );
 
-  cursor: pointer;
+  color:#fff;
 
-  transition: var(--transition);
+  font-size:.95rem;
+  font-weight:600;
+
+  cursor:pointer;
+
+  transition:.25s ease;
+
+  box-shadow:
+      0 12px 24px rgba(79,70,229,.25);
 }
 
-.attendance-load-btn:hover {
-  background: var(--primary-hover);
+.attendance-load-btn:hover{
+
+  transform:translateY(-2px);
+
+  box-shadow:
+      0 18px 32px rgba(79,70,229,.35);
 }
 
-.attendance-load-btn:active {
-  transform: scale(.98);
+.attendance-load-btn:active{
+
+  transform:scale(.98);
 }
 
-/* ==========================
+.attendance-load-btn:disabled{
+
+  opacity:.65;
+
+  cursor:not-allowed;
+
+  transform:none;
+
+  box-shadow:none;
+}
+
+.attendance-load-btn
+.material-symbols-outlined{
+
+  font-size:20px;
+}
+
+/* ==========================================
    Tablet
-========================== */
+========================================== */
 
-@media (max-width: 992px) {
+@media (max-width:992px){
 
-  .attendance-toolbar-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .attendance-toolbar-grid{
+
+      grid-template-columns:
+      repeat(2,1fr);
   }
-
 }
 
-/* ==========================
+/* ==========================================
    Mobile
-========================== */
+========================================== */
 
-@media (max-width: 768px) {
+@media (max-width:768px){
 
-  .attendance-toolbar {
-    padding: 20px;
+  .attendance-toolbar{
+
+      padding:20px;
+      border-radius:18px;
   }
 
-  .attendance-toolbar-grid {
-    grid-template-columns: 1fr;
+  .attendance-toolbar-header{
+
+      flex-direction:column;
+      align-items:flex-start;
+      gap:8px;
   }
 
-  .attendance-title {
-    font-size: var(--text-xl);
+  .attendance-toolbar-grid{
+
+      grid-template-columns:1fr;
+      gap:18px;
+  }
+
+  .attendance-title{
+
+      font-size:1.4rem;
+  }
+
+  .attendance-subtitle{
+
+      font-size:.9rem;
+  }
+
+  .attendance-load-btn{
+
+      width:100%;
   }
 
 }

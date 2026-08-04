@@ -3,107 +3,263 @@
 ========================================== */
 
 .attendance-row {
-  transition: background-color var(--transition);
+  transition:
+    background-color .25s ease,
+    transform .2s ease;
 }
 
 .attendance-row:hover {
-  background: rgba(79, 70, 229, 0.06);
+  background: rgba(99,102,241,.06);
 }
 
-.student-admission {
-  font-weight: var(--font-medium);
-  color: var(--text-secondary);
-}
-
-.student-name {
-  font-weight: var(--font-semibold);
-  color: var(--text-main);
-}
-
-.attendance-status {
-  width: 180px;
-}
-
-.attendance-select {
-  width: 140px;
-  height: 40px;
-
-  padding: 0 12px;
-
-  border: 1px solid var(--border-main);
-  border-radius: var(--radius-lg);
-
-  background: var(--surface);
-  color: var(--text-main);
-
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-
-  cursor: pointer;
-
-  transition: var(--transition);
-}
-
-.attendance-select:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
-}
-
-/* Status Colors */
-
-.status-present {
-  color: var(--success);
-}
-
-.status-absent {
-  color: var(--danger);
-}
-
-.status-late {
-  color: var(--warning);
-}
-
-@media (max-width: 768px) {
-
-  .attendance-status {
-    width: auto;
-  }
-
-  .attendance-select {
-    width: 100%;
-    min-width: 120px;
-  }
-
-}
 /* ==========================================
-   Reason Input
+   Student
 ========================================== */
 
-.attendance-reason-input {
-  width: 100%;
-  min-width: 180px;
+.student-admission {
 
-  padding: 10px 12px;
+  font-weight:600;
 
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-
-  background: var(--input-bg);
-  color: var(--text-primary);
-
-  font-size: 13px;
-
-  transition: all .25s ease;
+  color:var(--text-secondary);
 }
 
-.attendance-reason-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(79,70,229,.15);
+.student-name{
+
+  font-weight:600;
+
+  color:var(--text-main);
 }
 
-.attendance-reason-input:disabled {
-  opacity: .6;
+/* ==========================================
+   Status
+========================================== */
+
+.attendance-status{
+
+  width:170px;
+}
+
+.attendance-select{
+
+  width:150px;
+  height:44px;
+
+  padding:0 14px;
+
+  border:1px solid var(--border-main);
+  border-radius:12px;
+
+  background:var(--surface);
+
+  color:var(--text-main);
+
+  font-size:.9rem;
+  font-weight:600;
+
+  cursor:pointer;
+
+  transition:.25s ease;
+}
+
+.attendance-select:hover{
+
+  border-color:#6366f1;
+}
+
+.attendance-select:focus{
+
+  outline:none;
+
+  border-color:#6366f1;
+
+  box-shadow:
+      0 0 0 4px rgba(99,102,241,.15);
+}
+
+/* ==========================================
+   Status Colors
+========================================== */
+
+.status-present{
+
+  color:#10b981;
+}
+
+.status-absent{
+
+  color:#ef4444;
+}
+
+.status-late{
+
+  color:#f59e0b;
+}
+
+.status-leave{
+
+  color:#3b82f6;
+}
+
+/* ==========================================
+   Reason
+========================================== */
+
+.attendance-reason{
+
+  min-width:220px;
+}
+
+.attendance-reason-input{
+
+  width:100%;
+  height:44px;
+
+  padding:0 14px;
+
+  border:1px solid var(--border-main);
+  border-radius:12px;
+
+  background:var(--surface);
+
+  color:var(--text-main);
+
+  font-size:.9rem;
+
+  transition:.25s ease;
+}
+
+.attendance-reason-input:hover{
+
+  border-color:#6366f1;
+}
+
+.attendance-reason-input:focus{
+
+  outline:none;
+
+  border-color:#6366f1;
+
+  box-shadow:
+      0 0 0 4px rgba(99,102,241,.15);
+}
+
+.attendance-reason-input:disabled{
+
+  opacity:.65;
+
+  background:#f8fafc;
+
+  cursor:not-allowed;
+}
+
+/* ==========================================
+   Document & Action Buttons
+   ========================================== */
+
+.attendance-document-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-main);
+  background: var(--surface-light);
+  color: var(--text-muted);
   cursor: not-allowed;
+  opacity: 0.5;
+  transition: all 0.25s ease;
+}
+
+.attendance-document-btn.enabled {
+  cursor: pointer;
+  opacity: 1;
+  color: var(--primary);
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.attendance-document-btn.enabled:hover {
+  transform: translateY(-2px);
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.document-btn-icon {
+  font-size: 20px;
+}
+
+.doc-count-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid var(--surface);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.attendance-action-delete-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.4;
+  transition: all 0.25s ease;
+}
+
+.attendance-action-delete-btn.active {
+  cursor: pointer;
+  opacity: 1;
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.15);
+}
+
+.attendance-action-delete-btn.active:hover {
+  transform: translateY(-2px);
+  background: var(--danger);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+/* ==========================================
+   Responsive
+========================================== */
+
+@media (max-width:768px){
+
+  .attendance-status{
+
+      width:auto;
+  }
+
+  .attendance-select{
+
+      width:100%;
+      min-width:130px;
+  }
+
+  .attendance-reason{
+
+      min-width:180px;
+  }
+
 }

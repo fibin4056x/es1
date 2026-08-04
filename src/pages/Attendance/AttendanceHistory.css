@@ -1,0 +1,234 @@
+/* ==========================================
+   Attendance History Page
+========================================== */
+
+.attendance-history-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  padding: 28px;
+
+  animation: fadeIn .3s ease;
+}
+
+/* ==========================================
+   Header
+========================================== */
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.history-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+
+  color: var(--text-main);
+}
+
+.history-header p {
+  margin-top: 6px;
+
+  color: var(--text-secondary);
+}
+
+/* ==========================================
+   Card
+========================================== */
+
+.history-card {
+
+  background: var(--card-bg);
+
+  border: 1px solid var(--border-main);
+
+  border-radius: 18px;
+
+  padding: 24px;
+
+  box-shadow: var(--shadow-card);
+}
+
+.history-card h3 {
+
+  margin-bottom: 20px;
+
+  font-size: 18px;
+
+  color: var(--text-main);
+}
+
+/* ==========================================
+   Filters
+========================================== */
+
+.history-filter-grid {
+
+  display: grid;
+
+  grid-template-columns:
+      repeat(4,1fr);
+
+  gap:18px;
+}
+
+.history-filter-grid select,
+.history-filter-grid input{
+
+  width:100%;
+  height:48px;
+
+  padding:0 14px;
+
+  border:1px solid var(--border-main);
+
+  border-radius:12px;
+
+  background:var(--surface);
+
+  color:var(--text-main);
+
+  transition:.25s;
+}
+
+.history-filter-grid select:focus,
+.history-filter-grid input:focus{
+
+  outline:none;
+
+  border-color:#6366f1;
+
+  box-shadow:
+      0 0 0 4px rgba(99,102,241,.15);
+}
+
+/* ==========================================
+   Student Info
+========================================== */
+
+.student-info-grid{
+
+  display:grid;
+
+  grid-template-columns:
+      repeat(5,1fr);
+
+  gap:18px;
+}
+
+.student-info-grid div{
+
+  background:var(--surface);
+
+  padding:18px;
+
+  border-radius:14px;
+
+  border:1px solid var(--border-main);
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:8px;
+}
+
+.student-info-grid span{
+
+  font-size:.8rem;
+
+  color:var(--text-secondary);
+}
+
+.student-info-grid strong{
+
+  font-size:1rem;
+
+  color:var(--text-main);
+}
+
+/* ==========================================
+   Calendar
+========================================== */
+
+.calendar-placeholder{
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  height:420px;
+
+  border:2px dashed var(--border-main);
+
+  border-radius:16px;
+
+  background:var(--surface);
+
+  color:var(--text-secondary);
+
+  font-size:18px;
+}
+
+/* ==========================================
+   Responsive
+========================================== */
+
+@media(max-width:992px){
+
+.history-filter-grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+.student-info-grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+}
+
+@media(max-width:768px){
+
+.attendance-history-page{
+
+padding:16px;
+
+}
+
+.history-filter-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.student-info-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.history-header{
+
+flex-direction:column;
+
+align-items:flex-start;
+
+gap:10px;
+
+}
+
+.calendar-placeholder{
+
+height:280px;
+
+}
+
+}
