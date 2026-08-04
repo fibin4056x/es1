@@ -4,7 +4,7 @@ function AttendanceTable({
   students,
   attendance,
   setAttendance,
-  isTeacher,
+  canEditAttendance,
   onManageDocuments,
   onDeleteAttendance,
   loading,
@@ -64,7 +64,7 @@ function AttendanceTable({
               student={student}
               attendance={attendance}
               setAttendance={setAttendance}
-              isTeacher={isTeacher}
+              canEditAttendance={canEditAttendance}
               onManageDocuments={onManageDocuments}
               onDeleteAttendance={onDeleteAttendance}
               loading={loading}

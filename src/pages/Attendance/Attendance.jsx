@@ -31,8 +31,10 @@ function TableSkeleton() {
 
 function Attendance() {
   const { user } = useAuth();
-  const isTeacher = user?.role === "teacher";
+const role = user?.role?.toLowerCase();
 
+const canEditAttendance =
+  role === "teacher" || role === "principal";
   const [students, setStudents] = useState([]);
   const [divisionId, setDivisionId] = useState("");
   const [classId, setClassId] = useState("");
@@ -90,14 +92,17 @@ function Attendance() {
         students: sanitizedStudents,
       });
 
-      if (Array.isArray(response.data)) {
-        const normalized = response.data.map((record) => ({
-          ...record,
-          studentId: record.studentId,
-          documents: record.documents || [],
-        }));
-        setAttendance(normalized);
-      }
+const records = response.data?.data;
+
+if (Array.isArray(records)) {
+  const normalized = records.map((record) => ({
+    ...record,
+    studentId: record.studentId,
+    documents: record.documents || [],
+  }));
+
+  setAttendance(normalized);
+}
 
 
       toast.success("Attendance marked successfully.");
@@ -115,7 +120,7 @@ function Attendance() {
   ========================================= */
 
   const handleDeleteAttendance = async (attendanceId, studentId) => {
-    if (!isTeacher) {
+    if (!canEditAttendance) {
       return toast.error("You do not have permission to delete attendance.");
     }
 
@@ -221,19 +226,19 @@ function Attendance() {
 
           <div className="glass-card table-card">
             <div className="table-responsive">
-              <AttendanceTable
-                students={students}
-                attendance={attendance}
-                setAttendance={setAttendance}
-                isTeacher={isTeacher}
-                onManageDocuments={(record) => setActiveAttendance(record)}
-                onDeleteAttendance={handleDeleteAttendance}
-                loading={loading}
-              />
+          <AttendanceTable
+  students={students}
+  attendance={attendance}
+  setAttendance={setAttendance}
+  canEditAttendance={canEditAttendance}
+  onManageDocuments={(record) => setActiveAttendance(record)}
+  onDeleteAttendance={handleDeleteAttendance}
+  loading={loading}
+/>
             </div>
           </div>
 
-          {isTeacher && (
+          {canEditAttendance && (
             <div className="attendance-actions">
               <button
                 className="save-attendance-btn btn-press"
@@ -253,11 +258,11 @@ function Attendance() {
 
       {activeAttendance && (
         <AttendanceDocumentModal
-          open={!!activeAttendance}
-          onClose={() => setActiveAttendance(null)}
-          attendanceRecord={activeAttendance}
-          isTeacher={isTeacher}
-          onUpdateRecord={(updatedRecord) => {
+  open={!!activeAttendance}
+  onClose={() => setActiveAttendance(null)}
+  attendanceRecord={activeAttendance}
+  canEditAttendance={canEditAttendance}
+  onUpdateRecord={(updatedRecord) => {
             setAttendance((prev) =>
               prev.map((item) =>
                 item._id === updatedRecord._id
@@ -277,4 +282,4 @@ function Attendance() {
   );
 }
 
-export default Attendance;
+export default Attendance;

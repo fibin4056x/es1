@@ -8,6 +8,7 @@ import StudentModal from "./StudentModal";
 import EditStudentModal from "./EditStudentModal";
 import Pagination from "../../components/common/pagination/Pagination";
 import StudentStats from "./StudentStats";
+import ExportDropdown from "./ExportDropdown";
 
 import "./Students.css";
 
@@ -84,7 +85,8 @@ function Students() {
           <h1>Students</h1>
           <p>Manage student profiles, academic records, and status.</p>
         </div>
-        <div>
+        <div className="students-header-actions" style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+          <ExportDropdown />
           <button type="button" className="students-add-btn btn-press" onClick={() => setOpen(true)}>
             <span className="material-symbols-outlined">add</span>
             Add Student

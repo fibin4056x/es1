@@ -11,7 +11,7 @@ function AttendanceDocumentModal({
   open,
   onClose,
   attendanceRecord,
-  isTeacher,
+  canEditAttendance,
   onUpdateRecord,
 }) {
   const [uploading, setUploading] = useState(false);
@@ -107,7 +107,7 @@ function AttendanceDocumentModal({
 
   const handleDragOver = (e) => {
     e.preventDefault();
-    if (isTeacher) setDragging(true);
+    if (canEditAttendance) setDragging(true);
   };
 
   const handleDragLeave = () => {
@@ -118,7 +118,7 @@ function AttendanceDocumentModal({
     e.preventDefault();
     setDragging(false);
 
-    if (!isTeacher) return;
+    if (!canEditAttendance) return;
 
     const files = e.dataTransfer.files;
     if (!files || files.length === 0) return;
@@ -133,13 +133,13 @@ function AttendanceDocumentModal({
   };
 
   const triggerFileInput = () => {
-    if (isTeacher && fileInputRef.current) {
+    if (canEditAttendance && fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
   const triggerReplaceInput = (docId) => {
-    if (isTeacher) {
+    if (canEditAttendance) {
       setReplacingDocId(docId);
       if (replaceInputRef.current) {
         replaceInputRef.current.click();
@@ -152,7 +152,7 @@ function AttendanceDocumentModal({
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{isTeacher ? "Manage Documents" : "View Documents"}</h2>
+          <h2>{canEditAttendance ? "Manage Documents" : "View Documents"}</h2>
           <button className="modal-close-btn" onClick={onClose}>
             ✖
           </button>
@@ -223,7 +223,7 @@ function AttendanceDocumentModal({
                         <span className="material-symbols-outlined">visibility</span>
                       </a>
 
-                      {isTeacher && (
+                      {canEditAttendance && (
                         <>
                           <button
                             type="button"
@@ -256,8 +256,8 @@ function AttendanceDocumentModal({
             )}
           </div>
 
-          {/* Upload Area for Teachers */}
-          {isTeacher && documents.length < 10 && (
+          {/* Upload Area for authorized users (Teacher/Principal) */}
+          {canEditAttendance && documents.length < 10 && (
             <div className="upload-section">
               <h3>Upload New Document</h3>
               
@@ -292,7 +292,7 @@ function AttendanceDocumentModal({
         </div>
 
         {/* Hidden replacement file selector */}
-        {isTeacher && (
+        {canEditAttendance && (
           <input
             type="file"
             className="file-select-input"
