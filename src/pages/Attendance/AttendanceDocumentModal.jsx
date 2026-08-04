@@ -37,10 +37,12 @@ function AttendanceDocumentModal({
     const file = files[0];
     if (file.type !== "application/pdf") {
       toast.error("Only PDF files are allowed.");
+      e.target.value = "";
       return;
     }
 
     await uploadFile(file, replaceId);
+    e.target.value = "";
   };
 
   const uploadFile = async (file, replaceId = null) => {
@@ -139,13 +141,12 @@ function AttendanceDocumentModal({
   const triggerReplaceInput = (docId) => {
     if (isTeacher) {
       setReplacingDocId(docId);
-      setTimeout(() => {
-        if (replaceInputRef.current) {
-          replaceInputRef.current.click();
-        }
-      }, 0);
+      if (replaceInputRef.current) {
+        replaceInputRef.current.click();
+      }
     }
   };
+
 
   return (
     <div className="modal-overlay" onClick={onClose}>

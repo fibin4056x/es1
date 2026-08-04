@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { isSameStudent } from "../../util/helpers";
@@ -11,7 +10,6 @@ import { getStudentsByDivision } from "../../services/StudentService";
 import { getAttendanceByDate } from "../../services/AttendanceService";
 
 function AttendanceToolbar({
-  students,
   setStudents,
   setAttendance,
 
@@ -27,6 +25,7 @@ function AttendanceToolbar({
   loading,
   setLoading,
 }) {
+
   const [classes, setClasses] = useState([]);
   const [divisions, setDivisions] = useState([]);
 
@@ -79,14 +78,11 @@ function AttendanceToolbar({
       setLoading(true);
 
       /* ==========================
-         LOAD STUDENTS (if not already loaded)
+         LOAD STUDENTS & ATTENDANCE
       ========================== */
-      let studentList = students;
-      if (!studentList || studentList.length === 0) {
-        const studentRes = await getStudentsByDivision(divisionId);
-        studentList = studentRes.data || [];
-        setStudents(studentList);
-      }
+      const studentRes = await getStudentsByDivision(divisionId);
+      const studentList = studentRes.data || [];
+      setStudents(studentList);
 
       /* ==========================
          LOAD ATTENDANCE
@@ -223,11 +219,11 @@ function AttendanceToolbar({
 
           <select
             value={divisionId}
-            onChange={(e) =>
-              setDivisionId(
-                e.target.value
-              )
-            }
+            onChange={(e) => {
+              setDivisionId(e.target.value);
+              setStudents([]);
+              setAttendance([]);
+            }}
             disabled={!classId}
           >
             <option value="">

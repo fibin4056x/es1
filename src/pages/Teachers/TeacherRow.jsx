@@ -1,6 +1,6 @@
 import { useState, useLayoutEffect, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { updateTeacherStatus, deleteTeacher } from "../../services/teacherService";
+import { updateTeacherStatus, deleteTeacher } from "../../services/TeacherService";
 import { toast } from "react-toastify";
 import "./TeacherRow.css";
 

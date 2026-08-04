@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { useEffect, useState } from "react";
 
-import { getDivisions } from "../../services/divisionService";
+import { getDivisions } from "../../services/DivisionService";
 
 import DivisionTable from "./DivisionTable";
 import DivisionModal from "./DivisionModel";

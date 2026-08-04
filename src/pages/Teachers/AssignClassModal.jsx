@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
-import { getClasses } from "../../services/classService";
+import { getClasses } from "../../services/ClassService";
 import {
   getDivisions,
   updateDivision,
-} from "../../services/divisionService";
+} from "../../services/DivisionService";
 
 function AssignClassModal({
   open,

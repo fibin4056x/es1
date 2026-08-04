@@ -3,7 +3,8 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "../components/layout/Sidebar/Sidebar.jsx";
 import Navbar from "../components/layout/Navbar/Navbar.jsx";
 import "./DashboardLayout.css";
-import {useAuth} from '../context/AuthContext.jsx'
+import { useAuth } from "../hooks/UseAuth";
+
 
 function DashboardLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -15,7 +16,6 @@ function DashboardLayout() {
   const closeSidebar = () => {
     setIsSidebarOpen(false);
   };
- console.log("user form dashboarlayout "+ user.role)
   return (
     <div className="dashboard-layout">
       {/* Ambient background blob */}

@@ -1,11 +1,10 @@
-/* eslint-disable */
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 import {
   createClass,
   updateClass,
-} from "../../services/classService";
+} from "../../services/ClassService";
 
 function ClassForm({
   classData,
@@ -21,12 +20,12 @@ function ClassForm({
 
   useEffect(() => {
     if (isEdit && classData) {
-      setForm({
-        name: classData.name || "",
-        academicYear:
-          classData.academicYear || "",
-        status:
-          classData.status || "active",
+      Promise.resolve().then(() => {
+        setForm({
+          name: classData.name || "",
+          academicYear: classData.academicYear || "",
+          status: classData.status || "active",
+        });
       });
     }
   }, [classData, isEdit]);
@@ -34,8 +33,7 @@ function ClassForm({
   const handleChange = (e) => {
     setForm({
       ...form,
-      [e.target.name]:
-        e.target.value,
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -44,36 +42,22 @@ function ClassForm({
 
     try {
       if (isEdit) {
-        await updateClass(
-          classData._id,
-          form
-        );
-
-        toast.success(
-          "Class updated successfully"
-        );
+        await updateClass(classData._id, form);
+        toast.success("Class updated successfully");
       } else {
         await createClass(form);
-
-        toast.success(
-          "Class created successfully"
-        );
+        toast.success("Class created successfully");
       }
 
       reload();
       onClose();
-
     } catch (error) {
-
-      console.log(error);
-
       toast.error(
-        error.response?.data?.message ||
-        "Something went wrong"
+        error.response?.data?.message || "Something went wrong"
       );
-
     }
   };
+
 
   return (
 

@@ -2,7 +2,7 @@ import { toast } from "react-toastify";
 
 import {
   deleteClass,
-} from "../../services/classService";
+} from "../../services/ClassService";
 
 function ClassRow({
   classData,

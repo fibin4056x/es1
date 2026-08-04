@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Select from "react-select";
@@ -6,10 +5,10 @@ import Select from "react-select";
 import {
   createDivision,
   updateDivision,
-} from "../../services/divisionService";
+} from "../../services/DivisionService";
 
-import { getClasses } from "../../services/classService";
-import { getTeachers } from "../../services/teacherService";
+import { getClasses } from "../../services/ClassService";
+import { getTeachers } from "../../services/TeacherService";
 
 import "./DivisionForm.css";
 import reactSelectStyles from "../../styles/reactSelectStyles";
@@ -31,33 +30,43 @@ function DivisionForm({
     status: "active",
   });
 
-  const loadDropdowns = async () => {
-    try {
-      const classRes = await getClasses();
-      const teacherRes = await getTeachers();
-
-      setClasses(classRes.data);
-      setTeachers(teacherRes.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   useEffect(() => {
-    loadDropdowns();
+    let isMounted = true;
+    const loadDropdowns = async () => {
+      try {
+        const classRes = await getClasses();
+        const teacherRes = await getTeachers();
+        if (isMounted) {
+          setClasses(classRes.data || []);
+          setTeachers(teacherRes.data || []);
+        }
+      } catch (error) {
+        console.error(error);
+        if (isMounted) {
+          toast.error("Failed to load classes or teachers.");
+        }
+      }
+    };
+    Promise.resolve().then(loadDropdowns);
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
     if (isEdit && division) {
-      setForm({
-        name: division.name || "",
-        classId: division.classId?._id || "",
-        assignedTeacher: division.assignedTeacher?._id || "",
-        capacity: division.capacity || 40,
-        status: division.status || "active",
+      Promise.resolve().then(() => {
+        setForm({
+          name: division.name || "",
+          classId: division.classId?._id || division.classId || "",
+          assignedTeacher: division.assignedTeacher?._id || division.assignedTeacher || "",
+          capacity: division.capacity || 40,
+          status: division.status || "active",
+        });
       });
     }
   }, [division, isEdit]);
+
 
   const classOptions = classes.map((singleClass) => ({
     value: singleClass._id,

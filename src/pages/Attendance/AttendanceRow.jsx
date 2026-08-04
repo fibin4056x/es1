@@ -30,20 +30,33 @@ function AttendanceRow({
   ========================================= */
 
   const handleStatusChange = (status) => {
-    setAttendance(
-      attendance.map((item) =>
-        isSameStudent(item.studentId, student._id)
-          ? {
-              ...item,
-              status,
-              reason:
-                status === "present"
-                  ? ""
-                  : item.reason,
-            }
-          : item
-      )
-    );
+    setAttendance((prev) => {
+      const exists = prev.some((item) => isSameStudent(item.studentId, student._id));
+      if (exists) {
+        return prev.map((item) =>
+          isSameStudent(item.studentId, student._id)
+            ? {
+                ...item,
+                status,
+        reason:
+  status === "present"
+    ? ""
+    : item.reason || "",
+              }
+            : item
+        );
+      }
+      return [
+        ...prev,
+        {
+          _id: null,
+          studentId: student._id,
+          status,
+          reason: "",
+          documents: [],
+        },
+      ];
+    });
   };
 
   /* =========================================
@@ -51,21 +64,36 @@ function AttendanceRow({
   ========================================= */
 
   const handleReasonChange = (reason) => {
-    setAttendance(
-      attendance.map((item) =>
-        isSameStudent(item.studentId, student._id)
-          ? {
-              ...item,
-              reason,
-            }
-          : item
-      )
-    );
+    setAttendance((prev) => {
+      const exists = prev.some((item) => isSameStudent(item.studentId, student._id));
+      if (exists) {
+        return prev.map((item) =>
+          isSameStudent(item.studentId, student._id)
+            ? {
+                ...item,
+                reason,
+              }
+            : item
+        );
+      }
+      return [
+        ...prev,
+        {
+          _id: null,
+          studentId: student._id,
+          status: "present",
+          reason,
+          documents: [],
+        },
+      ];
+    });
   };
 
-  const hasRecordId = !!currentAttendance._id;
-  const docCount = currentAttendance.documents?.length || 0;
-
+ const hasRecordId =
+  currentAttendance?._id != null;
+ const docCount = Array.isArray(currentAttendance.documents)
+  ? currentAttendance.documents.length
+  : 0;
   return (
     <tr className="attendance-row">
       {/* Admission */}
@@ -89,7 +117,7 @@ function AttendanceRow({
           onChange={(e) =>
             handleStatusChange(e.target.value)
           }
-          disabled={!isTeacher || loading}
+         
         >
           <option value="present">
             🟢 Present
@@ -138,7 +166,7 @@ function AttendanceRow({
         <button
           type="button"
           className={`attendance-document-btn ${hasRecordId ? "enabled" : ""}`}
-          onClick={() => onManageDocuments(currentAttendance)}
+          onClick={() => onManageDocuments?.(currentAttendance)}
           disabled={!hasRecordId}
           title={
             hasRecordId
@@ -163,7 +191,7 @@ function AttendanceRow({
         <button
           type="button"
           className={`attendance-action-delete-btn ${isTeacher && hasRecordId ? "active" : ""}`}
-          onClick={() => onDeleteAttendance(currentAttendance._id, student._id)}
+          onClick={() => onDeleteAttendance?.(currentAttendance._id, student._id)}
           disabled={!isTeacher || !hasRecordId || loading}
           title={
             !isTeacher

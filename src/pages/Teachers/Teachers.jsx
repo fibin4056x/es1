@@ -1,8 +1,8 @@
 /* eslint-disable */
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getTeachers, updateTeacherStatus } from "../../services/teacherService";
-import { getDivisions } from "../../services/divisionService";
-import { getStudents } from "../../services/studentService";
+import { getTeachers, updateTeacherStatus } from "../../services/TeacherService";
+import { getDivisions } from "../../services/DivisionService";
+import { getStudents } from "../../services/StudentService";
 import { toast } from "react-toastify";
 import TeacherToolbar from "./TeacherToolbar";
 import TeacherTable from "./TeacherTable";

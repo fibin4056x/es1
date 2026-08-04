@@ -3,7 +3,8 @@ import AttendanceToolbar from "./AttendanceToolbar";
 import AttendanceTable from "./AttendanceTable";
 import AttendanceDocumentModal from "./AttendanceDocumentModal";
 import { markAttendance, deleteAttendance } from "../../services/AttendanceService";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../hooks/UseAuth";
+
 import { toast } from "react-toastify";
 import { getStudentId } from "../../util/helpers";
 import "./Attendance.css";
@@ -43,6 +44,13 @@ function Attendance() {
   const [loading, setLoading] = useState(false);
   const [activeAttendance, setActiveAttendance] = useState(null);
 
+  const totalStudents = students.length;
+  const presentCount = attendance.filter((a) => a.status === "present").length;
+  const absentCount = attendance.filter((a) => a.status === "absent").length;
+  const lateCount = attendance.filter((a) => a.status === "late").length;
+  const leaveCount = attendance.filter((a) => a.status === "leave").length;
+  const attendanceRate = totalStudents > 0 ? ((presentCount / totalStudents) * 100).toFixed(1) : "0.0";
+
   /* =========================================
      SAVE ATTENDANCE
   ========================================= */
@@ -63,14 +71,23 @@ function Attendance() {
     try {
       setLoading(true);
 
+      const sanitizedStudents = attendance.map((item) => {
+        const payloadItem = {
+          studentId: getStudentId(item.studentId),
+          status: item.status || "present",
+          reason: item.status === "present" ? "" : item.reason || "",
+        };
+        if (item._id) {
+          payloadItem._id = item._id;
+        }
+        return payloadItem;
+      });
+
       const response = await markAttendance({
         date,
         classId,
         divisionId,
-        students: attendance.map((item) => ({
-          ...item,
-          studentId: getStudentId(item.studentId),
-        })),
+        students: sanitizedStudents,
       });
 
       if (Array.isArray(response.data)) {
@@ -81,6 +98,7 @@ function Attendance() {
         }));
         setAttendance(normalized);
       }
+
 
       toast.success("Attendance marked successfully.");
     } catch (error) {
@@ -172,6 +190,35 @@ function Attendance() {
         </div>
       ) : (
         <>
+          {/* Attendance Quick Stats */}
+          <div className="attendance-stats-grid">
+            <div className="attendance-stat-chip present">
+              <span className="chip-dot green"></span>
+              <span className="chip-label">Present:</span>
+              <span className="chip-value">{presentCount}</span>
+            </div>
+            <div className="attendance-stat-chip absent">
+              <span className="chip-dot red"></span>
+              <span className="chip-label">Absent:</span>
+              <span className="chip-value">{absentCount}</span>
+            </div>
+            <div className="attendance-stat-chip late">
+              <span className="chip-dot yellow"></span>
+              <span className="chip-label">Late:</span>
+              <span className="chip-value">{lateCount}</span>
+            </div>
+            <div className="attendance-stat-chip leave">
+              <span className="chip-dot blue"></span>
+              <span className="chip-label">On Leave:</span>
+              <span className="chip-value">{leaveCount}</span>
+            </div>
+            <div className="attendance-stat-chip rate">
+              <span className="material-symbols-outlined rate-icon">analytics</span>
+              <span className="chip-label">Rate:</span>
+              <span className="chip-value">{attendanceRate}%</span>
+            </div>
+          </div>
+
           <div className="glass-card table-card">
             <div className="table-responsive">
               <AttendanceTable

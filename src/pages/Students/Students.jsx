@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { useEffect, useState } from "react";
 
-import { getStudents } from "../../services/studentService";
+import { getStudents } from "../../services/StudentService";
 
 import StudentTable from "./StudentTable";
 import StudentModal from "./StudentModal";

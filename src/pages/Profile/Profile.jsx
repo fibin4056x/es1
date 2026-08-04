@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { useEffect, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../hooks/UseAuth";
+
 import { updateProfile } from "../../services/authService";
 import api from "../../services/api";
 import { toast } from "react-toastify";

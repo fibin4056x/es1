@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { NAVIGATION } from "../../../constants/navigation.js";
-import { useAuth } from "../../../context/AuthContext.jsx";
+import { useAuth } from "../../../hooks/UseAuth";
+
 import "./Sidebar.css";
 
 function Sidebar({ isOpen, onClose, user }) {

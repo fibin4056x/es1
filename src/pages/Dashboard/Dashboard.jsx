@@ -6,7 +6,8 @@ import StatCard from "./StatCard";
 import AttendanceChart from "./AttendanceChart";
 import RecentTeachers from "./RecentTeachers";
 import RecentStudents from "./RecentStudents";
-import {useAuth} from "../../context/AuthContext"
+import { useAuth } from "../../hooks/UseAuth";
+
 function Dashboard() {
  const [stats, setStats] = useState({
   students: 0,
@@ -34,7 +35,6 @@ function Dashboard() {
     try {
       const res = await getDashboardStats();
       setStats(res.data);
-console.log(res.data);
     } catch (error) {
       console.error("Dashboard Error:", error.response?.data || error.message);
     }

@@ -2,7 +2,8 @@ import "./Login.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../services/authService";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../hooks/UseAuth";
+
 import useMouseParallax from "./useMouseParallax";
 import ThemeToggle from "../../components/common/ThemeToggle/ThemeToggle";
 import api from "../../services/api";

@@ -2,7 +2,7 @@ import { toast } from "react-toastify";
 
 import {
   deleteStudent,
-} from "../../services/studentService";
+} from "../../services/StudentService";
 
 function StudentRow({
   student,

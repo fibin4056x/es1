@@ -1,24 +1,15 @@
-import { useEffect, useState } from "react";
+import { useTheme } from "../../../hooks/useTheme";
 import "./ThemeToggle.css";
 
 export default function ThemeToggle() {
-  const [isDark, setIsDark] = useState(() => {
-    return document.documentElement.classList.contains("dark");
-  });
+  const { isDark, toggleTheme } = useTheme();
 
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDark]);
 
   return (
     <button
       type="button"
       className="theme-toggle-btn"
-      onClick={() => setIsDark(!isDark)}
+      onClick={toggleTheme}
       aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
       title={isDark ? "Switch to light theme" : "Switch to dark theme"}
     >
@@ -28,3 +19,4 @@ export default function ThemeToggle() {
     </button>
   );
 }
+
