@@ -2,15 +2,33 @@ import { useState } from "react";
 import {
   uploadAttendanceDocuments,
   deleteAttendanceDocument,
-} from "../../services/attendanceService";
+} from "../../services/AttendanceService";
+import { useAuth } from "../../hooks/UseAuth";
+
+const getDocumentUrl = (url) => {
+  if (!url) return "#";
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("blob:")) {
+    return url;
+  }
+  const backendBase = "http://localhost:5000";
+  return `${backendBase}${url.startsWith("/") ? "" : "/"}${url}`;
+};
 
 export default function AttendanceDetailsModal({
   open,
   onClose,
   attendanceRecord,
-  isTeacher = false,
+  isTeacher = true,
+  canEditAttendance,
   onUpdateRecord,
 }) {
+  const { user } = useAuth();
+  const role = user?.role?.toLowerCase();
+  const canEdit =
+    canEditAttendance !== undefined
+      ? canEditAttendance
+      : role === "teacher" || role === "principal" || role === "admin" || isTeacher;
+
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -18,6 +36,15 @@ export default function AttendanceDetailsModal({
 
   const handleUpload = async () => {
     if (!selectedFile) return;
+
+    const isPdf =
+      selectedFile.type === "application/pdf" ||
+      selectedFile.name?.toLowerCase().endsWith(".pdf");
+
+    if (!isPdf) {
+      alert("Only PDF files are allowed.");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -30,7 +57,8 @@ export default function AttendanceDetailsModal({
         formData
       );
 
-      onUpdateRecord?.(response.data.data);
+      const updatedData = response.data?.data || response.data || response;
+      onUpdateRecord?.(updatedData);
       setSelectedFile(null);
     } catch (error) {
       console.error(error);
@@ -54,7 +82,8 @@ export default function AttendanceDetailsModal({
         documentId
       );
 
-      onUpdateRecord?.(response.data.data);
+      const updatedData = response.data?.data || response.data || response;
+      onUpdateRecord?.(updatedData);
     } catch (error) {
       console.error(error);
       alert(
@@ -79,7 +108,7 @@ export default function AttendanceDetailsModal({
       >
         <div className="modal-header">
           <h2>
-            {isTeacher
+            {canEdit
               ? "Manage Documents"
               : "View Documents"}
           </h2>
@@ -125,14 +154,14 @@ export default function AttendanceDetailsModal({
 
                 <div className="document-actions">
                   <a
-                    href={doc.url}
+                    href={getDocumentUrl(doc.url)}
                     target="_blank"
                     rel="noreferrer"
                   >
                     View
                   </a>
 
-                  {isTeacher && (
+                  {canEdit && (
                     <button
                       onClick={() =>
                         handleDelete(doc._id)
@@ -147,11 +176,11 @@ export default function AttendanceDetailsModal({
             ))
           )}
 
-          {isTeacher && (
+          {canEdit && (
             <div className="upload-section">
               <input
                 type="file"
-                accept="application/pdf"
+                accept=".pdf,application/pdf"
                 onChange={(e) =>
                   setSelectedFile(
                     e.target.files[0]

@@ -7,6 +7,20 @@ import {
 import { toast } from "react-toastify";
 import "./AttendanceDocumentModal.css";
 
+const getDocumentUrl = (url) => {
+  if (!url) return "#";
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("blob:")) {
+    return url;
+  }
+  const backendBase = "http://localhost:5000";
+  return `${backendBase}${url.startsWith("/") ? "" : "/"}${url}`;
+};
+
+const isPdfFile = (file) => {
+  if (!file) return false;
+  return file.type === "application/pdf" || file.name?.toLowerCase().endsWith(".pdf");
+};
+
 function AttendanceDocumentModal({
   open,
   onClose,
@@ -35,7 +49,7 @@ function AttendanceDocumentModal({
     if (!files || files.length === 0) return;
     
     const file = files[0];
-    if (file.type !== "application/pdf") {
+    if (!isPdfFile(file)) {
       toast.error("Only PDF files are allowed.");
       e.target.value = "";
       return;
@@ -124,7 +138,7 @@ function AttendanceDocumentModal({
     if (!files || files.length === 0) return;
 
     const file = files[0];
-    if (file.type !== "application/pdf") {
+    if (!isPdfFile(file)) {
       toast.error("Only PDF files are allowed.");
       return;
     }
@@ -177,6 +191,13 @@ function AttendanceDocumentModal({
             </div>
           </div>
 
+          {attendanceRecord.status === "leave" && (
+            <div className="leave-notice-banner">
+              <span className="material-symbols-outlined">description</span>
+              <span>Leave Document Upload — Attach, view, or replace student leave application or medical PDF.</span>
+            </div>
+          )}
+
           {/* List of Documents */}
           <div className="documents-section">
             <h3>Uploaded Documents ({documents.length}/10)</h3>
@@ -197,7 +218,7 @@ function AttendanceDocumentModal({
                       </span>
                       <div className="document-details">
                         <a
-                          href={doc.url}
+                          href={getDocumentUrl(doc.url)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="document-name"
@@ -214,7 +235,7 @@ function AttendanceDocumentModal({
 
                     <div className="document-actions">
                       <a
-                        href={doc.url}
+                        href={getDocumentUrl(doc.url)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="doc-action-btn"

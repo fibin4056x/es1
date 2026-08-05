@@ -48,11 +48,7 @@ export const updateAttendance = async (attendanceId, data) => {
 ========================================= */
 
 export const uploadAttendanceDocuments = async (attendanceId, formData) => {
-  const res = await api.patch(`/attendance/${attendanceId}/document`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  const res = await api.patch(`/attendance/${attendanceId}/document`, formData);
   return res.data;
 };
 
@@ -67,12 +63,7 @@ export const replaceAttendanceDocument = async (
 ) => {
   const res = await api.patch(
     `/attendance/${attendanceId}/document/${documentId}`,
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
+    formData
   );
   return res.data;
 };

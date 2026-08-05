@@ -6,7 +6,7 @@ import { markAttendance, deleteAttendance } from "../../services/AttendanceServi
 import { useAuth } from "../../hooks/UseAuth";
 
 import { toast } from "react-toastify";
-import { getStudentId } from "../../util/helpers";
+import { getStudentId, isSameStudent } from "../../util/helpers";
 import "./Attendance.css";
 
 function TableSkeleton() {
@@ -31,10 +31,10 @@ function TableSkeleton() {
 
 function Attendance() {
   const { user } = useAuth();
-const role = user?.role?.toLowerCase();
+  const role = user?.role?.toLowerCase();
 
-const canEditAttendance =
-  role === "teacher" || role === "principal";
+  const canEditAttendance =
+    role === "teacher" || role === "principal" || role === "admin";
   const [students, setStudents] = useState([]);
   const [divisionId, setDivisionId] = useState("");
   const [classId, setClassId] = useState("");
@@ -52,6 +52,15 @@ const canEditAttendance =
   const lateCount = attendance.filter((a) => a.status === "late").length;
   const leaveCount = attendance.filter((a) => a.status === "leave").length;
   const attendanceRate = totalStudents > 0 ? ((presentCount / totalStudents) * 100).toFixed(1) : "0.0";
+
+  const getDefaultReason = (status, existingReason) => {
+    if (status === "present") return "";
+    if (existingReason && existingReason.trim()) return existingReason.trim();
+    if (status === "leave") return "On Leave";
+    if (status === "absent") return "Absent";
+    if (status === "late") return "Late";
+    return "Leave Application";
+  };
 
   /* =========================================
      SAVE ATTENDANCE
@@ -77,7 +86,7 @@ const canEditAttendance =
         const payloadItem = {
           studentId: getStudentId(item.studentId),
           status: item.status || "present",
-          reason: item.status === "present" ? "" : item.reason || "",
+          reason: getDefaultReason(item.status, item.reason),
         };
         if (item._id) {
           payloadItem._id = item._id;
@@ -112,6 +121,87 @@ if (Array.isArray(records)) {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  /* =========================================
+     MANAGE DOCUMENTS (AUTO-SAVE IF NEW)
+  ========================================= */
+
+  const handleOpenDocumentModal = async (record) => {
+    if (!record) return;
+
+    // If record already has a database _id, open modal directly
+    if (record._id) {
+      setActiveAttendance(record);
+      return;
+    }
+
+    // If no backend _id yet and user can edit attendance, auto-save attendance first
+    if (canEditAttendance) {
+      if (!classId || !divisionId) {
+        toast.error("Please select a class and division first.");
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const currentList = attendance.length > 0 ? attendance : students.map((s) => ({
+          studentId: s._id,
+          status: "present",
+          reason: "",
+          documents: [],
+        }));
+
+        const sanitizedStudents = currentList.map((item) => {
+          const payloadItem = {
+            studentId: getStudentId(item.studentId),
+            status: item.status || "present",
+            reason: getDefaultReason(item.status, item.reason),
+          };
+          if (item._id) {
+            payloadItem._id = item._id;
+          }
+          return payloadItem;
+        });
+
+        const response = await markAttendance({
+          date,
+          classId,
+          divisionId,
+          students: sanitizedStudents,
+        });
+
+        const records = response.data?.data;
+        if (Array.isArray(records)) {
+          const normalized = records.map((rec) => ({
+            ...rec,
+            studentId: rec.studentId,
+            documents: rec.documents || [],
+          }));
+          setAttendance(normalized);
+
+          const targetStudentId = getStudentId(record.studentId);
+          const savedRecord = normalized.find((rec) =>
+            isSameStudent(rec.studentId, targetStudentId)
+          );
+
+          if (savedRecord) {
+            setActiveAttendance(savedRecord);
+          } else {
+            toast.error("Could not locate saved attendance record.");
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error(
+          error.response?.data?.message || "Failed to initialize attendance record for documents."
+        );
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      toast.info("No attendance record saved for this student yet.");
     }
   };
 
@@ -231,7 +321,7 @@ if (Array.isArray(records)) {
   attendance={attendance}
   setAttendance={setAttendance}
   canEditAttendance={canEditAttendance}
-  onManageDocuments={(record) => setActiveAttendance(record)}
+  onManageDocuments={handleOpenDocumentModal}
   onDeleteAttendance={handleDeleteAttendance}
   loading={loading}
 />

@@ -32,6 +32,15 @@ function AttendanceRow({
      STATUS CHANGE
   ========================================= */
 
+  const getDefaultReason = (status, currentReason) => {
+    if (status === "present") return "";
+    if (currentReason && currentReason.trim()) return currentReason;
+    if (status === "leave") return "On Leave";
+    if (status === "absent") return "Absent";
+    if (status === "late") return "Late";
+    return "Leave Application";
+  };
+
   const handleStatusChange = (status) => {
     if (!canEditAttendance || loading) return;
 
@@ -46,7 +55,7 @@ function AttendanceRow({
             ? {
                 ...item,
                 status,
-                reason: status === "present" ? "" : item.reason || "",
+                reason: getDefaultReason(status, item.reason),
               }
             : item
         );
@@ -58,7 +67,7 @@ function AttendanceRow({
           _id: null,
           studentId: student._id,
           status,
-          reason: "",
+          reason: getDefaultReason(status, ""),
           documents: [],
         },
       ];
@@ -116,7 +125,7 @@ function AttendanceRow({
   ========================================= */
 
   const handleDocuments = () => {
-    if (!hasRecordId || loading) return;
+    if ((!hasRecordId && !canEditAttendance) || loading) return;
 
     onManageDocuments?.(currentAttendance);
   };
@@ -173,26 +182,32 @@ function AttendanceRow({
         <button
           type="button"
           className={`attendance-document-btn ${
-            hasRecordId ? "enabled" : ""
-          }`}
+            hasRecordId || canEditAttendance ? "enabled" : ""
+          } ${currentAttendance.status === "leave" ? "is-leave" : ""}`}
           onClick={handleDocuments}
-          disabled={!hasRecordId || loading}
+          disabled={(!hasRecordId && !canEditAttendance) || loading}
           title={
             hasRecordId
               ? canEditAttendance
                 ? `Manage Documents (${docCount})`
                 : `View Documents (${docCount})`
-              : "Save attendance first to manage documents"
+              : canEditAttendance
+              ? "Click to manage documents (will save attendance)"
+              : "No attendance record saved yet"
           }
         >
           <span className="material-symbols-outlined document-btn-icon">
-            description
+            {currentAttendance.status === "leave" ? "upload_file" : "description"}
           </span>
 
-          {docCount > 0 && (
-            <span className="doc-count-badge">
-              {docCount}
-            </span>
+          {currentAttendance.status === "leave" ? (
+            <span>{docCount > 0 ? `PDF (${docCount})` : "Attach PDF"}</span>
+          ) : (
+            docCount > 0 && (
+              <span className="doc-count-badge">
+                {docCount}
+              </span>
+            )
           )}
         </button>
       </td>
