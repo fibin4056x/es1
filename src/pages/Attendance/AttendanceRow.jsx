@@ -185,7 +185,7 @@ function AttendanceRow({
             hasRecordId || canEditAttendance ? "enabled" : ""
           } ${currentAttendance.status === "leave" ? "is-leave" : ""}`}
           onClick={handleDocuments}
-          disabled={(!hasRecordId && !canEditAttendance) || loading}
+          disabled={(!hasRecordId && !canEditAttendance) || loading || currentAttendance.status !== "leave"}
           title={
             hasRecordId
               ? canEditAttendance

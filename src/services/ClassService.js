@@ -9,6 +9,8 @@ export const getClasses = async () => {
   return res.data;
 };
 
+export const getClassList = getClasses;
+
 /* =========================================
    CREATE CLASS
 ========================================= */

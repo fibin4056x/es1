@@ -7,6 +7,9 @@ import Teachers from "../pages/Teachers/Teachers";
 import Classes from "../pages/Classes/Classes";
 import Divisions from "../pages/Division/Divisions";
 import Attendance from "../pages/Attendance/Attendance";
+import AttendanceCalendar from "../pages/Attendance/AttendanceCalendar";
+import AcademicCalendar from "../pages/AcademicCalendar/AcademicCalendar";
+import Reports from "../pages/Reports/Reports";
 import Profile from "../pages/Profile/Profile";
 import NotFound from "../pages/NotFound/NotFound";
 
@@ -38,6 +41,16 @@ function AppRoutes() {
           element={
             <PrivateRoute allowedRoles={["principal", "teacher"]}>
               <Dashboard />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Academic Calendar */}
+        <Route
+          path="/academic-calendar"
+          element={
+            <PrivateRoute allowedRoles={["principal", "teacher"]}>
+              <AcademicCalendar />
             </PrivateRoute>
           }
         />
@@ -85,6 +98,24 @@ function AppRoutes() {
           element={
             <PrivateRoute allowedRoles={["principal", "teacher"]}>
               <Attendance />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/attendance-calendar"
+          element={
+            <PrivateRoute allowedRoles={["principal", "teacher"]}>
+              <AttendanceCalendar />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/reports"
+          element={
+            <PrivateRoute allowedRoles={["principal", "teacher"]}>
+              <Reports />
             </PrivateRoute>
           }
         />

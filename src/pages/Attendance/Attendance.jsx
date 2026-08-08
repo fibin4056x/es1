@@ -33,8 +33,7 @@ function Attendance() {
   const { user } = useAuth();
   const role = user?.role?.toLowerCase();
 
-  const canEditAttendance =
-    role === "teacher" || role === "principal" || role === "admin";
+  const canEditAttendance = role === "teacher" || role === "principal" || role === "admin" ;
   const [students, setStudents] = useState([]);
   const [divisionId, setDivisionId] = useState("");
   const [classId, setClassId] = useState("");

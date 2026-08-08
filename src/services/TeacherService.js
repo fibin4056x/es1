@@ -5,6 +5,8 @@ export const getTeachers = async () => {
   return res.data;
 };
 
+export const getTeacherList = getTeachers;
+
 export const createTeacher = async (data) => {
   const res = await api.post("/teachers", data);
   return res.data;

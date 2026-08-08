@@ -9,6 +9,8 @@ export const getDivisions = async () => {
   return res.data;
 };
 
+export const getDivisionList = getDivisions;
+
 /* =========================================
    CREATE DIVISION
 ========================================= */
