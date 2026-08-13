@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Modal from "../../components/common/Modal/Modal";
+
 import { useAuth } from "../../hooks/UseAuth";
 import "./AcademicCalendar.css";
 

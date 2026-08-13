@@ -8,6 +8,106 @@
   width: 100%;
 }
 
+.reports-tab-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-main, rgba(255, 255, 255, 0.12));
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.reports-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted, #94a3b8);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reports-tab-btn:hover {
+  color: var(--text-main, #ffffff);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.reports-tab-btn.active {
+  color: var(--primary-light, #818cf8);
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.compose-tab-btn {
+  margin-left: auto;
+  background: var(--primary, #6366f1) !important;
+  color: #ffffff !important;
+}
+
+.compose-tab-btn:hover {
+  background: var(--primary-hover, #4f46e5) !important;
+}
+
+.reports-inbox-card {
+  background: var(--card-bg, rgba(15, 23, 42, 0.6));
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-main, rgba(255, 255, 255, 0.12));
+  border-radius: var(--radius-xl, 16px);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.reports-list-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reports-list-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted, #94a3b8);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-main, rgba(255, 255, 255, 0.1));
+}
+
+.reports-list-table td {
+  padding: 14px 16px;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--border-main, rgba(255, 255, 255, 0.06));
+  color: var(--text-main, #f8fafc);
+}
+
+.reports-list-row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.reports-list-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.reports-list-row.unread {
+  font-weight: 700;
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary, #6366f1);
+  display: inline-block;
+  margin-right: 8px;
+}
+
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
@@ -162,5 +262,11 @@
   .charts-grid,
   .tables-grid {
     grid-template-columns: 1fr;
+  }
+
+  .compose-tab-btn {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
   }
 }

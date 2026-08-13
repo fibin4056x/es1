@@ -1,6 +1,6 @@
-import React from "react";
 import Modal from "../Modal/Modal";
 import "./ConfirmDialog.css";
+
 
 function ConfirmDialog({
   isOpen,

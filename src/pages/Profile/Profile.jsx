@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/UseAuth";
 
 import { updateProfile } from "../../services/authService";
+import ChangePasswordModal from "./ChangePasswordModal";
 import api from "../../services/api";
 import { toast } from "react-toastify";
 import "./Profile.css";
@@ -10,6 +11,7 @@ import "./Profile.css";
 function Profile() {
   const { user, login } = useAuth();
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -193,10 +195,10 @@ function Profile() {
             <button
               type="button"
               className="security-action-btn btn-press"
-              onClick={handleSecurityKeyChange}
+              onClick={() => setChangePasswordOpen(true)}
             >
               <span className="material-symbols-outlined">key</span>
-              Change Security Key
+              Change Password
             </button>
           </div>
         </div>
@@ -264,6 +266,11 @@ function Profile() {
           </div>
         </div>
       )}
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={changePasswordOpen}
+        onClose={() => setChangePasswordOpen(false)}
+      />
     </div>
   );
 }

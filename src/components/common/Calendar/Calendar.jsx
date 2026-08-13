@@ -1,10 +1,10 @@
-import React, { useState } from "react";
 import "./Calendar.css";
 
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function Calendar({
   events = [],
+  monthDaysData = [],
   view = "month", // 'month' | 'week' | 'day'
   onViewChange,
   currentDate = new Date(),
@@ -13,7 +13,7 @@ function Calendar({
   onCellClick,
   loading = false,
 }) {
-  const [selectedEvent, setSelectedEvent] = useState(null);
+
 
   // Month navigation helpers
   const year = currentDate.getFullYear();
@@ -194,6 +194,10 @@ function Calendar({
               const monthClass = dayObj.isCurrentMonth ? "" : "cell-other-month";
               const weekendClass = isWeekend(dayObj.date) ? "cell-weekend" : "";
 
+              // Find attendance summary for this day if provided
+              const dateStr = dayObj.date.toISOString().split("T")[0];
+              const attDay = monthDaysData.find((d) => d.date === dateStr);
+
               return (
                 <div
                   key={index}
@@ -202,6 +206,22 @@ function Calendar({
                 >
                   <div className="day-cell-header">
                     <span className="day-number">{dayObj.date.getDate()}</span>
+                    {attDay && attDay.marked && (
+                      <span
+                        className="day-att-badge"
+                        style={{
+                          fontSize: "0.7rem",
+                          fontWeight: 600,
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                          background: attDay.attendancePercentage >= 80 ? "rgba(16, 185, 129, 0.2)" : "rgba(239, 68, 68, 0.2)",
+                          color: attDay.attendancePercentage >= 80 ? "#10b981" : "#ef4444",
+                          border: `1px solid ${attDay.attendancePercentage >= 80 ? "rgba(16, 185, 129, 0.4)" : "rgba(239, 68, 68, 0.4)"}`,
+                        }}
+                      >
+                        {attDay.attendancePercentage}%
+                      </span>
+                    )}
                     {dayEvents.length > 0 && (
                       <span className="day-event-count">
                         {dayEvents.length} {dayEvents.length === 1 ? "event" : "events"}

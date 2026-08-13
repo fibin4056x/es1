@@ -1,22 +1,29 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "react-toastify";
 import Calendar from "../../components/common/Calendar/Calendar";
 import StatCard from "../../components/common/StatCard/StatCard";
 import FilterBar from "../../components/common/FilterBar/FilterBar";
 import Modal from "../../components/common/Modal/Modal";
+import AttendanceEditModal from "./AttendanceEditModal";
 import { useAuth } from "../../hooks/UseAuth";
-import { getAttendanceByDate } from "../../services/AttendanceService";
+import {
+  getAttendanceByDate,
+  getAttendanceCalendar,
+} from "../../services/AttendanceService";
 import { getClassList } from "../../services/ClassService";
 import { getDivisionList } from "../../services/DivisionService";
 import { getTeacherList } from "../../services/TeacherService";
 import "./AttendanceCalendar.css";
 
+
 function AttendanceCalendar() {
   const { user } = useAuth();
   const isPrincipal = user?.role === "principal";
+  const canEdit = user?.role === "principal" || user?.role === "teacher";
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [monthCalendarDays, setMonthCalendarDays] = useState([]);
   const [dayAttendance, setDayAttendance] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -29,9 +36,11 @@ function AttendanceCalendar() {
   const [divisions, setDivisions] = useState([]);
   const [teachers, setTeachers] = useState([]);
 
-  // Student Attendance Modal
+  // Modals
   const [selectedStudentRecord, setSelectedStudentRecord] = useState(null);
   const [studentModalOpen, setStudentModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingStudentRec, setEditingStudentRec] = useState(null);
 
   // Stats calculation
   const [stats, setStats] = useState({
@@ -70,8 +79,27 @@ function AttendanceCalendar() {
     loadDropdowns();
   }, [isPrincipal]);
 
-  // Fetch attendance for selected division and date
-  const fetchAttendanceData = useCallback(async () => {
+  // Fetch Month Calendar Data using Backend API
+  const fetchMonthCalendarData = useCallback(async () => {
+    if (!selectedDivision) return;
+    try {
+      const month = currentDate.getMonth() + 1;
+      const year = currentDate.getFullYear();
+      const res = await getAttendanceCalendar(selectedDivision, month, year);
+      const days = res.data?.days || res.days || [];
+      setMonthCalendarDays(days);
+    } catch (err) {
+      console.error("Failed to fetch backend attendance calendar summary:", err);
+      setMonthCalendarDays([]);
+    }
+  }, [selectedDivision, currentDate]);
+
+  useEffect(() => {
+    fetchMonthCalendarData();
+  }, [fetchMonthCalendarData]);
+
+  // Fetch Day Attendance for selected division and date
+  const fetchDayAttendanceData = useCallback(async () => {
     if (!selectedDivision) return;
     setLoading(true);
     try {
@@ -100,17 +128,27 @@ function AttendanceCalendar() {
         leave: lv,
         percentage: pct,
       });
-    } catch (err) {
+    } catch {
       toast.error("Could not fetch attendance records for date.");
       setDayAttendance([]);
-    } finally {
+    }
+
+ finally {
       setLoading(false);
     }
   }, [selectedDivision, selectedDate]);
 
   useEffect(() => {
-    fetchAttendanceData();
-  }, [fetchAttendanceData]);
+    let active = true;
+    if (selectedDivision) {
+      fetchDayAttendanceData().then(() => {
+        if (!active) return;
+      });
+    }
+    return () => {
+      active = false;
+    };
+  }, [fetchDayAttendanceData, selectedDivision]);
 
   const handleDateClick = (date) => {
     setSelectedDate(date);
@@ -120,6 +158,18 @@ function AttendanceCalendar() {
     setSelectedStudentRecord(studentRec);
     setStudentModalOpen(true);
   };
+
+  const handleEditStudent = (e, studentRec) => {
+    e.stopPropagation();
+    setEditingStudentRec(studentRec);
+    setEditModalOpen(true);
+  };
+
+  const handleSingleRecordSaved = () => {
+    fetchDayAttendanceData();
+    fetchMonthCalendarData();
+  };
+
 
   const activeCount =
     (selectedClass ? 1 : 0) +
@@ -236,6 +286,7 @@ function AttendanceCalendar() {
             onDateChange={setCurrentDate}
             onCellClick={handleDateClick}
             loading={loading}
+            monthDaysData={monthCalendarDays}
           />
         </div>
 
@@ -264,6 +315,7 @@ function AttendanceCalendar() {
             ) : (
               dayAttendance.map((studentRec, idx) => {
                 const status = (studentRec.status || "present").toLowerCase();
+                const studentName = studentRec.studentName || studentRec.name || `Student #${idx + 1}`;
 
                 return (
                   <div
@@ -273,11 +325,11 @@ function AttendanceCalendar() {
                   >
                     <div className="student-main-info">
                       <div className="student-avatar-chip">
-                        {studentRec.studentName?.charAt(0) || "S"}
+                        {studentName.charAt(0)}
                       </div>
                       <div>
                         <h4 className="student-name">
-                          {studentRec.studentName || studentRec.name || `Student #${idx + 1}`}
+                          {studentName}
                         </h4>
                         <span className="student-roll">
                           Roll: {studentRec.rollNumber || "N/A"}
@@ -285,7 +337,7 @@ function AttendanceCalendar() {
                       </div>
                     </div>
 
-                    <div className="student-att-right">
+                    <div className="student-att-right" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                       <span className={`status-pill status-${status}`}>
                         {status}
                       </span>
@@ -296,6 +348,18 @@ function AttendanceCalendar() {
                         >
                           attach_file
                         </span>
+                      )}
+                      {canEdit && (
+                        <button
+                          type="button"
+                          className="btn-press"
+                          style={{ background: "rgba(255, 255, 255, 0.08)", border: "1px solid rgba(255, 255, 255, 0.12)", color: "#f8fafc", borderRadius: "6px", padding: "4px 8px", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: "4px", cursor: "pointer" }}
+                          onClick={(e) => handleEditStudent(e, studentRec)}
+                          title="Edit student attendance"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>edit</span>
+                          Edit
+                        </button>
                       )}
                     </div>
                   </div>
@@ -353,7 +417,7 @@ function AttendanceCalendar() {
 
               {selectedStudentRecord.documents?.length > 0 && (
                 <div className="modal-documents-section">
-                  <span>Attached Document (PDF):</span>
+                  <span>Attached Document (PDF/Image):</span>
                   <div className="doc-link-list">
                     {selectedStudentRecord.documents.map((doc, idx) => (
                       <a
@@ -373,6 +437,28 @@ function AttendanceCalendar() {
             </div>
           </div>
         </Modal>
+      )}
+
+      {/* SINGLE STUDENT EDIT MODAL */}
+      {editingStudentRec && (
+        <AttendanceEditModal
+          open={editModalOpen}
+          onClose={() => {
+            setEditModalOpen(false);
+            setEditingStudentRec(null);
+          }}
+          student={{
+            _id: editingStudentRec.studentId,
+            nameEnglish: editingStudentRec.studentName || editingStudentRec.name,
+            admissionNumber: editingStudentRec.admissionNumber,
+          }}
+          attendanceRecord={editingStudentRec}
+          date={selectedDate.toISOString().split("T")[0]}
+          classId={selectedClass}
+          divisionId={selectedDivision}
+          canEditAttendance={canEdit}
+          onRecordSaved={handleSingleRecordSaved}
+        />
       )}
     </div>
   );

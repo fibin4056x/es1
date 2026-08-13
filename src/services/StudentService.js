@@ -4,8 +4,8 @@ import api from "./api";
    GET ALL STUDENTS
 ========================================= */
 
-export const getStudents = async () => {
-  const res = await api.get("/students");
+export const getStudents = async (params = {}) => {
+  const res = await api.get("/students", { params });
   return res.data;
 };
 

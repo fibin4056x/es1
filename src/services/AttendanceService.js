@@ -21,15 +21,23 @@ export const getAttendanceByDate = async (divisionId, date) => {
 };
 
 /* =========================================
+   GET ATTENDANCE CALENDAR SUMMARY
+========================================= */
+
+export const getAttendanceCalendar = async (divisionId, month, year) => {
+  const res = await api.get(`/attendance/calendar/${divisionId}`, {
+    params: { month, year },
+  });
+  return res.data;
+};
+
+/* =========================================
    GET ATTENDANCE HISTORY
 ========================================= */
 
-export const getAttendanceHistory = async (divisionId, page = 1, limit = 20) => {
+export const getAttendanceHistory = async (divisionId, params = {}) => {
   const res = await api.get(`/attendance/history/${divisionId}`, {
-    params: {
-      page,
-      limit,
-    },
+    params,
   });
   return res.data;
 };

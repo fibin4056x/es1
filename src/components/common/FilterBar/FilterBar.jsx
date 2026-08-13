@@ -1,5 +1,5 @@
-import React from "react";
 import "./FilterBar.css";
+
 
 function FilterBar({ children, activeCount = 0, onReset, className = "" }) {
   return (

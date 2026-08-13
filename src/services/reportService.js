@@ -55,6 +55,64 @@ export const getStudentAttendanceReport = async (studentId, params = {}) => {
 };
 
 /**
+ * 7. Compose & Send Communication Report (FormData)
+ * POST /api/reports
+ */
+export const createReport = async (formData) => {
+  const response = await api.post("/reports", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};
+
+/**
+ * 8. Get Report Inbox (Paginated & Filtered)
+ * GET /api/reports/inbox
+ */
+export const getInboxReports = async (params = {}) => {
+  const response = await api.get("/reports/inbox", { params });
+  return response.data;
+};
+
+/**
+ * 9. Get Sent Reports (Paginated & Filtered)
+ * GET /api/reports/sent
+ */
+export const getSentReports = async (params = {}) => {
+  const response = await api.get("/reports/sent", { params });
+  return response.data;
+};
+
+/**
+ * 10. Get Single Report Details (Auto-marks read for recipient)
+ * GET /api/reports/:id
+ */
+export const getReportById = async (id) => {
+  const response = await api.get(`/reports/${id}`);
+  return response.data;
+};
+
+/**
+ * 11. Mark Report Read Status
+ * PATCH /api/reports/:id/read
+ */
+export const markReportRead = async (id, isRead = true) => {
+  const response = await api.patch(`/reports/${id}/read`, { isRead });
+  return response.data;
+};
+
+/**
+ * 12. Delete Report
+ * DELETE /api/reports/:id
+ */
+export const deleteReport = async (id) => {
+  const response = await api.delete(`/reports/${id}`);
+  return response.data;
+};
+
+/**
  * Legacy Fallback Helper
  */
 export const getAttendanceReports = async (params = {}) => {

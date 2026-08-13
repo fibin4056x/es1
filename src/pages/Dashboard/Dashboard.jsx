@@ -1,5 +1,5 @@
 import "./Dashboard.css";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getDashboardStats } from "../../services/dashboardService";
 import { getUpcomingEvents } from "../../services/academicCalendarService";
@@ -35,23 +35,30 @@ function Dashboard() {
 
   const [upcomingEvents, setUpcomingEvents] = useState([]);
 
-  const loadDashboard = async () => {
-    try {
-      const [res, eventsRes] = await Promise.all([
-        getDashboardStats().catch(() => ({ data: {} })),
-        getUpcomingEvents(5).catch(() => ({ data: [] })),
-      ]);
-
-      if (res.data) setStats(res.data);
-      setUpcomingEvents(eventsRes.data || eventsRes || []);
-    } catch (error) {
-      console.error("Dashboard Error:", error);
-    }
-  };
-
   useEffect(() => {
-    loadDashboard();
+    let isMounted = true;
+    const fetchDashboard = async () => {
+      try {
+        const [res, eventsRes] = await Promise.all([
+          getDashboardStats().catch(() => ({ data: {} })),
+          getUpcomingEvents(5).catch(() => ({ data: [] })),
+        ]);
+
+        if (isMounted) {
+          if (res.data) setStats(res.data);
+          setUpcomingEvents(eventsRes.data || eventsRes || []);
+        }
+      } catch (error) {
+        console.error("Dashboard Error:", error);
+      }
+    };
+
+    fetchDashboard();
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
 
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "short",

@@ -1,24 +1,36 @@
 import "./Login.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../../services/authService";
+import {
+  loginUser,
+  requestTeacherOtp,
+  verifyTeacherOtp,
+  completeFirstLogin,
+} from "../../services/authService";
 import { useAuth } from "../../hooks/UseAuth";
+import { toast } from "react-toastify";
 
 import useMouseParallax from "./useMouseParallax";
 import ThemeToggle from "../../components/common/ThemeToggle/ThemeToggle";
+import OtpScreen from "./OtpScreen";
+import PasswordSetupScreen from "./PasswordSetupScreen";
+import ForgotPasswordModal from "./ForgotPasswordModal";
 import api from "../../services/api";
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  const [authView, setAuthView] = useState("login"); // "login" | "otp" | "password_setup"
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [setupToken, setSetupToken] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
   const [previewStats, setPreviewStats] = useState(null);
 
   // Custom hook for mouse movement parallax effect on left panel
@@ -44,7 +56,16 @@ export default function Login() {
 
     setIsLoading(true);
     try {
-      const response = await loginUser(email, password);
+      const response = await loginUser(email.trim(), password);
+
+      // Check if backend requires first-time teacher verification
+      if (response.data?.requiresVerification) {
+        setIsLoading(false);
+        setAuthView("otp");
+        toast.info("Verification required for first-time teacher login. OTP sent to your email.");
+        return;
+      }
+
       setIsSuccess(true);
       
       // Delay navigation slightly to show success status animation
@@ -54,7 +75,40 @@ export default function Login() {
       }, 800);
     } catch (error) {
       setIsLoading(false);
-      alert(error.response?.data?.message || "Login Failed");
+      toast.error(error.response?.data?.message || "Login Failed");
+    }
+  };
+
+  const handleVerifyTeacherOtp = async (otpCode) => {
+    setIsLoading(true);
+    try {
+      const response = await verifyTeacherOtp(email.trim(), otpCode);
+      if (response.data?.setupToken) {
+        setSetupToken(response.data.setupToken);
+        setAuthView("password_setup");
+        toast.success("OTP verified. Please set your permanent account password.");
+      } else {
+        toast.error("Verification failed. Setup token missing.");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Invalid or expired OTP code.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCompleteFirstLogin = async (newPassword, confirmPassword) => {
+    setIsLoading(true);
+    try {
+      const response = await completeFirstLogin(setupToken, newPassword, confirmPassword);
+      toast.success("Account activated successfully! Logging you in...");
+      setTimeout(() => {
+        login(response.data.user, response.data.token);
+        navigate("/dashboard");
+      }, 600);
+    } catch (error) {
+      setIsLoading(false);
+      toast.error(error.response?.data?.message || "Failed to complete account setup.");
     }
   };
 
@@ -278,111 +332,135 @@ export default function Login() {
               <h1 className="login-logo-text">EduTrack</h1>
             </div>
 
-            <div className="login-welcome-text">
-              <h2 className="login-welcome-title">Welcome Back</h2>
-              <p className="login-welcome-subtitle">
-                Enter your credentials to access the School Management System
-              </p>
-            </div>
-
-            {/* Login Credentials Form */}
-            <form className="login-form-group" onSubmit={handleSubmit}>
-              {/* Email Input */}
-              <div className="login-input-wrapper">
-                <label className="login-input-label" htmlFor="login-email">Email Address</label>
-                <div className="login-input-field-container">
-                  <span className="material-symbols-outlined login-input-icon">alternate_email</span>
-                  <input
-                    className="login-input"
-                    id="login-email"
-                    type="email"
-                    placeholder="teacher@edutrack.edu"
-                    required
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
+            {authView === "otp" ? (
+              <OtpScreen
+                email={email}
+                onVerify={handleVerifyTeacherOtp}
+                onResend={() => requestTeacherOtp(email.trim())}
+                onBack={() => setAuthView("login")}
+                isLoading={isLoading}
+              />
+            ) : authView === "password_setup" ? (
+              <PasswordSetupScreen
+                onSubmit={handleCompleteFirstLogin}
+                isLoading={isLoading}
+              />
+            ) : (
+              <>
+                <div className="login-welcome-text">
+                  <h2 className="login-welcome-title">Welcome Back</h2>
+                  <p className="login-welcome-subtitle">
+                    Enter your credentials to access the School Management System
+                  </p>
                 </div>
-              </div>
 
-              {/* Password Input */}
-              <div className="login-input-wrapper">
-                <label className="login-input-label" htmlFor="login-password">Password</label>
-                <div className="login-input-field-container">
-                  <span className="material-symbols-outlined login-input-icon">key</span>
-                  <input
-                    className="login-input"
-                    id="login-password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    required
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <button
-                    className="login-password-toggle"
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    <span className="material-symbols-outlined">
-                      {showPassword ? "visibility_off" : "visibility"}
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Options Row (Remember Me & Forgot Password) */}
-              <div className="login-options-row">
-                <label className="login-checkbox-label">
-                  <input
-                    className="login-hidden-checkbox"
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                  />
-                  <div className="login-custom-checkbox">
-                    <span className="material-symbols-outlined login-check-icon">check</span>
+                {/* Login Credentials Form */}
+                <form className="login-form-group" onSubmit={handleSubmit}>
+                  {/* Email Input */}
+                  <div className="login-input-wrapper">
+                    <label className="login-input-label" htmlFor="login-email">Email Address</label>
+                    <div className="login-input-field-container">
+                      <span className="material-symbols-outlined login-input-icon">alternate_email</span>
+                      <input
+                        className="login-input"
+                        id="login-email"
+                        type="email"
+                        placeholder="teacher@edutrack.edu"
+                        required
+                        autoComplete="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
                   </div>
-                  <span className="login-checkbox-text">Remember me</span>
-                </label>
-                <a href="#forgot" className="login-forgot-link" onClick={(e) => e.preventDefault()}>
-                  Forgot Password?
-                </a>
-              </div>
 
-              {/* Gradient Submit Button */}
-              <div className="login-btn-wrapper">
-                <button
-                  type="submit"
-                  className="login-btn-gradient"
-                  disabled={isLoading || isSuccess}
-                >
-                  {isLoading ? (
-                    <>
-                      <span>{isSuccess ? "Access Approved" : "Validating..."}</span>
-                      <div className="login-loading-spinner"></div>
-                    </>
-                  ) : (
-                    <>
-                      <span>Sign In</span>
-                      <span className="material-symbols-outlined">arrow_forward</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
+                  {/* Password Input */}
+                  <div className="login-input-wrapper">
+                    <label className="login-input-label" htmlFor="login-password">Password</label>
+                    <div className="login-input-field-container">
+                      <span className="material-symbols-outlined login-input-icon">key</span>
+                      <input
+                        className="login-input"
+                        id="login-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        required
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                      <button
+                        className="login-password-toggle"
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        <span className="material-symbols-outlined">
+                          {showPassword ? "visibility_off" : "visibility"}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
 
-            {/* Footer Information */}
-            <div className="login-card-footer">
-              <p className="login-footer-text">
-                Authorized access only.{" "}
-                <a href="#request" className="login-footer-link" onClick={(e) => e.preventDefault()}>
-                  Request Account
-                </a>
-              </p>
-            </div>
+                  {/* Options Row (Remember Me & Forgot Password) */}
+                  <div className="login-options-row">
+                    <label className="login-checkbox-label">
+                      <input
+                        className="login-hidden-checkbox"
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                      />
+                      <div className="login-custom-checkbox">
+                        <span className="material-symbols-outlined login-check-icon">check</span>
+                      </div>
+                      <span className="login-checkbox-text">Remember me</span>
+                    </label>
+                    <a
+                      href="#forgot"
+                      className="login-forgot-link"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setForgotPasswordOpen(true);
+                      }}
+                    >
+                      Forgot Password?
+                    </a>
+                  </div>
+
+                  {/* Gradient Submit Button */}
+                  <div className="login-btn-wrapper">
+                    <button
+                      type="submit"
+                      className="login-btn-gradient"
+                      disabled={isLoading || isSuccess}
+                    >
+                      {isLoading ? (
+                        <>
+                          <span>{isSuccess ? "Access Approved" : "Validating..."}</span>
+                          <div className="login-loading-spinner"></div>
+                        </>
+                      ) : (
+                        <>
+                          <span>Sign In</span>
+                          <span className="material-symbols-outlined">arrow_forward</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+
+                {/* Footer Information */}
+                <div className="login-card-footer">
+                  <p className="login-footer-text">
+                    Authorized access only.{" "}
+                    <a href="#request" className="login-footer-link" onClick={(e) => e.preventDefault()}>
+                      Request Account
+                    </a>
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -395,6 +473,13 @@ export default function Login() {
           <a href="#security" className="login-global-footer-link" onClick={(e) => e.preventDefault()}>Security Matrix</a>
         </div>
       </footer>
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={forgotPasswordOpen}
+        onClose={() => setForgotPasswordOpen(false)}
+      />
     </div>
   );
 }
+
