@@ -1,91 +1,70 @@
 /* eslint-disable */
-import { useEffect, useState } from "react";
-
+import { useEffect, useState, useCallback } from "react";
 import { getClasses } from "../../services/ClassService";
-
 import ClassTable from "./ClassTable";
 import ClassModal from "./ClassModal";
 import EditClassModal from "./EditClassModal";
 import Pagination from "../../components/common/pagination/Pagination";
+import Loader from "../../components/common/Loader/Loader";
+import { getApiErrorMessage } from "../../services/api";
 
 import "./Classes.css";
 
 function Classes() {
   const [classes, setClasses] = useState([]);
-
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [search, setSearch] = useState("");
-
   const [currentPage, setCurrentPage] = useState(1);
-
   const classesPerPage = 5;
 
   const [open, setOpen] = useState(false);
-
   const [editOpen, setEditOpen] = useState(false);
-
   const [selectedClass, setSelectedClass] = useState(null);
 
-  const loadClasses = async () => {
+  const loadClasses = useCallback(async () => {
     try {
       setLoading(true);
-
+      setError(null);
       const res = await getClasses();
-
-      setClasses(res.data);
-
-    } catch (error) {
-
-      console.log(error);
-
+      const list = res.data?.classes || res.classes || res.data || [];
+      setClasses(Array.isArray(list) ? list : []);
+    } catch (err) {
+      console.error("Error loading classes:", err);
+      setError(getApiErrorMessage(err, "Failed to load class records."));
+      setClasses([]);
     } finally {
-
       setLoading(false);
-
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadClasses();
-  }, []);
+  }, [loadClasses]);
 
   const filteredClasses = classes.filter(
     (singleClass) =>
       (singleClass.name || "")
         .toLowerCase()
         .includes(search.toLowerCase()) ||
-
       (singleClass.academicYear || "")
         .toLowerCase()
         .includes(search.toLowerCase())
   );
 
-  const lastClassIndex =
-    currentPage * classesPerPage;
-
-  const firstClassIndex =
-    lastClassIndex - classesPerPage;
-
-  const currentClasses =
-    filteredClasses.slice(
-      firstClassIndex,
-      lastClassIndex
-    );
-
-  const totalPages = Math.ceil(
-    filteredClasses.length /
-      classesPerPage
-  );
+  const lastClassIndex = currentPage * classesPerPage;
+  const firstClassIndex = lastClassIndex - classesPerPage;
+  const currentClasses = filteredClasses.slice(firstClassIndex, lastClassIndex);
+  const totalPages = Math.ceil(filteredClasses.length / classesPerPage) || 1;
 
   const totalClasses = classes.length;
-  const activeClasses = classes.filter((c) => (c.status || "active") === "active").length;
+  const activeClasses = classes.filter((c) => (c.status || "active").toLowerCase() === "active").length;
   const academicYears = new Set(classes.map((c) => c.academicYear).filter(Boolean)).size;
-  const inactiveClasses = classes.filter((c) => c.status === "inactive" || c.status === "archived").length;
+  const inactiveClasses = classes.filter((c) => (c.status || "").toLowerCase() === "inactive" || (c.status || "").toLowerCase() === "archived").length;
 
   return (
     <div className="classes-page animate-fade-in-up">
-
       {/* Classes Page Header */}
       <div className="classes-header-row">
         <div className="classes-title-group">
@@ -126,10 +105,6 @@ function Classes() {
               <span className="material-symbols-outlined">class</span>
               Total Classes
             </div>
-            <div className="class-stat-trend up">
-              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>trending_up</span>
-              +8.4%
-            </div>
           </div>
           <div className="class-stat-value">{totalClasses}</div>
         </div>
@@ -155,9 +130,6 @@ function Classes() {
               <span className="material-symbols-outlined">calendar_today</span>
               Academic Years
             </div>
-            <div className="class-stat-badge neutral">
-              Current Year
-            </div>
           </div>
           <div className="class-stat-value">{academicYears}</div>
         </div>
@@ -169,17 +141,21 @@ function Classes() {
               <span className="material-symbols-outlined">archive</span>
               Inactive / Archived
             </div>
-            <div className="class-stat-badge neutral">
-              Archived
-            </div>
           </div>
           <div className="class-stat-value">{inactiveClasses}</div>
         </div>
       </div>
 
+      {error && (
+        <div style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#fca5a5", padding: "16px", borderRadius: "8px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{error}</span>
+          <button type="button" onClick={loadClasses} style={{ background: "rgba(239, 68, 68, 0.3)", color: "#fff", border: "none", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}>Retry</button>
+        </div>
+      )}
+
       {loading ? (
-        <div className="loading-state">
-          <p>Loading classes...</p>
+        <div className="loading-state" style={{ padding: "60px 0", textAlign: "center" }}>
+          <Loader size="medium" text="Loading classes..." />
         </div>
       ) : (
         <>
@@ -197,11 +173,13 @@ function Classes() {
           </div>
 
           {filteredClasses.length > 0 && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              setCurrentPage={setCurrentPage}
-            />
+            <div style={{ marginTop: "16px" }}>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                setCurrentPage={setCurrentPage}
+              />
+            </div>
           )}
         </>
       )}
@@ -221,7 +199,6 @@ function Classes() {
         }}
         reload={loadClasses}
       />
-
     </div>
   );
 }

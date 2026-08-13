@@ -4,8 +4,11 @@ import "./PasswordSetupScreen.css";
 
 export default function PasswordSetupScreen({
   onSubmit,
+  onComplete,
   isLoading,
 }) {
+  const submitHandler = onSubmit || onComplete;
+
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -36,7 +39,9 @@ export default function PasswordSetupScreen({
       return;
     }
 
-    onSubmit(newPassword, confirmPassword);
+    if (submitHandler) {
+      submitHandler(newPassword, confirmPassword);
+    }
   };
 
   return (

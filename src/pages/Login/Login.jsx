@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   loginUser,
-  requestTeacherOtp,
   verifyTeacherOtp,
   completeFirstLogin,
 } from "../../services/authService";
@@ -15,7 +14,7 @@ import ThemeToggle from "../../components/common/ThemeToggle/ThemeToggle";
 import OtpScreen from "./OtpScreen";
 import PasswordSetupScreen from "./PasswordSetupScreen";
 import ForgotPasswordModal from "./ForgotPasswordModal";
-import api from "../../services/api";
+import api, { getApiErrorMessage } from "../../services/api";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -37,17 +36,21 @@ export default function Login() {
   const parallax = useMouseParallax(20);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchPreviewStats = async () => {
       try {
         const response = await api.get("/dashboard/preview");
-        if (response.data && response.data.success) {
+        if (isMounted && response.data && response.data.success && response.data.data) {
           setPreviewStats(response.data.data);
         }
       } catch (err) {
-        console.error("Failed to fetch dashboard preview stats:", err);
+        // Silently catch preview error when unauthenticated
       }
     };
     fetchPreviewStats();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleSubmit = async (e) => {
@@ -56,42 +59,53 @@ export default function Login() {
 
     setIsLoading(true);
     try {
-      const response = await loginUser(email.trim(), password);
+      const res = await loginUser(email, password);
+
+      const resData = res?.data || res;
+      const userObj = resData?.user || res?.user || resData;
+      const tokenStr = resData?.token || res?.token || resData?.accessToken || res?.accessToken;
 
       // Check if backend requires first-time teacher verification
-      if (response.data?.requiresVerification) {
+      if (resData?.requiresVerification || res?.requiresVerification) {
         setIsLoading(false);
         setAuthView("otp");
         toast.info("Verification required for first-time teacher login. OTP sent to your email.");
         return;
       }
 
-      setIsSuccess(true);
-      
-      // Delay navigation slightly to show success status animation
-      setTimeout(() => {
-        login(response.data.user, response.data.token);
-        navigate("/dashboard");
-      }, 800);
+      if (userObj && (userObj.role || userObj._id || userObj.email || tokenStr)) {
+        setIsSuccess(true);
+        setTimeout(() => {
+          login(userObj, tokenStr);
+          navigate("/dashboard");
+        }, 800);
+      } else {
+        setIsLoading(false);
+        toast.error("Login failed. Invalid account details returned from server.");
+      }
     } catch (error) {
       setIsLoading(false);
-      toast.error(error.response?.data?.message || "Login Failed");
+      const userMsg = getApiErrorMessage(error, "Login failed. Please verify your email and password.");
+      toast.error(userMsg);
     }
   };
 
   const handleVerifyTeacherOtp = async (otpCode) => {
     setIsLoading(true);
     try {
-      const response = await verifyTeacherOtp(email.trim(), otpCode);
-      if (response.data?.setupToken) {
-        setSetupToken(response.data.setupToken);
+      const response = await verifyTeacherOtp(email, otpCode);
+      const resData = response?.data || response;
+      const token = resData?.setupToken || response?.setupToken;
+
+      if (token) {
+        setSetupToken(token);
         setAuthView("password_setup");
         toast.success("OTP verified. Please set your permanent account password.");
       } else {
-        toast.error("Verification failed. Setup token missing.");
+        toast.error("Verification failed. Setup token missing from response.");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Invalid or expired OTP code.");
+      toast.error(getApiErrorMessage(error, "Invalid or expired OTP verification code."));
     } finally {
       setIsLoading(false);
     }
@@ -101,18 +115,22 @@ export default function Login() {
     setIsLoading(true);
     try {
       const response = await completeFirstLogin(setupToken, newPassword, confirmPassword);
+      const resData = response?.data || response;
+      const userObj = resData?.user || response?.user || resData;
+      const tokenStr = resData?.token || response?.token;
+
       toast.success("Account activated successfully! Logging you in...");
       setTimeout(() => {
-        login(response.data.user, response.data.token);
+        login(userObj, tokenStr);
         navigate("/dashboard");
       }, 600);
     } catch (error) {
       setIsLoading(false);
-      toast.error(error.response?.data?.message || "Failed to complete account setup.");
+      toast.error(getApiErrorMessage(error, "Failed to complete account setup."));
     }
   };
 
-  // Fallback defaults in case backend is loading or unavailable
+  // Fallback defaults in case backend preview stats are loading or unavailable
   const defaultStats = {
     studentsCount: 1248,
     teachersCount: 84,
@@ -120,25 +138,33 @@ export default function Login() {
     attendance: {
       percentage: 94.2,
       present: 1175,
-      total: 1248
+      total: 1248,
     },
     studentsList: [
       { name: "Alex Johnson", grade: "Grade 10-A" },
       { name: "Sophia Williams", grade: "Grade 12-C" },
-      { name: "Ryan Garcia", grade: "Grade 9-B" }
+      { name: "Ryan Garcia", grade: "Grade 9-B" },
     ],
     classesSchedule: [
       { time: "09:30 AM", subject: "Advanced Mathematics", teacher: "Dr. Ethan Hunt • Room A4" },
-      { time: "10:15 AM", subject: "Physics Lab Experiments", teacher: "Prof. Sarah Connor • Lab B" }
+      { time: "10:15 AM", subject: "Physics Lab Experiments", teacher: "Prof. Sarah Connor • Lab B" },
     ],
     activityLogs: [
       { type: "blue", text: "Report cards generated for <strong>Grade 10B</strong>", time: "2 mins ago" },
-      { type: "green", text: "Leave application filed by <strong>Anna's Parents</strong>", time: "10 mins ago" }
-    ]
+      { type: "green", text: "Leave application filed by <strong>Anna's Parents</strong>", time: "10 mins ago" },
+    ],
   };
 
   const stats = previewStats || defaultStats;
-  const attendanceRate = stats.attendance?.percentage || 94.2;
+  const studentsCount = Number(stats?.studentsCount ?? defaultStats.studentsCount);
+  const teachersCount = Number(stats?.teachersCount ?? defaultStats.teachersCount);
+  const attendancePresent = Number(stats?.attendance?.present ?? defaultStats.attendance.present);
+  const attendanceTotal = Number(stats?.attendance?.total ?? defaultStats.attendance.total);
+  const attendanceRate = Number(stats?.attendance?.percentage ?? defaultStats.attendance.percentage);
+  const studentsList = Array.isArray(stats?.studentsList) ? stats.studentsList : defaultStats.studentsList;
+  const classesSchedule = Array.isArray(stats?.classesSchedule) ? stats.classesSchedule : defaultStats.classesSchedule;
+  const activityLogs = Array.isArray(stats?.activityLogs) ? stats.activityLogs : defaultStats.activityLogs;
+
   const strokeDashoffset = 201 - (201 * attendanceRate) / 100;
 
   return (
@@ -168,7 +194,7 @@ export default function Login() {
           className="widgets-container" 
           style={{
             "--parallax-x": parallax.x,
-            "--parallax-y": parallax.y
+            "--parallax-y": parallax.y,
           }}
         >
           {/* 1. Student Management Card */}
@@ -183,14 +209,14 @@ export default function Login() {
               </div>
             </header>
             <div className="student-stat-row">
-              <span className="student-stat-num">{stats.studentsCount.toLocaleString()}</span>
+              <span className="student-stat-num">{studentsCount.toLocaleString()}</span>
               <span className="student-stat-trend">
                 <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>trending_up</span>
                 +4.8%
               </span>
             </div>
             <div className="student-list">
-              {stats.studentsList.slice(0, 3).map((student, i) => (
+              {studentsList.slice(0, 3).map((student, i) => (
                 <div className="student-item" key={i}>
                   <span className="student-name">{student.name}</span>
                   <span className="student-class">{student.grade}</span>
@@ -233,7 +259,7 @@ export default function Login() {
               <div className="attendance-info-box">
                 <span className="attendance-label">Present Today</span>
                 <span className="attendance-value">
-                  {stats.attendance.present.toLocaleString()} / {stats.attendance.total.toLocaleString()}
+                  {attendancePresent.toLocaleString()} / {attendanceTotal.toLocaleString()}
                 </span>
               </div>
             </div>
@@ -251,7 +277,7 @@ export default function Login() {
               </div>
             </header>
             <div className="schedule-grid">
-              {stats.classesSchedule.slice(0, 2).map((schedule, i) => (
+              {classesSchedule.slice(0, 2).map((schedule, i) => (
                 <div className="schedule-item" key={i}>
                   <div className="schedule-time-box">{schedule.time}</div>
                   <div className="schedule-details">
@@ -276,12 +302,12 @@ export default function Login() {
             </header>
             <div className="teacher-grid">
               <div className="teacher-grid-item">
-                <div className="teacher-grid-num">{stats.teachersCount}</div>
+                <div className="teacher-grid-num">{teachersCount}</div>
                 <div className="teacher-grid-label">Total</div>
               </div>
               <div className="teacher-grid-item">
                 <div className="teacher-grid-num">
-                  {Math.max(1, Math.round(stats.teachersCount * 0.9))}
+                  {Math.max(1, Math.round(teachersCount * 0.9))}
                 </div>
                 <div className="teacher-grid-label">On Duty</div>
               </div>
@@ -299,187 +325,178 @@ export default function Login() {
                 <p className="widget-subtitle">Real-time system events</p>
               </div>
             </header>
-            <div className="notif-list">
-              {stats.activityLogs.slice(0, 2).map((log, i) => (
-                <div className="notif-item" key={i}>
-                  <span className={`notif-indicator ${log.type}`}></span>
-                  <div className="notif-text-box">
-                    <span className="notif-text" dangerouslySetInnerHTML={{ __html: log.text }}></span>
-                    <span className="notif-time">{log.time}</span>
+            <div className="activity-list">
+              {activityLogs.slice(0, 2).map((log, i) => (
+                <div className="activity-item" key={i}>
+                  <span className={`activity-dot dot-${log.type}`}></span>
+                  <div className="activity-content">
+                    <p 
+                      className="activity-text" 
+                      dangerouslySetInnerHTML={{ __html: log.text }}
+                    />
+                    <span className="activity-time">{log.time}</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
         </div>
-      </section>
 
-      {/* RIGHT SIDE: FLOATING GLASS LOGIN CARD (40%) */}
-      <section className="login-right-panel">
-        {/* Theme Toggle container */}
-        <div className="login-theme-toggle">
-          <ThemeToggle />
-        </div>
-
-        {/* Main Floating Glass Login Card */}
-        <div className="login-card-wrapper">
-          <div className="login-glass-card">
-            {/* Branding Header */}
-            <div className="login-logo-group">
-              <div className="login-logo-mark">
-                <span className="material-symbols-outlined">auto_awesome</span>
-              </div>
-              <h1 className="login-logo-text">EduTrack</h1>
-            </div>
-
-            {authView === "otp" ? (
-              <OtpScreen
-                email={email}
-                onVerify={handleVerifyTeacherOtp}
-                onResend={() => requestTeacherOtp(email.trim())}
-                onBack={() => setAuthView("login")}
-                isLoading={isLoading}
-              />
-            ) : authView === "password_setup" ? (
-              <PasswordSetupScreen
-                onSubmit={handleCompleteFirstLogin}
-                isLoading={isLoading}
-              />
-            ) : (
-              <>
-                <div className="login-welcome-text">
-                  <h2 className="login-welcome-title">Welcome Back</h2>
-                  <p className="login-welcome-subtitle">
-                    Enter your credentials to access the School Management System
-                  </p>
-                </div>
-
-                {/* Login Credentials Form */}
-                <form className="login-form-group" onSubmit={handleSubmit}>
-                  {/* Email Input */}
-                  <div className="login-input-wrapper">
-                    <label className="login-input-label" htmlFor="login-email">Email Address</label>
-                    <div className="login-input-field-container">
-                      <span className="material-symbols-outlined login-input-icon">alternate_email</span>
-                      <input
-                        className="login-input"
-                        id="login-email"
-                        type="email"
-                        placeholder="teacher@edutrack.edu"
-                        required
-                        autoComplete="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Password Input */}
-                  <div className="login-input-wrapper">
-                    <label className="login-input-label" htmlFor="login-password">Password</label>
-                    <div className="login-input-field-container">
-                      <span className="material-symbols-outlined login-input-icon">key</span>
-                      <input
-                        className="login-input"
-                        id="login-password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        required
-                        autoComplete="current-password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                      <button
-                        className="login-password-toggle"
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        aria-label={showPassword ? "Hide password" : "Show password"}
-                      >
-                        <span className="material-symbols-outlined">
-                          {showPassword ? "visibility_off" : "visibility"}
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Options Row (Remember Me & Forgot Password) */}
-                  <div className="login-options-row">
-                    <label className="login-checkbox-label">
-                      <input
-                        className="login-hidden-checkbox"
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                      />
-                      <div className="login-custom-checkbox">
-                        <span className="material-symbols-outlined login-check-icon">check</span>
-                      </div>
-                      <span className="login-checkbox-text">Remember me</span>
-                    </label>
-                    <a
-                      href="#forgot"
-                      className="login-forgot-link"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setForgotPasswordOpen(true);
-                      }}
-                    >
-                      Forgot Password?
-                    </a>
-                  </div>
-
-                  {/* Gradient Submit Button */}
-                  <div className="login-btn-wrapper">
-                    <button
-                      type="submit"
-                      className="login-btn-gradient"
-                      disabled={isLoading || isSuccess}
-                    >
-                      {isLoading ? (
-                        <>
-                          <span>{isSuccess ? "Access Approved" : "Validating..."}</span>
-                          <div className="login-loading-spinner"></div>
-                        </>
-                      ) : (
-                        <>
-                          <span>Sign In</span>
-                          <span className="material-symbols-outlined">arrow_forward</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
-
-                {/* Footer Information */}
-                <div className="login-card-footer">
-                  <p className="login-footer-text">
-                    Authorized access only.{" "}
-                    <a href="#request" className="login-footer-link" onClick={(e) => e.preventDefault()}>
-                      Request Account
-                    </a>
-                  </p>
-                </div>
-              </>
-            )}
+        {/* Ambient Brand Overlay Footer */}
+        <div className="left-panel-footer">
+          <div className="brand-trust-badge">
+            <span className="material-symbols-outlined trust-icon">verified_user</span>
+            <span>Enterprise SLMS • Next-Gen Education Management</span>
           </div>
         </div>
       </section>
 
-      {/* Global Copyright / Privacy Footer */}
-      <footer className="login-global-footer">
-        <span className="login-global-footer-text">© 2026 EDUTRACK. ALL RIGHTS RESERVED.</span>
-        <div className="login-global-footer-links">
-          <a href="#privacy" className="login-global-footer-link" onClick={(e) => e.preventDefault()}>Privacy Policy</a>
-          <a href="#security" className="login-global-footer-link" onClick={(e) => e.preventDefault()}>Security Matrix</a>
+      {/* RIGHT SIDE: AUTHENTICATION CONTAINER (40%) */}
+      <section className="login-right-panel">
+        <div className="theme-toggle-fixed-position">
+          <ThemeToggle />
         </div>
-      </footer>
+
+        <div className="auth-card-wrapper animate-fade-in-up">
+          {/* BRAND HEADER */}
+          <header className="auth-header">
+            <div className="auth-logo-badge">
+              <span className="material-symbols-outlined logo-symbol">school</span>
+            </div>
+            <h1 className="auth-brand-title">EduTrack</h1>
+            <p className="auth-brand-subtitle">School Learning Management System</p>
+          </header>
+
+          {/* AUTH VIEW RENDERER */}
+          {authView === "login" && (
+            <div className="auth-form-container">
+              <div className="welcome-text-box">
+                <h2>Welcome Back</h2>
+                <p>Enter your credentials to access your portal.</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="auth-form" noValidate>
+                {/* Email Field */}
+                <div className="form-group">
+                  <label htmlFor="login-email">Email Address</label>
+                  <div className="input-field-wrapper">
+                    <span className="material-symbols-outlined field-icon">mail</span>
+                    <input
+                      id="login-email"
+                      type="email"
+                      required
+                      placeholder="name@school.edu"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="form-input"
+                      autoComplete="email"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                {/* Password Field */}
+                <div className="form-group">
+                  <div className="label-with-action">
+                    <label htmlFor="login-password">Password</label>
+                    <button
+                      type="button"
+                      className="forgot-password-link"
+                      onClick={() => setForgotPasswordOpen(true)}
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+                  <div className="input-field-wrapper">
+                    <span className="material-symbols-outlined field-icon">lock</span>
+                    <input
+                      id="login-password"
+                      type={showPassword ? "text" : "password"}
+                      required
+                      placeholder="••••••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="form-input"
+                      autoComplete="current-password"
+                      disabled={isLoading}
+                    />
+                    <button
+                      type="button"
+                      className="toggle-password-btn"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      <span className="material-symbols-outlined">
+                        {showPassword ? "visibility_off" : "visibility"}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Options Row */}
+                <div className="form-options-row">
+                  <label className="checkbox-container">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                    />
+                    <span className="checkbox-label">Keep me signed in</span>
+                  </label>
+                </div>
+
+                {/* Submit Action Button */}
+                <button
+                  type="submit"
+                  className={`submit-auth-btn btn-press ${isSuccess ? "success-state" : ""}`}
+                  disabled={isLoading || isSuccess}
+                >
+                  {isLoading ? (
+                    <span className="btn-spinner-wrapper">
+                      <span className="login-loading-spinner"></span>
+                      <span>Authenticating...</span>
+                    </span>
+                  ) : isSuccess ? (
+                    <span className="btn-success-wrapper">
+                      <span className="material-symbols-outlined">check_circle</span>
+                      <span>Success! Redirecting...</span>
+                    </span>
+                  ) : (
+                    <span>Sign In to Portal</span>
+                  )}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {authView === "otp" && (
+            <OtpScreen
+              email={email}
+              onVerify={handleVerifyTeacherOtp}
+              onBack={() => setAuthView("login")}
+              isLoading={isLoading}
+            />
+          )}
+
+          {authView === "password_setup" && (
+            <PasswordSetupScreen
+              onComplete={handleCompleteFirstLogin}
+              isLoading={isLoading}
+            />
+          )}
+
+          {/* Security Footer */}
+          <footer className="auth-footer">
+            <p>Protected by Enterprise Role Authentication & Session Management</p>
+          </footer>
+        </div>
+      </section>
 
       {/* Forgot Password Modal */}
       <ForgotPasswordModal
-        isOpen={forgotPasswordOpen}
+        open={forgotPasswordOpen}
         onClose={() => setForgotPasswordOpen(false)}
       />
     </div>
   );
 }
-

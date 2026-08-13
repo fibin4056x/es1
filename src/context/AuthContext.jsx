@@ -15,7 +15,11 @@ export function AuthProvider({ children }) {
 
   const fetchUser = useCallback(async () => {
     const token = localStorage.getItem("token");
-    if (!token) {
+    const isLoginPage = typeof window !== "undefined" && window.location.pathname === "/login";
+
+    // If no token exists and user is on login page, skip /auth/me request to avoid unneeded 401 console errors
+    if (!token && isLoginPage) {
+      setUser(null);
       setLoading(false);
       return;
     }
@@ -23,12 +27,18 @@ export function AuthProvider({ children }) {
     try {
       const res = await getMe();
       const userData = res.data?.user || res.user || res.data;
-      if (userData) {
+      if (userData && userData._id) {
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
+      } else if (!user) {
+        setUser(null);
+        localStorage.removeItem("user");
       }
     } catch (err) {
-      console.error("Failed to verify authentication session:", err);
+      // Unauthenticated or expired session
+      setUser(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
     } finally {
       setLoading(false);
     }
@@ -39,8 +49,12 @@ export function AuthProvider({ children }) {
   }, [fetchUser]);
 
   const login = (userData, token) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(userData));
+    if (token) {
+      localStorage.setItem("token", token);
+    }
+    if (userData) {
+      localStorage.setItem("user", JSON.stringify(userData));
+    }
     setUser(userData);
     setLoading(false);
   };
@@ -74,7 +88,3 @@ export function AuthProvider({ children }) {
 }
 
 export default AuthProvider;
-
-
-
-

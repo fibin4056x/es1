@@ -1,11 +1,11 @@
 import api from "./api";
 
 /* =========================================
-   GET ALL CLASSES
+   GET ALL CLASSES (WITH PAGINATION & SEARCH)
 ========================================= */
 
-export const getClasses = async () => {
-  const res = await api.get("/classes");
+export const getClasses = async (params = {}) => {
+  const res = await api.get("/classes", { params });
   return res.data;
 };
 
@@ -33,15 +33,8 @@ export const getClass = async (id) => {
    UPDATE CLASS
 ========================================= */
 
-export const updateClass = async (
-  id,
-  data
-) => {
-  const res = await api.patch(
-    `/classes/${id}`,
-    data
-  );
-
+export const updateClass = async (id, data) => {
+  const res = await api.patch(`/classes/${id}`, data);
   return res.data;
 };
 
@@ -49,12 +42,7 @@ export const updateClass = async (
    DELETE CLASS
 ========================================= */
 
-export const deleteClass = async (
-  id
-) => {
-  const res = await api.delete(
-    `/classes/${id}`
-  );
-
+export const deleteClass = async (id) => {
+  const res = await api.delete(`/classes/${id}`);
   return res.data;
 };

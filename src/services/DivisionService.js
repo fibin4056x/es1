@@ -1,11 +1,11 @@
 import api from "./api";
 
 /* =========================================
-   GET ALL DIVISIONS
+   GET ALL DIVISIONS (WITH PAGINATION & SEARCH)
 ========================================= */
 
-export const getDivisions = async () => {
-  const res = await api.get("/divisions");
+export const getDivisions = async (params = {}) => {
+  const res = await api.get("/divisions", { params });
   return res.data;
 };
 
@@ -16,11 +16,7 @@ export const getDivisionList = getDivisions;
 ========================================= */
 
 export const createDivision = async (data) => {
-  const res = await api.post(
-    "/divisions",
-    data
-  );
-
+  const res = await api.post("/divisions", data);
   return res.data;
 };
 
@@ -29,10 +25,7 @@ export const createDivision = async (data) => {
 ========================================= */
 
 export const getDivision = async (id) => {
-  const res = await api.get(
-    `/divisions/${id}`
-  );
-
+  const res = await api.get(`/divisions/${id}`);
   return res.data;
 };
 
@@ -40,15 +33,8 @@ export const getDivision = async (id) => {
    UPDATE DIVISION
 ========================================= */
 
-export const updateDivision = async (
-  id,
-  data
-) => {
-  const res = await api.patch(
-    `/divisions/${id}`,
-    data
-  );
-
+export const updateDivision = async (id, data) => {
+  const res = await api.patch(`/divisions/${id}`, data);
   return res.data;
 };
 
@@ -56,12 +42,7 @@ export const updateDivision = async (
    DELETE DIVISION
 ========================================= */
 
-export const deleteDivision = async (
-  id
-) => {
-  const res = await api.delete(
-    `/divisions/${id}`
-  );
-
+export const deleteDivision = async (id) => {
+  const res = await api.delete(`/divisions/${id}`);
   return res.data;
 };

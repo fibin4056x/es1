@@ -10,12 +10,15 @@ import Pagination from "../../components/common/pagination/Pagination";
 import StudentStats from "./StudentStats";
 import ExportDropdown from "./ExportDropdown";
 import ImportModal from "./ImportModal";
+import Loader from "../../components/common/Loader/Loader";
+import { getApiErrorMessage } from "../../services/api";
 
 import "./Students.css";
 
 function Students() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Filters
   const [search, setSearch] = useState("");
@@ -66,6 +69,7 @@ function Students() {
   const loadStudents = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const params = {
         page: currentPage,
         limit: 10,
@@ -79,11 +83,12 @@ function Students() {
       const list = res.data?.students || res.students || res.data || [];
       const pagination = res.pagination || res.data?.pagination || {};
 
-      setStudents(list);
+      setStudents(Array.isArray(list) ? list : []);
       setTotalPages(pagination.totalPages || 1);
-      setTotalRecords(pagination.totalRecords || list.length);
-    } catch (error) {
-      console.log("Failed to load students:", error);
+      setTotalRecords(pagination.totalRecords || (Array.isArray(list) ? list.length : 0));
+    } catch (err) {
+      console.error("Failed to load students:", err);
+      setError(getApiErrorMessage(err, "Failed to load student records from server."));
       setStudents([]);
     } finally {
       setLoading(false);
@@ -134,7 +139,7 @@ function Students() {
 
       {/* Search Toolbar & Filter Controls */}
       <div className="students-toolbar" style={{ display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" }}>
-        <div className="students-search-wrapper" style={{ flex: 1, minWidth: "260px" }}>
+        <div className="students-search-wrapper" style={{ flex: 1, minWidth: "240px" }}>
           <span className="material-symbols-outlined">search</span>
           <input
             type="search"
@@ -195,9 +200,16 @@ function Students() {
 
       <StudentStats students={students} />
 
+      {error && (
+        <div style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#fca5a5", padding: "16px", borderRadius: "8px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{error}</span>
+          <button type="button" onClick={loadStudents} style={{ background: "rgba(239, 68, 68, 0.3)", color: "#fff", border: "none", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}>Retry</button>
+        </div>
+      )}
+
       {loading ? (
-        <div className="loading-state" style={{ padding: "40px 0", textAlign: "center" }}>
-          <p>Loading students from server...</p>
+        <div className="loading-state" style={{ padding: "60px 0", textAlign: "center" }}>
+          <Loader size="medium" text="Loading students from server..." />
         </div>
       ) : (
         <>
@@ -214,7 +226,7 @@ function Students() {
             </div>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "16px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "16px", flexWrap: "wrap", gap: "12px" }}>
             <span style={{ fontSize: "0.875rem", color: "var(--text-muted, #94a3b8)" }}>
               Showing {students.length} of {totalRecords} total student records
             </span>

@@ -5,7 +5,7 @@ import api from "./api";
  */
 export const loginUser = async (email, password) => {
   const response = await api.post("/auth/login", {
-    email,
+    email: (email || "").trim(),
     password,
   });
   return response.data;
@@ -15,7 +15,9 @@ export const loginUser = async (email, password) => {
  * 2. Request OTP for first-time teacher verification
  */
 export const requestTeacherOtp = async (email) => {
-  const response = await api.post("/auth/teacher/request-verification-otp", { email });
+  const response = await api.post("/auth/teacher/request-verification-otp", {
+    email: (email || "").trim(),
+  });
   return response.data;
 };
 
@@ -23,7 +25,10 @@ export const requestTeacherOtp = async (email) => {
  * 3. Verify OTP for first-time teacher
  */
 export const verifyTeacherOtp = async (email, otp) => {
-  const response = await api.post("/auth/teacher/verify-otp", { email, otp });
+  const response = await api.post("/auth/teacher/verify-otp", {
+    email: (email || "").trim(),
+    otp,
+  });
   return response.data;
 };
 
@@ -47,7 +52,9 @@ export const completeFirstLogin = async (setupToken, newPassword, confirmPasswor
  * 5. Forgot Password - Request OTP
  */
 export const requestForgotPasswordOtp = async (email) => {
-  const response = await api.post("/auth/forgot-password/request-otp", { email });
+  const response = await api.post("/auth/forgot-password/request-otp", {
+    email: (email || "").trim(),
+  });
   return response.data;
 };
 
@@ -55,7 +62,10 @@ export const requestForgotPasswordOtp = async (email) => {
  * 6. Forgot Password - Verify OTP
  */
 export const verifyForgotPasswordOtp = async (email, otp) => {
-  const response = await api.post("/auth/forgot-password/verify-otp", { email, otp });
+  const response = await api.post("/auth/forgot-password/verify-otp", {
+    email: (email || "").trim(),
+    otp,
+  });
   return response.data;
 };
 
@@ -101,4 +111,4 @@ export const updateProfile = async (profileData) => {
 export const getMe = async () => {
   const response = await api.get("/auth/me");
   return response.data;
-};
+};

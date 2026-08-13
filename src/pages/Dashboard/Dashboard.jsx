@@ -1,5 +1,5 @@
 import "./Dashboard.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getDashboardStats } from "../../services/dashboardService";
 import { getUpcomingEvents } from "../../services/academicCalendarService";
@@ -8,11 +8,16 @@ import AttendanceChart from "./AttendanceChart";
 import RecentTeachers from "./RecentTeachers";
 import RecentStudents from "./RecentStudents";
 import { useAuth } from "../../hooks/UseAuth";
+import Loader from "../../components/common/Loader/Loader";
+import { getApiErrorMessage } from "../../services/api";
 
 function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isPrincipal = user?.role === "principal";
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [stats, setStats] = useState({
     students: 0,
@@ -35,30 +40,40 @@ function Dashboard() {
 
   const [upcomingEvents, setUpcomingEvents] = useState([]);
 
-  useEffect(() => {
-    let isMounted = true;
-    const fetchDashboard = async () => {
-      try {
-        const [res, eventsRes] = await Promise.all([
-          getDashboardStats().catch(() => ({ data: {} })),
-          getUpcomingEvents(5).catch(() => ({ data: [] })),
-        ]);
+  const fetchDashboard = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        if (isMounted) {
-          if (res.data) setStats(res.data);
-          setUpcomingEvents(eventsRes.data || eventsRes || []);
-        }
-      } catch (error) {
-        console.error("Dashboard Error:", error);
+      const [res, eventsRes] = await Promise.all([
+        getDashboardStats().catch((err) => {
+          console.error("Dashboard Stats API error:", err);
+          return { data: null, error: err };
+        }),
+        getUpcomingEvents(5).catch((err) => {
+          console.error("Upcoming Events API error:", err);
+          return { data: [] };
+        }),
+      ]);
+
+      if (res.data) {
+        setStats(res.data);
+      } else if (res.error) {
+        setError(getApiErrorMessage(res.error, "Failed to load dashboard statistics from server."));
       }
-    };
 
-    fetchDashboard();
-    return () => {
-      isMounted = false;
-    };
+      setUpcomingEvents(eventsRes.data || eventsRes || []);
+    } catch (err) {
+      console.error("Dashboard Global Error:", err);
+      setError(getApiErrorMessage(err, "An error occurred while loading the dashboard."));
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
 
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "short",
@@ -67,21 +82,65 @@ function Dashboard() {
     year: "numeric",
   });
 
+  if (loading) {
+    return (
+      <div className="dashboard-page" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
+        <Loader size="large" text="Fetching institution statistics..." />
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard-page">
       {/* Dashboard Top Header Section */}
       <div className="dashboard-header-section animate-fade-in-up">
         <div className="dashboard-title-group">
           <h2>Welcome Back, {user?.name || "User"} 👋</h2>
-          <p>Here's today's overview of your institution.</p>
+          <p>Here's today's real-time overview of your institution.</p>
         </div>
         <div className="header-actions">
-          <button className="date-filter-btn btn-press">
+          <button className="date-filter-btn btn-press" type="button">
             <span className="material-symbols-outlined">calendar_today</span>
             <span>{today}</span>
           </button>
         </div>
       </div>
+
+      {error && (
+        <div
+          style={{
+            background: "rgba(239, 68, 68, 0.15)",
+            border: "1px solid rgba(239, 68, 68, 0.3)",
+            color: "#fca5a5",
+            padding: "16px 20px",
+            borderRadius: "12px",
+            marginBottom: "20px",
+            display: "flex",
+            justify: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span className="material-symbols-outlined">warning</span>
+            <span>{error}</span>
+          </div>
+          <button
+            type="button"
+            onClick={fetchDashboard}
+            style={{
+              background: "rgba(239, 68, 68, 0.25)",
+              border: "1px solid rgba(239, 68, 68, 0.4)",
+              color: "#ffffff",
+              padding: "6px 14px",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontWeight: 600,
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* QUICK ACTIONS BANNER */}
       <div className="quick-actions-bar">
@@ -127,28 +186,26 @@ function Dashboard() {
       <div className="cards-grid">
         <StatCard
           title="Total Students"
-          value={stats.students}
+          value={stats.students || 0}
           icon="groups"
-          trendText="+12.5%"
-          trendType="up"
+          trendText={stats.studentsTrend ? `${stats.studentsTrend}%` : null}
+          trendType={stats.studentsTrend ? (stats.studentsTrend > 0 ? "up" : "down") : null}
           variant="primary"
         />
 
         <StatCard
           title="Total Teachers"
-          value={stats.teachers}
+          value={stats.teachers || 0}
           icon="school"
-          trendText="+4.2%"
-          trendType="up"
+          trendText={stats.teachersTrend ? `${stats.teachersTrend}%` : null}
+          trendType={stats.teachersTrend ? (stats.teachersTrend > 0 ? "up" : "down") : null}
           variant="secondary"
         />
 
         <StatCard
           title="Total Classes"
-          value={stats.classes}
+          value={stats.classes || 0}
           icon="class"
-          trendText="0%"
-          trendType="neutral"
           variant="blue"
         />
 
@@ -157,8 +214,6 @@ function Dashboard() {
           value={stats.attendance?.percentage || 0}
           isPercentage={true}
           icon="verified"
-          trendText="+1.2%"
-          trendType="up"
           variant="success"
         />
       </div>
@@ -183,22 +238,22 @@ function Dashboard() {
 
             <div className="dash-events-list">
               {upcomingEvents.length === 0 ? (
-                <p className="no-events-sm">No upcoming events this week.</p>
+                <p className="no-events-sm">No upcoming events scheduled.</p>
               ) : (
                 upcomingEvents.slice(0, 4).map((ev) => (
-                  <div key={ev._id} className="dash-event-item">
+                  <div key={ev._id || ev.id} className="dash-event-item">
                     <div className="event-date-pill">
-                      <span>{new Date(ev.startDate).getDate()}</span>
+                      <span>{new Date(ev.startDate || Date.now()).getDate()}</span>
                       <small>
-                        {new Date(ev.startDate).toLocaleString("default", {
+                        {new Date(ev.startDate || Date.now()).toLocaleString("default", {
                           month: "short",
                         })}
                       </small>
                     </div>
                     <div className="event-item-info">
                       <h4>{ev.title}</h4>
-                      <span className={`badge-cat category-${ev.category}`}>
-                        {ev.category}
+                      <span className={`badge-cat category-${ev.category || "event"}`}>
+                        {ev.category || "Event"}
                       </span>
                     </div>
                   </div>

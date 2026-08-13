@@ -1,36 +1,36 @@
 /* ==========================================================================
-   EDUTRACK PREMIUM LOGIN PAGE STYLING
-   Aesthetic: Apple VisionOS / Stripe / Linear Glassmorphism
+   EDUTRACK PREMIUM SAAS LOGIN PAGE STYLING
+   Aesthetic: Apple VisionOS / Linear / Stripe Glassmorphism
    ========================================================================== */
 
 .login-page-container {
-  /* Color Palette Variables */
+  /* Design System Tokens */
   --bg-dark: #050816;
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-bg-hover: rgba(255, 255, 255, 0.08);
   --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-border-focus: rgba(99, 102, 241, 0.45);
+  --glass-border-focus: rgba(99, 102, 241, 0.5);
   
   --primary: #6366F1;       /* Indigo */
   --secondary: #8B5CF6;     /* Purple/Violet */
   --accent: #06B6D4;        /* Cyan */
   --success: #22C55E;       /* Emerald/Green */
   --warning: #F59E0B;       /* Amber */
+  --danger: #EF4444;        /* Red */
   
   --text-primary: #F8FAFC;  /* Slate 50 */
   --text-muted: #94A3B8;     /* Slate 400 */
   
-  /* Layout settings */
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  width: 100vw;
+  width: 100%;
   display: flex;
   background-color: var(--bg-dark);
   color: var(--text-primary);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  overflow: hidden;
+  overflow-x: hidden;
   position: relative;
 }
 
@@ -48,7 +48,7 @@
   position: relative;
   overflow: hidden;
   background-color: var(--bg-dark);
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .login-right-panel {
@@ -58,9 +58,10 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: 24px;
+  padding: 24px 16px;
   background-color: var(--bg-dark);
   z-index: 10;
+  min-height: 100vh;
 }
 
 @media (min-width: 1024px) {
@@ -69,6 +70,7 @@
   }
   .login-right-panel {
     width: 40%;
+    padding: 32px 40px;
   }
 }
 
@@ -76,7 +78,6 @@
    LEFT SIDE: IMMERSIVE ANIMATED WORKSPACE
    ========================================================================== */
 
-/* Aurora Gradient Background */
 .aurora-bg {
   position: absolute;
   inset: 0;
@@ -91,18 +92,11 @@
 }
 
 @keyframes aurora-shift {
-  0% {
-    background-position: 0% 0%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 50% 100%;
-  }
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 50% 100%; }
 }
 
-/* Dynamic Light Rays */
 .light-rays {
   position: absolute;
   inset: 0;
@@ -125,7 +119,6 @@
   50% { opacity: 0.7; }
 }
 
-/* Soft Glowing Particles */
 .particles-container {
   position: absolute;
   inset: 0;
@@ -148,17 +141,10 @@
 .particle-4 { width: 140px; height: 140px; top: 75%; left: 15%; animation-delay: -11s; animation-duration: 25s; }
 
 @keyframes float-particle {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-    opacity: 0.3;
-  }
-  50% {
-    transform: translate(30px, -40px) scale(1.15);
-    opacity: 0.6;
-  }
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+  50% { transform: translate(30px, -40px) scale(1.15); opacity: 0.6; }
 }
 
-/* Floating Abstract Shapes */
 .floating-shapes {
   position: absolute;
   inset: 0;
@@ -196,7 +182,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* Floating Widgets Container */
 .widgets-container {
   position: absolute;
   inset: 0;
@@ -208,7 +193,6 @@
   pointer-events: auto;
 }
 
-/* Base Glass Widget Style */
 .glass-widget {
   position: absolute;
   background: var(--glass-bg);
@@ -237,9 +221,8 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-/* Widgets Positioning & Animation Offset multipliers */
 .widget-students {
-  top: 10%;
+  top: 8%;
   left: 8%;
   width: 260px;
   animation: float-slow 8s infinite ease-in-out;
@@ -247,7 +230,7 @@
 }
 
 .widget-attendance {
-  top: 14%;
+  top: 12%;
   right: 8%;
   width: 220px;
   animation: float-medium 7s infinite ease-in-out;
@@ -256,8 +239,8 @@
 }
 
 .widget-classes {
-  top: 40%;
-  left: 12%;
+  top: 42%;
+  left: 10%;
   width: 320px;
   animation: float-slow 9s infinite ease-in-out;
   animation-delay: -3s;
@@ -267,36 +250,31 @@
 .widget-teachers {
   bottom: 12%;
   left: 8%;
-  width: 250px;
+  width: 240px;
   animation: float-medium 7.5s infinite ease-in-out;
   animation-delay: -4s;
   transform: translate(calc(var(--parallax-x) * 0.5px), calc(var(--parallax-y) * 0.5px));
 }
 
 .widget-notifications {
-  bottom: 14%;
-  right: 10%;
+  bottom: 12%;
+  right: 8%;
   width: 270px;
   animation: float-slow 8.5s infinite ease-in-out;
   animation-delay: -2s;
   transform: translate(calc(var(--parallax-x) * 0.4px), calc(var(--parallax-y) * 0.4px));
 }
 
-/* Widget Float Keyframes */
 @keyframes float-slow {
   0%, 100% { transform: translateY(0px) translate(calc(var(--parallax-x) * 0.4px), calc(var(--parallax-y) * 0.4px)); }
   50% { transform: translateY(-10px) translate(calc(var(--parallax-x) * 0.4px), calc(var(--parallax-y) * 0.4px)); }
 }
+
 @keyframes float-medium {
   0%, 100% { transform: translateY(0px) translate(calc(var(--parallax-x) * 0.6px), calc(var(--parallax-y) * 0.6px)); }
   50% { transform: translateY(-14px) translate(calc(var(--parallax-x) * 0.6px), calc(var(--parallax-y) * 0.6px)); }
 }
 
-/* ==========================================================================
-   WIDGET INTERIOR CONTENT STYLING
-   ========================================================================== */
-
-/* Typography inside widgets */
 .widget-header {
   display: flex;
   align-items: center;
@@ -318,15 +296,15 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
-  letter-spacing: -0.01em;
+  margin: 0;
 }
 
 .widget-subtitle {
   font-size: 11px;
   color: var(--text-muted);
+  margin: 0;
 }
 
-/* 1. Student Management Card */
 .student-stat-row {
   display: flex;
   align-items: baseline;
@@ -337,7 +315,6 @@
 .student-stat-num {
   font-size: 26px;
   font-weight: 700;
-  letter-spacing: -0.03em;
 }
 
 .student-stat-trend {
@@ -364,16 +341,9 @@
   font-size: 11px;
 }
 
-.student-name {
-  color: var(--text-primary);
-  font-weight: 500;
-}
+.student-name { color: var(--text-primary); font-weight: 500; }
+.student-class { color: var(--text-muted); }
 
-.student-class {
-  color: var(--text-muted);
-}
-
-/* 2. Attendance Analytics Widget */
 .attendance-ring-container {
   display: flex;
   align-items: center;
@@ -396,8 +366,7 @@
   fill: none;
   stroke: url(#attendanceGradient);
   stroke-width: 6;
-  stroke-dasharray: 201; /* 2 * PI * 32 */
-  stroke-dashoffset: 12;  /* ~94.2% filled */
+  stroke-dasharray: 201;
   stroke-linecap: round;
   transform: rotate(-90deg);
   transform-origin: 50% 50%;
@@ -419,28 +388,19 @@
   gap: 2px;
 }
 
-.attendance-label {
-  font-size: 11px;
-  color: var(--text-muted);
-}
+.attendance-label { font-size: 11px; color: var(--text-muted); }
+.attendance-value { font-size: 14px; font-weight: 600; color: var(--accent); }
 
-.attendance-value {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--accent);
-}
-
-/* 3. Classes Overview / Schedule Widget */
 .schedule-grid {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .schedule-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   padding: 8px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.02);
@@ -448,30 +408,18 @@
 }
 
 .schedule-time-box {
-  font-family: 'Geist', monospace;
   font-size: 10px;
   color: var(--accent);
   background: rgba(6, 182, 212, 0.1);
-  padding: 4px 8px;
+  padding: 4px 6px;
   border-radius: 6px;
+  white-space: nowrap;
 }
 
-.schedule-details {
-  display: flex;
-  flex-direction: column;
-}
+.schedule-details { display: flex; flex-direction: column; }
+.schedule-subject { font-size: 12px; font-weight: 600; }
+.schedule-teacher { font-size: 10px; color: var(--text-muted); }
 
-.schedule-subject {
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.schedule-teacher {
-  font-size: 10px;
-  color: var(--text-muted);
-}
-
-/* 4. Teacher Statistics Widget */
 .teacher-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -487,31 +435,22 @@
   text-align: center;
 }
 
-.teacher-grid-num {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--primary);
-}
+.teacher-grid-num { font-size: 18px; font-weight: 700; color: var(--primary); }
+.teacher-grid-label { font-size: 10px; color: var(--text-muted); }
 
-.teacher-grid-label {
-  font-size: 10px;
-  color: var(--text-muted);
-}
-
-/* 5. Notifications Feed */
-.notif-list {
+.activity-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.notif-item {
+.activity-item {
   display: flex;
   gap: 8px;
   font-size: 11px;
 }
 
-.notif-indicator {
+.activity-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -519,49 +458,77 @@
   flex-shrink: 0;
 }
 
-.notif-indicator.blue { background-color: var(--primary); box-shadow: 0 0 8px var(--primary); }
-.notif-indicator.green { background-color: var(--success); box-shadow: 0 0 8px var(--success); }
+.activity-dot.dot-blue { background-color: var(--primary); box-shadow: 0 0 6px var(--primary); }
+.activity-dot.dot-green { background-color: var(--success); box-shadow: 0 0 6px var(--success); }
 
-.notif-text-box {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.activity-content { display: flex; flex-direction: column; gap: 2px; }
+.activity-text { color: var(--text-primary); line-height: 1.3; margin: 0; }
+.activity-time { font-size: 9px; color: var(--text-muted); }
+
+.left-panel-footer {
+  position: absolute;
+  bottom: 24px;
+  left: 40px;
+  right: 40px;
+  z-index: 10;
 }
 
-.notif-text {
-  color: var(--text-primary);
-  line-height: 1.3;
-}
-
-.notif-time {
-  font-size: 9px;
+.brand-trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  font-size: 11px;
   color: var(--text-muted);
 }
 
+.trust-icon { font-size: 16px; color: var(--success); }
+
 /* ==========================================================================
-   RIGHT SIDE: FLOATING GLASS LOGIN CARD
+   RIGHT SIDE: GLASS CARD & AUTHENTICATION FORM
    ========================================================================== */
 
-/* Theme Toggle placement */
-.login-theme-toggle {
+.theme-toggle-fixed-position {
   position: absolute;
   top: 24px;
   right: 24px;
   z-index: 50;
 }
 
-/* Card Container */
+.auth-card-wrapper,
 .login-card-wrapper {
   width: 100%;
   max-width: 440px;
   z-index: 10;
+  background: var(--glass-bg);
+  backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+  padding: 36px 32px;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
   animation: card-entrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (max-width: 480px) {
+  .auth-card-wrapper,
+  .login-card-wrapper {
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
 }
 
 @keyframes card-entrance {
   from {
     opacity: 0;
-    transform: translateY(30px) scale(0.96);
+    transform: translateY(24px) scale(0.97);
   }
   to {
     opacity: 1;
@@ -569,146 +536,170 @@
   }
 }
 
-.login-glass-card {
-  padding: 40px;
-  border-radius: 32px;
-  position: relative;
-  background: var(--glass-bg);
-  backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(35px);
-  border: 1px solid var(--glass-border);
-  box-shadow: 
-    0 30px 60px -15px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.login-glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.18);
-  box-shadow: 
-    0 35px 70px -12px rgba(0, 0, 0, 0.7),
-    0 0 40px rgba(99, 102, 241, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-/* Header section */
+.auth-header,
 .login-logo-group {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  text-align: center;
   margin-bottom: 24px;
 }
 
+.auth-logo-badge,
 .login-logo-mark {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  color: #fff;
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+  margin-bottom: 12px;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
 }
 
+.logo-symbol {
+  font-size: 24px;
+  color: #ffffff;
+}
+
+.auth-brand-title,
 .login-logo-text {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
+  margin: 0 0 4px 0;
   background: linear-gradient(to bottom, #FFFFFF, #CBD5E1);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.login-welcome-text {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.login-welcome-title {
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-bottom: 6px;
-}
-
+.auth-brand-subtitle,
 .login-welcome-subtitle {
   font-size: 13px;
   color: var(--text-muted);
-  line-height: 1.5;
+  margin: 0;
 }
 
-/* Form Styles */
+.welcome-text-box {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.welcome-text-box h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+}
+
+.welcome-text-box p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Form Groups & Inputs */
+.auth-form,
 .login-form-group {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
 }
 
-/* Input Fields overrides for glass style */
+.form-group,
 .login-input-wrapper {
-  position: relative;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
+.form-group label,
 .login-input-label {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  font-family: 'Geist', monospace;
+  color: var(--text-primary);
 }
 
+.label-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forgot-password-link,
+.login-forgot-link {
+  font-size: 12px;
+  color: var(--primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  text-decoration: none;
+}
+
+.forgot-password-link:hover,
+.login-forgot-link:hover {
+  color: var(--secondary);
+  text-decoration: underline;
+}
+
+.input-field-wrapper,
 .login-input-field-container {
   position: relative;
   display: flex;
   align-items: center;
 }
 
+.field-icon,
 .login-input-icon {
   position: absolute;
   left: 14px;
   color: var(--text-muted);
   font-size: 20px;
   pointer-events: none;
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
+.form-input,
 .login-input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--glass-border);
   border-radius: 12px;
-  padding: 12px 14px 12px 42px;
+  padding: 12px 42px;
   font-size: 14px;
   color: var(--text-primary);
   outline: none;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 
+.form-input::placeholder,
+.login-input::placeholder {
+  color: #64748b;
+}
+
+.form-input:hover,
 .login-input:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.2);
 }
 
+.form-input:focus,
 .login-input:focus {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   border-color: var(--primary);
-  box-shadow: 
-    0 0 12px rgba(99, 102, 241, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  box-shadow: 0 0 14px rgba(99, 102, 241, 0.3);
 }
 
+.form-input:focus ~ .field-icon,
 .login-input:focus ~ .login-input-icon {
   color: var(--primary);
 }
 
+.toggle-password-btn,
 .login-password-toggle {
   position: absolute;
   right: 14px;
@@ -721,13 +712,16 @@
   align-items: center;
   justify-content: center;
   outline: none;
+  transition: color 0.2s ease;
 }
 
+.toggle-password-btn:hover,
 .login-password-toggle:hover {
   color: var(--text-primary);
 }
 
-/* Remember me and Forgot password options */
+/* Checkbox Row */
+.form-options-row,
 .login-options-row {
   display: flex;
   align-items: center;
@@ -735,86 +729,30 @@
   margin-top: 4px;
 }
 
+.checkbox-container,
 .login-checkbox-label {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
   user-select: none;
-}
-
-.login-hidden-checkbox {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.login-custom-checkbox {
-  width: 18px;
-  height: 18px;
-  border: 1px solid var(--glass-border);
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 0.02);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.login-checkbox-label:hover .login-custom-checkbox {
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.login-hidden-checkbox:checked + .login-custom-checkbox {
-  background: var(--primary);
-  border-color: var(--primary);
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
-}
-
-.login-check-icon {
-  color: #fff;
-  font-size: 12px;
-  font-weight: bold;
-  opacity: 0;
-  transform: scale(0.6);
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.login-hidden-checkbox:checked + .login-custom-checkbox .login-check-icon {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.login-checkbox-text {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
-  transition: color 0.3s ease;
 }
 
-.login-checkbox-label:hover .login-checkbox-text {
-  color: var(--text-primary);
+.checkbox-container input[type="checkbox"],
+.login-hidden-checkbox {
+  accent-color: var(--primary);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
 }
 
-.login-forgot-link {
-  font-size: 12px;
-  color: var(--primary);
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.login-forgot-link:hover {
-  color: var(--secondary);
-}
-
-/* Gradient Login Button */
-.login-btn-wrapper {
-  margin-top: 12px;
-}
-
+/* Submit Action Button */
+.submit-auth-btn,
 .login-btn-gradient {
   width: 100%;
-  padding: 14px;
+  padding: 13px 20px;
   border-radius: 12px;
   border: none;
   background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
@@ -826,25 +764,24 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 
-    0 10px 20px -5px rgba(99, 102, 241, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.4);
+  transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
   outline: none;
+  margin-top: 8px;
 }
 
+.submit-auth-btn:hover,
 .login-btn-gradient:hover {
-  transform: translateY(-2px);
-  box-shadow: 
-    0 14px 24px -3px rgba(99, 102, 241, 0.5),
-    0 0 15px rgba(139, 92, 246, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.25) inset;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px -4px rgba(99, 102, 241, 0.5);
 }
 
+.submit-auth-btn:active,
 .login-btn-gradient:active {
-  transform: translateY(0px);
+  transform: translateY(0);
 }
 
+.submit-auth-btn:disabled,
 .login-btn-gradient:disabled {
   opacity: 0.65;
   cursor: not-allowed;
@@ -852,11 +789,23 @@
   box-shadow: none;
 }
 
+.submit-auth-btn.success-state {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4);
+}
+
+.btn-spinner-wrapper,
+.btn-success-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .login-loading-spinner {
   width: 18px;
   height: 18px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
+  border-top-color: #ffffff;
   border-radius: 50%;
   animation: login-spin 0.8s linear infinite;
 }
@@ -865,139 +814,46 @@
   to { transform: rotate(360deg); }
 }
 
-/* Footer Section */
-.login-card-footer {
+.auth-footer {
   margin-top: 24px;
   text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 16px;
 }
 
-.login-footer-text {
-  font-size: 12px;
+.auth-footer p {
+  font-size: 11px;
   color: var(--text-muted);
+  margin: 0;
 }
 
-.login-footer-link {
-  color: var(--primary);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
+/* Widget Theme Icons */
+.widget-students .widget-icon-box { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
+.widget-attendance .widget-icon-box { background: rgba(6, 182, 212, 0.15); color: var(--accent); }
+.widget-classes .widget-icon-box { background: rgba(139, 92, 246, 0.15); color: var(--secondary); }
+.widget-teachers .widget-icon-box { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
+.widget-notifications .widget-icon-box { background: rgba(34, 197, 94, 0.15); color: var(--success); }
 
-.login-footer-link:hover {
-  text-decoration: underline;
-}
-
-/* Global / Footer Copy */
-.login-global-footer {
-  position: absolute;
-  bottom: 24px;
-  left: 0;
-  right: 0;
-  padding: 0 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  opacity: 0.35;
-  z-index: 5;
-}
-
-.login-global-footer-text {
-  font-size: 10px;
-  font-family: 'Geist', monospace;
-  letter-spacing: 0.05em;
-}
-
-.login-global-footer-links {
-  display: flex;
-  gap: 16px;
-}
-
-.login-global-footer-link {
-  font-size: 10px;
-  color: var(--text-primary);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.login-global-footer-link:hover {
-  color: var(--primary);
-}
-
-/* ==========================================================================
-   WIDGET THEME COLOR STYLING AND ICON COLORS
-   ========================================================================== */
-
-.widget-students .widget-icon-box { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
-.widget-attendance .widget-icon-box { background: rgba(6, 182, 212, 0.1); color: var(--accent); }
-.widget-classes .widget-icon-box { background: rgba(139, 92, 246, 0.1); color: var(--secondary); }
-.widget-teachers .widget-icon-box { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
-.widget-notifications .widget-icon-box { background: rgba(34, 197, 94, 0.1); color: var(--success); }
-
-/* ==========================================================================
-   LIGHT MODE STYLING OVERRIDES (THEME TOGGLE FRIENDLY)
-   ========================================================================== */
-
+/* Light Theme Overrides */
 html:not(.dark) .login-page-container {
   --bg-dark: #f8fafc;
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-bg-hover: rgba(255, 255, 255, 0.85);
+  --glass-bg: rgba(255, 255, 255, 0.85);
   --glass-border: rgba(0, 0, 0, 0.08);
   --text-primary: #0F172A;
   --text-muted: #64748B;
-  
   background-color: #f1f5f9;
 }
 
-html:not(.dark) .aurora-bg {
-  background: 
-    radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 80% 30%, rgba(139, 92, 246, 0.07) 0%, transparent 45%),
-    radial-gradient(circle at 40% 70%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
-}
-
-html:not(.dark) .login-left-panel {
-  border-right-color: rgba(0, 0, 0, 0.04);
-}
-
-html:not(.dark) .glass-widget {
-  box-shadow: 
-    0 10px 30px -10px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-html:not(.dark) .login-glass-card {
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-html:not(.dark) .login-input {
-  background: rgba(0, 0, 0, 0.01);
-}
-
-html:not(.dark) .login-input:hover {
-  background: rgba(0, 0, 0, 0.02);
-  border-color: rgba(0, 0, 0, 0.16);
-}
-
-html:not(.dark) .login-input:focus {
-  background: #FFF;
-  border-color: var(--primary);
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.12);
-}
-
+html:not(.dark) .auth-brand-title,
 html:not(.dark) .login-logo-text {
   background: linear-gradient(to bottom, #0F172A, #334155);
   -webkit-background-clip: text;
   background-clip: text;
 }
 
-html:not(.dark) .schedule-item {
-  background: rgba(0, 0, 0, 0.015);
-  border-color: rgba(0, 0, 0, 0.03);
-}
-
-html:not(.dark) .teacher-grid-item {
-  background: rgba(0, 0, 0, 0.015);
-  border-color: rgba(0, 0, 0, 0.03);
+html:not(.dark) .form-input,
+html:not(.dark) .login-input {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #0f172a;
 }
