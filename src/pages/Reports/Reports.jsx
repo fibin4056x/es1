@@ -4,7 +4,7 @@ import EmptyState from "../../components/common/EmptyState/EmptyState";
 import Pagination from "../../components/common/pagination/Pagination";
 import ReportComposeModal from "./ReportComposeModal";
 import ReportViewModal from "./ReportViewModal";
-import { getInboxReports, getSentReports } from "../../services/reportService";
+import { getReports, getInboxReports, getSentReports } from "../../services/reportService";
 import { useAuth } from "../../hooks/UseAuth";
 
 import "./Reports.css";
@@ -37,12 +37,16 @@ function Reports() {
         search: reportsSearch.trim() || undefined,
       };
 
-      // Query inbox or sent reports to get list of reports
+      // Query main reports endpoint with inbox/sent fallbacks
       let res = null;
       try {
-        res = await getInboxReports(params);
+        res = await getReports(params);
       } catch (e) {
-        res = await getSentReports(params).catch(() => ({ data: [] }));
+        try {
+          res = await getInboxReports(params);
+        } catch (e2) {
+          res = await getSentReports(params).catch(() => ({ data: [] }));
+        }
       }
 
       let items = Array.isArray(res?.data?.items)

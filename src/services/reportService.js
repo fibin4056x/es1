@@ -68,6 +68,15 @@ export const createReport = async (formData) => {
 };
 
 /**
+ * Get All Reports (Paginated & Filtered)
+ * GET /api/reports
+ */
+export const getReports = async (params = {}) => {
+  const response = await api.get("/reports", { params });
+  return response.data;
+};
+
+/**
  * 8. Get Report Inbox (Paginated & Filtered)
  * GET /api/reports/inbox
  */
