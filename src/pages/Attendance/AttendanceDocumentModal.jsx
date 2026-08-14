@@ -13,14 +13,42 @@ const getDocumentUrl = (url) => {
   if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("blob:")) {
     return url;
   }
+  if (url.startsWith("//")) {
+    return `https:${url}`;
+  }
   const apiBase = import.meta.env.VITE_API_URL || "https://slms-txsf.onrender.com/api";
   const backendBase = apiBase.replace(/\/api\/?$/, "");
   return `${backendBase}${url.startsWith("/") ? "" : "/"}${url}`;
 };
 
-const isPdfFile = (file) => {
-  if (!file) return false;
-  return file.type === "application/pdf" || file.name?.toLowerCase().endsWith(".pdf");
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+const validateFile = (file) => {
+  if (!file) return "No file selected.";
+  const isAllowed =
+    file.type === "application/pdf" ||
+    file.type.startsWith("image/") ||
+    Boolean(file.name?.match(/\.(pdf|jpg|jpeg|png)$/i));
+
+  if (!isAllowed) {
+    return "Unsupported file format. Please upload a PDF or image file (.pdf, .jpg, .jpeg, .png).";
+  }
+
+  if (file.size > MAX_FILE_SIZE) {
+    return "File size exceeds the 10MB limit. Please select a smaller file.";
+  }
+
+  return null;
+};
+
+const extractUpdatedRecord = (res) => {
+  if (!res) return null;
+  if (res.data && typeof res.data === "object" && res.data._id) return res.data;
+  if (res.record && typeof res.record === "object" && res.record._id) return res.record;
+  if (res.attendance && typeof res.attendance === "object" && res.attendance._id) return res.attendance;
+  if (res._id) return res;
+  if (res.data && typeof res.data === "object") return res.data;
+  return res;
 };
 
 function AttendanceDocumentModal({
@@ -42,6 +70,25 @@ function AttendanceDocumentModal({
   const attendanceId = attendanceRecord._id;
   const documents = Array.isArray(attendanceRecord.documents) ? attendanceRecord.documents : [];
 
+  const handleApiError = (error, defaultMsg) => {
+    console.error("Attendance document action error:", error);
+    const status = error?.response?.status;
+    if (status === 413) {
+      toast.error("File is too large. Maximum size allowed is 10MB.");
+      return;
+    }
+    if (status === 415) {
+      toast.error("Unsupported file type. Please upload a valid PDF or image.");
+      return;
+    }
+    if (status === 403) {
+      toast.error("Permission denied. You do not have permission to modify attendance documents.");
+      return;
+    }
+    const msg = error?.response?.data?.message || error?.message || defaultMsg;
+    toast.error(msg);
+  };
+
   /* =========================================
      FILE SELECTION & UPLOAD
   ========================================= */
@@ -51,8 +98,9 @@ function AttendanceDocumentModal({
     if (!files || files.length === 0) return;
     
     const file = files[0];
-    if (!isPdfFile(file)) {
-      toast.error("Only PDF files are allowed.");
+    const validationError = validateFile(file);
+    if (validationError) {
+      toast.error(validationError);
       e.target.value = "";
       return;
     }
@@ -66,6 +114,7 @@ function AttendanceDocumentModal({
       setUploading(true);
       const formData = new FormData();
       formData.append("document", file);
+      formData.append("file", file);
 
       let res;
       if (replaceId) {
@@ -76,15 +125,13 @@ function AttendanceDocumentModal({
         toast.success("Document uploaded successfully.");
       }
 
-      if (res && res.data) {
-        onUpdateRecord(res.data);
+      const updatedRecord = extractUpdatedRecord(res);
+      if (updatedRecord && onUpdateRecord) {
+        onUpdateRecord(updatedRecord);
       }
       setReplacingDocId(null);
     } catch (error) {
-      console.error(error);
-      toast.error(
-        error.response?.data?.message || "Failed to process document upload."
-      );
+      handleApiError(error, "Failed to process document upload.");
     } finally {
       setUploading(false);
     }
@@ -108,15 +155,13 @@ function AttendanceDocumentModal({
       const res = await deleteAttendanceDocument(attendanceId, deleteTargetId);
       toast.success("Document deleted successfully.");
       
-      if (res && res.data) {
-        onUpdateRecord(res.data);
+      const updatedRecord = extractUpdatedRecord(res);
+      if (updatedRecord && onUpdateRecord) {
+        onUpdateRecord(updatedRecord);
       }
       setDeleteTargetId(null);
     } catch (error) {
-      console.error(error);
-      toast.error(
-        error.response?.data?.message || "Failed to delete document."
-      );
+      handleApiError(error, "Failed to delete document.");
     } finally {
       setUploading(false);
     }
@@ -145,8 +190,9 @@ function AttendanceDocumentModal({
     if (!files || files.length === 0) return;
 
     const file = files[0];
-    if (!isPdfFile(file)) {
-      toast.error("Only PDF files are allowed.");
+    const validationError = validateFile(file);
+    if (validationError) {
+      toast.error(validationError);
       return;
     }
 

@@ -101,18 +101,22 @@ function Attendance() {
         students: sanitizedStudents,
       });
 
-const records = response.data?.data;
+      const records = Array.isArray(response?.data?.data)
+        ? response.data.data
+        : Array.isArray(response?.data)
+        ? response.data
+        : Array.isArray(response)
+        ? response
+        : [];
 
-if (Array.isArray(records)) {
-  const normalized = records.map((record) => ({
-    ...record,
-    studentId: record.studentId,
-    documents: record.documents || [],
-  }));
-
-  setAttendance(normalized);
-}
-
+      if (Array.isArray(records) && records.length > 0) {
+        const normalized = records.map((record) => ({
+          ...record,
+          studentId: record.studentId,
+          documents: record.documents || [],
+        }));
+        setAttendance(normalized);
+      }
 
       toast.success("Attendance marked successfully.");
     } catch (error) {
@@ -172,8 +176,15 @@ if (Array.isArray(records)) {
           students: sanitizedStudents,
         });
 
-        const records = response.data?.data;
-        if (Array.isArray(records)) {
+        const records = Array.isArray(response?.data?.data)
+          ? response.data.data
+          : Array.isArray(response?.data)
+          ? response.data
+          : Array.isArray(response)
+          ? response
+          : [];
+
+        if (Array.isArray(records) && records.length > 0) {
           const normalized = records.map((rec) => ({
             ...rec,
             studentId: rec.studentId,
