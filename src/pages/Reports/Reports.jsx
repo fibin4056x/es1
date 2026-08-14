@@ -22,9 +22,10 @@ import "./Reports.css";
 
 
 function Reports() {
-  // Tab State: "inbox" | "sent" | "analytics"
-  const [activeTab, setActiveTab] = useState("inbox");
+  const { user } = useAuth();
 
+  // Tab State: "reports" | "analytics"
+  const [activeTab, setActiveTab] = useState("reports");
 
   // Communication Reports State
   const [reportsList, setReportsList] = useState([]);
@@ -35,7 +36,6 @@ function Reports() {
     totalRecords: 0,
   });
   const [reportsSearch, setReportsSearch] = useState("");
-  const [readFilter, setReadFilter] = useState("all");
 
   // Modals
   const [composeOpen, setComposeOpen] = useState(false);
@@ -84,9 +84,9 @@ function Reports() {
     loadFilters();
   }, []);
 
-  // Fetch Communication Reports (Inbox / Sent)
+  // Fetch Reports List
   const fetchCommunicationReports = useCallback(async () => {
-    if (activeTab !== "inbox" && activeTab !== "sent") return;
+    if (activeTab !== "reports") return;
 
     setReportsLoading(true);
     try {
@@ -96,23 +96,39 @@ function Reports() {
         search: reportsSearch.trim() || undefined,
       };
 
-      if (readFilter === "unread") params.isRead = false;
-      if (readFilter === "read") params.isRead = true;
+      // Query inbox or sent reports to get list of reports
+      let res = null;
+      try {
+        res = await getInboxReports(params);
+      } catch (e) {
+        res = await getSentReports(params).catch(() => ({ data: [] }));
+      }
 
-      const apiCall = activeTab === "inbox" ? getInboxReports : getSentReports;
-      const res = await apiCall(params);
-
-      const items = Array.isArray(res.data?.items)
+      let items = Array.isArray(res?.data?.items)
         ? res.data.items
-        : Array.isArray(res.items)
+        : Array.isArray(res?.items)
         ? res.items
-        : Array.isArray(res.data)
+        : Array.isArray(res?.data)
         ? res.data
         : Array.isArray(res)
         ? res
         : [];
 
-      const pag = res.data?.pagination || res.pagination || {
+      if (items.length === 0) {
+        const sentRes = await getSentReports(params).catch(() => ({ data: [] }));
+        const sentItems = Array.isArray(sentRes?.data?.items)
+          ? sentRes.data.items
+          : Array.isArray(sentRes?.items)
+          ? sentRes.items
+          : Array.isArray(sentRes?.data)
+          ? sentRes.data
+          : Array.isArray(sentRes)
+          ? sentRes
+          : [];
+        if (sentItems.length > 0) items = sentItems;
+      }
+
+      const pag = res?.data?.pagination || res?.pagination || {
         currentPage: 1,
         totalPages: 1,
         totalRecords: items.length,
@@ -125,17 +141,17 @@ function Reports() {
         totalRecords: pag.totalRecords || items.length,
       });
     } catch (err) {
-      console.error("Fetch communication reports error:", err);
+      console.error("Fetch reports error:", err);
       toast.error(err.response?.data?.message || "Failed to fetch reports.");
       setReportsList([]);
     } finally {
       setReportsLoading(false);
     }
-  }, [activeTab, reportsPagination.currentPage, reportsSearch, readFilter]);
+  }, [activeTab, reportsPagination.currentPage, reportsSearch]);
 
   useEffect(() => {
     let active = true;
-    if (activeTab === "inbox" || activeTab === "sent") {
+    if (activeTab === "reports") {
       fetchCommunicationReports().then(() => {
         if (!active) return;
       });
@@ -282,9 +298,9 @@ function Reports() {
       {/* PAGE HEADER */}
       <div className="page-header">
         <div>
-          <h1 className="page-title">Reports & Communication</h1>
+          <h1 className="page-title">School Reports</h1>
           <p className="page-subtitle">
-            Internal SLMS student communication reports, inbox, and attendance analytics.
+            View and submit student academic, attendance, and behavioral reports.
           </p>
         </div>
       </div>
@@ -293,26 +309,14 @@ function Reports() {
       <div className="reports-tab-nav">
         <button
           type="button"
-          className={`reports-tab-btn ${activeTab === "inbox" ? "active" : ""}`}
+          className={`reports-tab-btn ${activeTab === "reports" ? "active" : ""}`}
           onClick={() => {
-            setActiveTab("inbox");
+            setActiveTab("reports");
             setReportsPagination((prev) => ({ ...prev, currentPage: 1 }));
           }}
         >
-          <span className="material-symbols-outlined">inbox</span>
-          Inbox
-        </button>
-
-        <button
-          type="button"
-          className={`reports-tab-btn ${activeTab === "sent" ? "active" : ""}`}
-          onClick={() => {
-            setActiveTab("sent");
-            setReportsPagination((prev) => ({ ...prev, currentPage: 1 }));
-          }}
-        >
-          <span className="material-symbols-outlined">send</span>
-          Sent Reports
+          <span className="material-symbols-outlined">description</span>
+          Reports
         </button>
 
         <button
@@ -329,13 +333,13 @@ function Reports() {
           className="reports-tab-btn compose-tab-btn btn-press"
           onClick={() => setComposeOpen(true)}
         >
-          <span className="material-symbols-outlined">edit_note</span>
-          Compose Report
+          <span className="material-symbols-outlined">add</span>
+          Create Report
         </button>
       </div>
 
-      {/* 1. COMMUNICATION INBOX / SENT VIEWS */}
-      {(activeTab === "inbox" || activeTab === "sent") && (
+      {/* 1. REPORTS VIEW */}
+      {activeTab === "reports" && (
         <div className="reports-inbox-card">
           {/* Toolbar & Filters */}
           <div style={{ display: "flex", gap: "12px", marginBottom: "16px", flexWrap: "wrap", alignItems: "center" }}>
@@ -345,7 +349,7 @@ function Reports() {
               <input
                 type="search"
                 className="students-search-input"
-                placeholder="Search subject or keywords..."
+                placeholder="Search report subject or student..."
                 value={reportsSearch}
                 onChange={(e) => {
                   setReportsSearch(e.target.value);
@@ -353,22 +357,6 @@ function Reports() {
                 }}
               />
             </div>
-
-            {/* Read Filter */}
-            {activeTab === "inbox" && (
-              <select
-                className="reports-filter-select"
-                value={readFilter}
-                onChange={(e) => {
-                  setReadFilter(e.target.value);
-                  setReportsPagination((prev) => ({ ...prev, currentPage: 1 }));
-                }}
-              >
-                <option value="all">All Messages</option>
-                <option value="unread">Unread Only</option>
-                <option value="read">Read Only</option>
-              </select>
-            )}
           </div>
 
           {/* Reports List Table */}
@@ -379,8 +367,8 @@ function Reports() {
             </div>
           ) : reportsList.length === 0 ? (
             <EmptyState
-              title={`No ${activeTab === "inbox" ? "inbox" : "sent"} reports found`}
-              description="No report messages match your current selection."
+              title="No reports submitted yet"
+              description="Click '+ Create Report' to submit a report for a student."
             />
           ) : (
             <div className="table-responsive">
@@ -388,46 +376,54 @@ function Reports() {
                 <thead>
                   <tr>
                     <th>Student</th>
-                    <th>{activeTab === "inbox" ? "Sender" : "Recipient"}</th>
                     <th>Subject</th>
+                    <th>Submitted By</th>
                     <th>Date</th>
-                    <th>Status</th>
+                    <th>Attachment</th>
                   </tr>
                 </thead>
                 <tbody>
                   {reportsList.map((r) => {
-                    const isUnread = activeTab === "inbox" && !r.isRead;
                     const studentName = r.studentId?.nameEnglish || r.studentId?.name || "Student";
-                    const otherUser = activeTab === "inbox"
-                      ? (r.senderId?.name || r.senderId?.fullName || "Sender")
-                      : (r.recipientId?.name || r.recipientId?.fullName || "Recipient");
+                    const submittedBy =
+                      r.senderId?.name ||
+                      r.senderId?.fullName ||
+                      r.creatorId?.name ||
+                      r.creatorId?.fullName ||
+                      r.submittedBy?.name ||
+                      r.submittedBy ||
+                      (user?.role === "teacher" ? user.name : "Teacher");
 
                     return (
                       <tr
                         key={r._id}
-                        className={`reports-list-row ${isUnread ? "unread" : ""}`}
+                        className="reports-list-row"
                         onClick={() => handleOpenReportDetail(r)}
                       >
                         <td>
-                          {isUnread && <span className="unread-dot"></span>}
-                          {studentName}
+                          <strong style={{ color: "#ffffff" }}>{studentName}</strong>
                         </td>
-                        <td>{otherUser}</td>
                         <td style={{ maxWidth: "300px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                          {r.subject}
+                          {r.subject || r.title || "No Subject"}
+                        </td>
+                        <td>
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: "16px", color: "#818cf8" }}>person</span>
+                            <span>{submittedBy}</span>
+                          </span>
                         </td>
                         <td style={{ color: "#94a3b8", fontSize: "0.8125rem" }}>
                           {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : ""}
                         </td>
                         <td>
-                          {r.attachments?.length > 0 && (
-                            <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "#818cf8", verticalAlign: "middle" }} title="Has Attachments">
-                              attach_file
+                          {r.attachments && r.attachments.length > 0 ? (
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: "3px 8px", background: "rgba(99, 102, 241, 0.15)", border: "1px solid rgba(99, 102, 241, 0.3)", borderRadius: "6px", fontSize: "0.75rem", color: "#818cf8" }}>
+                              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>attach_file</span>
+                              <span>{r.attachments.length > 1 ? `${r.attachments.length} Files` : "PDF"}</span>
                             </span>
+                          ) : (
+                            <span style={{ color: "#64748b", fontSize: "0.75rem" }}>None</span>
                           )}
-                          <span style={{ marginLeft: "6px", fontSize: "0.75rem", color: r.isRead ? "#94a3b8" : "#818cf8" }}>
-                            {r.isRead ? "Read" : "Unread"}
-                          </span>
                         </td>
                       </tr>
                     );

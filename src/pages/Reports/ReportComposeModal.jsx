@@ -4,7 +4,6 @@ import Modal from "../../components/common/Modal/Modal";
 import FileUpload from "../../components/common/FileUpload/FileUpload";
 import { createReport } from "../../services/reportService";
 import { getStudents } from "../../services/StudentService";
-import { getTeachers } from "../../services/TeacherService";
 import { useAuth } from "../../hooks/UseAuth";
 
 const extractArray = (res, keys = []) => {
@@ -21,10 +20,8 @@ const extractArray = (res, keys = []) => {
 export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
   const { user } = useAuth();
   const [students, setStudents] = useState([]);
-  const [recipients, setRecipients] = useState([]);
 
   const [studentId, setStudentId] = useState("");
-  const [recipientId, setRecipientId] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [files, setFiles] = useState([]);
@@ -32,26 +29,18 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
   const [loading, setLoading] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
 
-  // Load students & potential recipients (teachers/principals)
+  // Load student choices for selector
   useEffect(() => {
     if (!isOpen) return;
 
     const loadData = async () => {
       try {
-        const [studRes, teachRes] = await Promise.all([
-          getStudents({ limit: 100 }).catch(() => ({ data: [] })),
-          getTeachers().catch(() => ({ data: [] })),
-        ]);
-
+        const studRes = await getStudents({ limit: 100 }).catch(() => ({ data: [] }));
         const studentList = extractArray(studRes, ["students", "items"]);
-        const teacherList = extractArray(teachRes, ["teachers", "items"]);
-
         setStudents(studentList);
-        setRecipients(teacherList);
       } catch (err) {
-        console.error("Failed to load compose options:", err);
+        console.error("Failed to load students:", err);
         setStudents([]);
-        setRecipients([]);
       }
     };
     loadData();
@@ -69,10 +58,6 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
   const validateForm = () => {
     if (!studentId) {
       toast.error("Please select a student for this report.");
-      return false;
-    }
-    if (!recipientId) {
-      toast.error("Please select a recipient.");
       return false;
     }
     if (!subject.trim()) {
@@ -95,7 +80,6 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
     try {
       const formData = new FormData();
       formData.append("studentId", studentId);
-      formData.append("recipientId", recipientId);
       formData.append("subject", subject.trim());
       formData.append("body", body.trim());
 
@@ -104,11 +88,10 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
       });
 
       await createReport(formData);
-      toast.success("Report submitted and sent successfully.");
+      toast.success("Report submitted successfully.");
 
       // Reset form
       setStudentId("");
-      setRecipientId("");
       setSubject("");
       setBody("");
       setFiles([]);
@@ -117,24 +100,21 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
       if (onReportSent) onReportSent();
       onClose();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to send report.");
+      toast.error(err.response?.data?.message || "Failed to submit report.");
     } finally {
       setLoading(false);
     }
   };
 
   const safeStudents = Array.isArray(students) ? students : [];
-  const safeRecipients = Array.isArray(recipients) ? recipients : [];
-
   const selectedStudent = safeStudents.find((s) => s._id === studentId);
-  const selectedRecipient = safeRecipients.find((r) => r._id === recipientId);
 
   return (
     <>
       <Modal
         isOpen={isOpen && !previewOpen}
         onClose={onClose}
-        title="Compose Student Report"
+        title="Create School Report"
         maxWidth="680px"
       >
         <form onSubmit={handleSend} className="report-compose-form">
@@ -157,25 +137,6 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
             </select>
           </div>
 
-          {/* Recipient Selector */}
-          <div className="report-form-group">
-            <label className="report-form-label">
-              Recipient <span style={{ color: "#ef4444" }}>*</span>
-            </label>
-            <select
-              value={recipientId}
-              onChange={(e) => setRecipientId(e.target.value)}
-              required
-            >
-              <option value="">-- Select Recipient --</option>
-              {safeRecipients.map((r) => (
-                <option key={r._id} value={r._id}>
-                  {r.name || r.fullName} ({r.role ? r.role.toUpperCase() : "Teacher"})
-                </option>
-              ))}
-            </select>
-          </div>
-
           {/* Subject / Title */}
           <div className="report-form-group">
             <label className="report-form-label">
@@ -183,7 +144,7 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
             </label>
             <input
               type="text"
-              placeholder="e.g. Attendance Concern - July 2026"
+              placeholder="e.g. Attendance Issue"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               maxLength={200}
@@ -198,7 +159,7 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
             </label>
             <textarea
               rows={5}
-              placeholder="Write your detailed message or report here..."
+              placeholder="Write your detailed report message here..."
               value={body}
               onChange={(e) => setBody(e.target.value)}
               maxLength={5000}
@@ -209,7 +170,7 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
           {/* File Attachments */}
           <div className="report-form-group">
             <label className="report-form-label">
-              Attachments (PDF, JPG, JPEG, PNG)
+              Attachment (PDF, JPG, JPEG, PNG)
             </label>
 
             {files.length > 0 && (
@@ -235,6 +196,31 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
               onFileSelect={handleFileSelect}
               label="Click or drag PDF/Images to attach"
             />
+          </div>
+
+          {/* Submitted By (Read-Only) */}
+          <div className="report-form-group">
+            <label className="report-form-label">Submitted By</label>
+            <div
+              style={{
+                padding: "10px 14px",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid var(--border-color, rgba(255, 255, 255, 0.1))",
+                borderRadius: "8px",
+                color: "var(--text-main, #ffffff)",
+                fontSize: "0.9375rem",
+                fontWeight: 500,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ color: "#818cf8" }}>account_circle</span>
+              <span>{user?.name || user?.fullName || "Authenticated User"}</span>
+              <span style={{ fontSize: "0.75rem", background: "rgba(99, 102, 241, 0.2)", padding: "2px 8px", borderRadius: "12px", color: "#818cf8", textTransform: "capitalize" }}>
+                {user?.role || "Staff"}
+              </span>
+            </div>
           </div>
 
           {/* Action Buttons */}
@@ -267,7 +253,7 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
                 <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
                   {loading ? "progress_activity" : "send"}
                 </span>
-                <span>{loading ? "Sending..." : "Send Report"}</span>
+                <span>{loading ? "Submitting..." : "Submit Report"}</span>
               </button>
             </div>
           </div>
@@ -286,8 +272,7 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
             <h3 style={{ margin: "0 0 12px 0", fontSize: "1.125rem", fontWeight: 700 }}>{subject}</h3>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.875rem", opacity: 0.8, marginBottom: "12px" }}>
               <div><strong>Student:</strong> {selectedStudent?.nameEnglish || selectedStudent?.name || "Selected Student"}</div>
-              <div><strong>Recipient:</strong> {selectedRecipient?.name || selectedRecipient?.fullName || "Selected Recipient"}</div>
-              <div><strong>Sender:</strong> {user?.name} ({user?.role})</div>
+              <div><strong>Submitted By:</strong> {user?.name || user?.fullName} ({user?.role})</div>
               <div><strong>Date:</strong> {new Date().toLocaleDateString()}</div>
             </div>
             <div className="report-detail-body">
@@ -325,7 +310,7 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
               <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
                 {loading ? "progress_activity" : "send"}
               </span>
-              <span>{loading ? "Sending..." : "Confirm & Send"}</span>
+              <span>{loading ? "Submitting..." : "Confirm & Submit"}</span>
             </button>
           </div>
         </div>
@@ -333,3 +318,4 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
     </>
   );
 }
+

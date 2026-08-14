@@ -97,12 +97,15 @@ export default function ReportViewModal({ isOpen, onClose, reportId, onReportDel
                   {report.createdAt ? new Date(report.createdAt).toLocaleString() : "Date"}
                 </div>
                 <div>
-                  <strong>From:</strong>{" "}
-                  {report.senderId?.name || report.senderId?.fullName || "Sender"} ({report.senderId?.role || "User"})
-                </div>
-                <div>
-                  <strong>To:</strong>{" "}
-                  {report.recipientId?.name || report.recipientId?.fullName || "Recipient"} ({report.recipientId?.role || "User"})
+                  <strong>Submitted By:</strong>{" "}
+                  {report.senderId?.name ||
+                    report.senderId?.fullName ||
+                    report.creatorId?.name ||
+                    report.creatorId?.fullName ||
+                    report.submittedBy?.name ||
+                    report.submittedBy ||
+                    "Staff"}{" "}
+                  ({report.senderId?.role || report.creatorId?.role || "Teacher"})
                 </div>
               </div>
             </div>
