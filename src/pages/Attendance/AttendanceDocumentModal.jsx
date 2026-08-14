@@ -40,7 +40,7 @@ function AttendanceDocumentModal({
   if (!open || !attendanceRecord) return null;
 
   const attendanceId = attendanceRecord._id;
-  const documents = attendanceRecord.documents || [];
+  const documents = Array.isArray(attendanceRecord.documents) ? attendanceRecord.documents : [];
 
   /* =========================================
      FILE SELECTION & UPLOAD

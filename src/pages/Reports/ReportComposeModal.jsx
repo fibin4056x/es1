@@ -7,6 +7,17 @@ import { getStudents } from "../../services/StudentService";
 import { getTeachers } from "../../services/TeacherService";
 import { useAuth } from "../../hooks/UseAuth";
 
+const extractArray = (res, keys = []) => {
+  if (!res) return [];
+  if (Array.isArray(res)) return res;
+  if (res.data && Array.isArray(res.data)) return res.data;
+  for (const k of keys) {
+    if (res[k] && Array.isArray(res[k])) return res[k];
+    if (res.data && res.data[k] && Array.isArray(res.data[k])) return res.data[k];
+  }
+  return [];
+};
+
 export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
   const { user } = useAuth();
   const [students, setStudents] = useState([]);
@@ -32,13 +43,15 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
           getTeachers().catch(() => ({ data: [] })),
         ]);
 
-        const studentList = studRes.data || studRes.students || studRes || [];
-        const teacherList = teachRes.data || teachRes || [];
+        const studentList = extractArray(studRes, ["students", "items"]);
+        const teacherList = extractArray(teachRes, ["teachers", "items"]);
 
         setStudents(studentList);
         setRecipients(teacherList);
       } catch (err) {
         console.error("Failed to load compose options:", err);
+        setStudents([]);
+        setRecipients([]);
       }
     };
     loadData();
@@ -110,8 +123,11 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
     }
   };
 
-  const selectedStudent = students.find((s) => s._id === studentId);
-  const selectedRecipient = recipients.find((r) => r._id === recipientId);
+  const safeStudents = Array.isArray(students) ? students : [];
+  const safeRecipients = Array.isArray(recipients) ? recipients : [];
+
+  const selectedStudent = safeStudents.find((s) => s._id === studentId);
+  const selectedRecipient = safeRecipients.find((r) => r._id === recipientId);
 
   return (
     <>
@@ -133,7 +149,7 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
               required
             >
               <option value="">-- Select Student --</option>
-              {students.map((s) => (
+              {safeStudents.map((s) => (
                 <option key={s._id} value={s._id}>
                   {s.nameEnglish || s.name} ({s.admissionNumber || "No Adm No"})
                 </option>
@@ -152,7 +168,7 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
               required
             >
               <option value="">-- Select Recipient --</option>
-              {recipients.map((r) => (
+              {safeRecipients.map((r) => (
                 <option key={r._id} value={r._id}>
                   {r.name || r.fullName} ({r.role ? r.role.toUpperCase() : "Teacher"})
                 </option>

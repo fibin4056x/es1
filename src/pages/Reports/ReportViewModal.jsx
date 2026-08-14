@@ -113,7 +113,7 @@ export default function ReportViewModal({ isOpen, onClose, reportId, onReportDel
             </div>
 
             {/* Attachments Section */}
-            {report.attachments && report.attachments.length > 0 && (
+            {report.attachments && Array.isArray(report.attachments) && report.attachments.length > 0 && (
               <div style={{ marginBottom: "20px" }}>
                 <h4 style={{ margin: "0 0 10px 0", fontSize: "0.875rem", fontWeight: 600 }}>
                   Attachments ({report.attachments.length})

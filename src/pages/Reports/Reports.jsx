@@ -71,10 +71,14 @@ function Reports() {
           getClassList().catch(() => ({ data: [] })),
           getDivisionList().catch(() => ({ data: [] })),
         ]);
-        setClasses(clsRes.data || clsRes || []);
-        setDivisions(divRes.data || divRes || []);
+        const clsList = Array.isArray(clsRes.data) ? clsRes.data : Array.isArray(clsRes) ? clsRes : [];
+        const divList = Array.isArray(divRes.data) ? divRes.data : Array.isArray(divRes) ? divRes : [];
+        setClasses(clsList);
+        setDivisions(divList);
       } catch (err) {
         console.error("Error loading report filters:", err);
+        setClasses([]);
+        setDivisions([]);
       }
     };
     loadFilters();
@@ -98,7 +102,16 @@ function Reports() {
       const apiCall = activeTab === "inbox" ? getInboxReports : getSentReports;
       const res = await apiCall(params);
 
-      const items = res.data?.items || res.items || res.data || [];
+      const items = Array.isArray(res.data?.items)
+        ? res.data.items
+        : Array.isArray(res.items)
+        ? res.items
+        : Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res)
+        ? res
+        : [];
+
       const pag = res.data?.pagination || res.pagination || {
         currentPage: 1,
         totalPages: 1,
@@ -159,8 +172,19 @@ function Reports() {
 
       if (resultData) {
         const summary = resultData.summary || {};
-        const classItems = resultData.classes || resultData.divisions || [];
-        const dailyItems = resultData.dailyBreakdown || [];
+        const classItems = Array.isArray(resultData.classes)
+          ? resultData.classes
+          : Array.isArray(resultData.divisions)
+          ? resultData.divisions
+          : Array.isArray(resultData)
+          ? resultData
+          : [];
+
+        const dailyItems = Array.isArray(resultData.dailyBreakdown)
+          ? resultData.dailyBreakdown
+          : Array.isArray(resultData)
+          ? resultData
+          : [];
 
         const sortedClasses = [...classItems].sort(
           (a, b) => (b.attendancePercentage || 0) - (a.attendancePercentage || 0)
