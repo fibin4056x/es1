@@ -18,10 +18,10 @@ import api, { getApiErrorMessage } from "../../services/api";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, startOtpVerification, clearOtpVerification, pendingOtpEmail } = useAuth();
 
-  const [authView, setAuthView] = useState("login"); // "login" | "otp" | "password_setup"
-  const [email, setEmail] = useState("");
+  const [authView, setAuthView] = useState(() => (pendingOtpEmail ? "otp" : "login")); // "login" | "otp" | "password_setup"
+  const [email, setEmail] = useState(() => pendingOtpEmail || "");
   const [password, setPassword] = useState("");
   const [setupToken, setSetupToken] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -36,25 +36,14 @@ export default function Login() {
   const parallax = useMouseParallax(20);
 
   useEffect(() => {
-    let isMounted = true;
-    const fetchPreviewStats = async () => {
-      try {
-        const response = await api.get("/dashboard/preview");
-        if (isMounted && response.data && response.data.success && response.data.data) {
-          setPreviewStats(response.data.data);
-        }
-      } catch (err) {
-        // Silently catch preview error when unauthenticated
-      }
-    };
-    fetchPreviewStats();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    if (pendingOtpEmail && !email) {
+      setEmail(pendingOtpEmail);
+      setAuthView("otp");
+    }
+  }, [pendingOtpEmail, email]);
 
   const extractAuthPayload = (res) => {
-    if (!res) return { userObj: null, accessToken: null, refreshToken: null };
+    if (!res) return { userObj: null, accessToken: null, refreshToken: null, requiresVerification: false };
     const resData = res?.data || res;
     const userObj =
       resData?.user ||
@@ -77,7 +66,16 @@ export default function Login() {
       (typeof resData?.data?.refreshToken === "string" && resData.data.refreshToken) ||
       null;
 
-    return { userObj, accessToken, refreshToken, requiresVerification: Boolean(resData?.requiresVerification || res?.requiresVerification) };
+    const requiresVerification = Boolean(
+      resData?.requiresVerification ||
+      res?.requiresVerification ||
+      resData?.requiresOtp ||
+      res?.requiresOtp ||
+      resData?.otpRequired ||
+      res?.otpRequired
+    );
+
+    return { userObj, accessToken, refreshToken, requiresVerification };
   };
 
   const handleSubmit = async (e) => {
@@ -89,11 +87,12 @@ export default function Login() {
       const res = await loginUser(email, password);
       const { userObj, accessToken, refreshToken, requiresVerification } = extractAuthPayload(res);
 
-      // Check if backend requires first-time teacher verification
+      // Enforce OTP Verification step when required by backend or OTP credentials rule
       if (requiresVerification) {
         setIsLoading(false);
+        startOtpVerification(email);
         setAuthView("otp");
-        toast.info("Verification required for first-time teacher login. OTP sent to your email.");
+        toast.info("Verification code sent to your registered email. Enter code to continue.");
         return;
       }
 
@@ -106,8 +105,11 @@ export default function Login() {
           navigate("/dashboard");
         }, 600);
       } else {
+        // If login response returns initial state requiring OTP verification
+        startOtpVerification(email);
         setIsLoading(false);
-        toast.error("Login failed. Invalid account details returned from server.");
+        setAuthView("otp");
+        toast.info("Enter the verification code sent to your email to access your account.");
       }
     } catch (error) {
       setIsLoading(false);
@@ -120,20 +122,37 @@ export default function Login() {
     setIsLoading(true);
     try {
       const response = await verifyTeacherOtp(email, otpCode);
+      const { userObj, accessToken, refreshToken } = extractAuthPayload(response);
       const resData = response?.data || response;
-      const token = resData?.setupToken || response?.setupToken;
+      const setupTokenVal = resData?.setupToken || response?.setupToken;
 
-      if (token) {
-        setSetupToken(token);
+      if (setupTokenVal) {
+        setSetupToken(setupTokenVal);
         setAuthView("password_setup");
         toast.success("OTP verified. Please set your permanent account password.");
+      } else if (userObj || accessToken) {
+        toast.success("Verification successful! Access granted.");
+        login(userObj, accessToken, refreshToken);
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 600);
       } else {
-        toast.error("Verification failed. Setup token missing from response.");
+        toast.error("Verification failed. Invalid response from server.");
       }
     } catch (error) {
       toast.error(getApiErrorMessage(error, "Invalid or expired OTP verification code."));
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    try {
+      await resendOtp(email);
+      toast.success("A new verification code has been sent to your email.");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Failed to resend verification code."));
+      throw error;
     }
   };
 
@@ -497,7 +516,11 @@ export default function Login() {
             <OtpScreen
               email={email}
               onVerify={handleVerifyTeacherOtp}
-              onBack={() => setAuthView("login")}
+              onResend={handleResendOtp}
+              onBack={() => {
+                clearOtpVerification();
+                setAuthView("login");
+              }}
               isLoading={isLoading}
             />
           )}

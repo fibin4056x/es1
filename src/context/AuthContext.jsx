@@ -26,6 +26,14 @@ const isValidUser = (userData) => {
 
 export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
+  const [pendingOtpEmail, setPendingOtpEmailState] = useState(() => {
+    try {
+      return sessionStorage.getItem("pendingOtpEmail") || "";
+    } catch {
+      return "";
+    }
+  });
+
   const [user, setUser] = useState(() => {
     try {
       const storedUser = localStorage.getItem("user");
@@ -39,6 +47,21 @@ export function AuthProvider({ children }) {
       return null;
     }
   });
+
+  const startOtpVerification = (email) => {
+    const cleanEmail = (email || "").trim();
+    setPendingOtpEmailState(cleanEmail);
+    if (cleanEmail) {
+      sessionStorage.setItem("pendingOtpEmail", cleanEmail);
+    } else {
+      sessionStorage.removeItem("pendingOtpEmail");
+    }
+  };
+
+  const clearOtpVerification = () => {
+    setPendingOtpEmailState("");
+    sessionStorage.removeItem("pendingOtpEmail");
+  };
 
   const fetchUser = useCallback(async () => {
     const token = localStorage.getItem("accessToken");
@@ -93,6 +116,7 @@ export function AuthProvider({ children }) {
       localStorage.setItem("user", JSON.stringify(userData));
       setUser(userData);
     }
+    clearOtpVerification();
     setLoading(false);
   };
 
@@ -105,6 +129,7 @@ export function AuthProvider({ children }) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
+      clearOtpVerification();
       setUser(null);
       setLoading(false);
     }
@@ -122,6 +147,10 @@ export function AuthProvider({ children }) {
       value={{
         user,
         loading,
+        pendingOtpEmail,
+        otpPending: Boolean(pendingOtpEmail),
+        startOtpVerification,
+        clearOtpVerification,
         login,
         logout,
         updateUser,
