@@ -1,46 +1,21 @@
+import Modal from "../../components/common/Modal/Modal";
 import TeacherForm from "./TeacherForm";
 
-function EditTeacherModal({
-  open,
-  onClose,
-  teacher,
-  reload,
-}) {
-  if (!open) return null;
-
+function EditTeacherModal({ open, onClose, teacher, reload }) {
   return (
-    <div
-      className="modal-overlay"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="edit-teacher-title"
+    <Modal
+      isOpen={open}
+      onClose={onClose}
+      title="Edit Teacher"
+      maxWidth="480px"
     >
-      <div
-        className="modal obsidian-modal"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal-header">
-          <h2 id="edit-teacher-title">Edit Teacher</h2>
-
-          <button
-            type="button"
-            className="close-modal-btn"
-            onClick={onClose}
-            aria-label="Close Edit Teacher Modal"
-          >
-            ✕
-          </button>
-        </div>
-
-        <TeacherForm
-          teacher={teacher}
-          reload={reload}
-          onClose={onClose}
-          isEdit
-        />
-      </div>
-    </div>
+      <TeacherForm
+        teacher={teacher}
+        reload={reload}
+        onClose={onClose}
+        isEdit
+      />
+    </Modal>
   );
 }
 

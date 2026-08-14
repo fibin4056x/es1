@@ -2,6 +2,7 @@ import { useState } from "react";
 import AttendanceToolbar from "./AttendanceToolbar";
 import AttendanceTable from "./AttendanceTable";
 import AttendanceDocumentModal from "./AttendanceDocumentModal";
+import ConfirmModal from "../../components/common/Modal/ConfirmModal";
 import { markAttendance, deleteAttendance } from "../../services/AttendanceService";
 import { useAuth } from "../../hooks/UseAuth";
 
@@ -208,18 +209,18 @@ if (Array.isArray(records)) {
      DELETE ATTENDANCE
   ========================================= */
 
-  const handleDeleteAttendance = async (attendanceId, studentId) => {
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  const handleDeleteAttendance = (attendanceId, studentId) => {
     if (!canEditAttendance) {
       return toast.error("You do not have permission to delete attendance.");
     }
+    setDeleteTarget({ attendanceId, studentId });
+  };
 
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this attendance record? This will also remove any uploaded documents for this student on this date."
-      )
-    ) {
-      return;
-    }
+  const handleConfirmDeleteAttendance = async () => {
+    if (!deleteTarget) return;
+    const { attendanceId, studentId } = deleteTarget;
 
     try {
       setLoading(true);
@@ -241,6 +242,7 @@ if (Array.isArray(records)) {
       );
 
       toast.success("Attendance record deleted successfully.");
+      setDeleteTarget(null);
     } catch (error) {
       toast.error(
         error.response?.data?.message || "Failed to delete attendance record."
@@ -367,6 +369,16 @@ if (Array.isArray(records)) {
           }}
         />
       )}
+
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDeleteAttendance}
+        title="Delete Attendance Record"
+        message="Are you sure you want to delete this attendance record? This will also remove any uploaded documents for this student on this date."
+        confirmText="Delete Record"
+        loading={loading}
+      />
     </div>
   );
 }

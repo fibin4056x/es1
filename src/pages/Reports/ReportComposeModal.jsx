@@ -46,7 +46,7 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
 
   const handleFileSelect = (selectedFiles) => {
     if (!selectedFiles || selectedFiles.length === 0) return;
-    setFiles((prev) => [...prev, ...selectedFiles]);
+    setFiles((prev) => [...prev, ...(Array.isArray(selectedFiles) ? selectedFiles : [selectedFiles])]);
   };
 
   const handleRemoveFile = (index) => {
@@ -123,12 +123,11 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
       >
         <form onSubmit={handleSend} className="report-compose-form">
           {/* Student Selector */}
-          <div className="form-group" style={{ marginBottom: "14px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: 600, fontSize: "0.875rem", color: "#f8fafc" }}>
+          <div className="report-form-group">
+            <label className="report-form-label">
               Student <span style={{ color: "#ef4444" }}>*</span>
             </label>
             <select
-              style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", background: "rgba(15, 23, 42, 0.6)", color: "#ffffff", border: "1px solid rgba(255, 255, 255, 0.15)" }}
               value={studentId}
               onChange={(e) => setStudentId(e.target.value)}
               required
@@ -143,12 +142,11 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
           </div>
 
           {/* Recipient Selector */}
-          <div className="form-group" style={{ marginBottom: "14px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: 600, fontSize: "0.875rem", color: "#f8fafc" }}>
+          <div className="report-form-group">
+            <label className="report-form-label">
               Recipient <span style={{ color: "#ef4444" }}>*</span>
             </label>
             <select
-              style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", background: "rgba(15, 23, 42, 0.6)", color: "#ffffff", border: "1px solid rgba(255, 255, 255, 0.15)" }}
               value={recipientId}
               onChange={(e) => setRecipientId(e.target.value)}
               required
@@ -163,13 +161,12 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
           </div>
 
           {/* Subject / Title */}
-          <div className="form-group" style={{ marginBottom: "14px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: 600, fontSize: "0.875rem", color: "#f8fafc" }}>
+          <div className="report-form-group">
+            <label className="report-form-label">
               Report Title / Subject <span style={{ color: "#ef4444" }}>*</span>
             </label>
             <input
               type="text"
-              style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", background: "rgba(15, 23, 42, 0.6)", color: "#ffffff", border: "1px solid rgba(255, 255, 255, 0.15)" }}
               placeholder="e.g. Attendance Concern - July 2026"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
@@ -179,13 +176,12 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
           </div>
 
           {/* Body Text */}
-          <div className="form-group" style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: 600, fontSize: "0.875rem", color: "#f8fafc" }}>
+          <div className="report-form-group">
+            <label className="report-form-label">
               Message / Report Content <span style={{ color: "#ef4444" }}>*</span>
             </label>
             <textarea
               rows={5}
-              style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", background: "rgba(15, 23, 42, 0.6)", color: "#ffffff", border: "1px solid rgba(255, 255, 255, 0.15)", resize: "vertical" }}
               placeholder="Write your detailed message or report here..."
               value={body}
               onChange={(e) => setBody(e.target.value)}
@@ -195,19 +191,19 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
           </div>
 
           {/* File Attachments */}
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", marginBottom: "8px", fontWeight: 600, fontSize: "0.875rem", color: "#f8fafc" }}>
+          <div className="report-form-group">
+            <label className="report-form-label">
               Attachments (PDF, JPG, JPEG, PNG)
             </label>
 
             {files.length > 0 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "12px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "8px" }}>
                 {files.map((file, idx) => (
-                  <div key={idx} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", background: "rgba(30, 41, 59, 0.6)", borderRadius: "6px", border: "1px solid rgba(255, 255, 255, 0.1)" }}>
+                  <div key={idx} className="report-file-item">
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                       <span className="material-symbols-outlined" style={{ color: "#6366f1", fontSize: "20px" }}>attach_file</span>
-                      <span style={{ fontSize: "0.875rem", color: "#f8fafc" }}>{file.name}</span>
-                      <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>({(file.size / 1024).toFixed(1)} KB)</span>
+                      <span style={{ fontSize: "0.875rem" }}>{file.name}</span>
+                      <span style={{ fontSize: "0.75rem", opacity: 0.7 }}>({(file.size / 1024).toFixed(1)} KB)</span>
                     </div>
                     <button type="button" onClick={() => handleRemoveFile(idx)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center" }}>
                       <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>close</span>
@@ -219,21 +215,20 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
 
             <FileUpload
               accept=".pdf,.jpg,.jpeg,.png"
-              maxSize={10 * 1024 * 1024}
+              maxSizeMB={10}
               onFileSelect={handleFileSelect}
               label="Click or drag PDF/Images to attach"
             />
           </div>
 
           {/* Action Buttons */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "24px" }}>
+          <div className="report-modal-actions">
             <button
               type="button"
-              className="btn-press"
+              className="report-btn-secondary btn-press"
               onClick={() => {
                 if (validateForm()) setPreviewOpen(true);
               }}
-              style={{ padding: "10px 18px", borderRadius: "8px", background: "rgba(255, 255, 255, 0.08)", color: "#f8fafc", border: "1px solid rgba(255, 255, 255, 0.15)", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>visibility</span>
               Preview
@@ -242,18 +237,16 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
             <div style={{ display: "flex", gap: "12px" }}>
               <button
                 type="button"
-                className="btn-press"
+                className="report-btn-secondary btn-press"
                 onClick={onClose}
                 disabled={loading}
-                style={{ padding: "10px 18px", borderRadius: "8px", background: "transparent", color: "#94a3b8", border: "1px solid rgba(255, 255, 255, 0.15)", fontWeight: 600 }}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="btn-press"
+                className="report-btn-primary btn-press"
                 disabled={loading}
-                style={{ padding: "10px 22px", borderRadius: "8px", background: "var(--primary, #6366f1)", color: "#ffffff", border: "none", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
                   {loading ? "progress_activity" : "send"}
@@ -272,23 +265,23 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
         title="Report Preview"
         maxWidth="600px"
       >
-        <div style={{ padding: "8px 0" }}>
-          <div style={{ background: "rgba(15, 23, 42, 0.6)", borderRadius: "10px", padding: "16px", marginBottom: "16px", border: "1px solid rgba(255, 255, 255, 0.1)" }}>
-            <h3 style={{ margin: "0 0 12px 0", color: "#f8fafc", fontSize: "1.125rem", fontWeight: 700 }}>{subject}</h3>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.875rem", color: "#94a3b8", marginBottom: "12px" }}>
+        <div style={{ padding: "4px 0" }}>
+          <div className="report-detail-card">
+            <h3 style={{ margin: "0 0 12px 0", fontSize: "1.125rem", fontWeight: 700 }}>{subject}</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.875rem", opacity: 0.8, marginBottom: "12px" }}>
               <div><strong>Student:</strong> {selectedStudent?.nameEnglish || selectedStudent?.name || "Selected Student"}</div>
               <div><strong>Recipient:</strong> {selectedRecipient?.name || selectedRecipient?.fullName || "Selected Recipient"}</div>
               <div><strong>Sender:</strong> {user?.name} ({user?.role})</div>
               <div><strong>Date:</strong> {new Date().toLocaleDateString()}</div>
             </div>
-            <div style={{ borderTop: "1px solid rgba(255, 255, 255, 0.1)", paddingTop: "12px", fontSize: "0.9375rem", color: "#f8fafc", whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
+            <div className="report-detail-body">
               {body}
             </div>
           </div>
 
           {files.length > 0 && (
             <div style={{ marginBottom: "16px" }}>
-              <span style={{ fontSize: "0.8125rem", color: "#94a3b8", fontWeight: 600 }}>Attachments ({files.length}):</span>
+              <span style={{ fontSize: "0.8125rem", opacity: 0.8, fontWeight: 600 }}>Attachments ({files.length}):</span>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "6px" }}>
                 {files.map((f, i) => (
                   <span key={i} style={{ padding: "4px 10px", background: "rgba(99, 102, 241, 0.15)", border: "1px solid rgba(99, 102, 241, 0.3)", borderRadius: "6px", fontSize: "0.8125rem", color: "#818cf8" }}>
@@ -299,21 +292,19 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
             </div>
           )}
 
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "20px" }}>
+          <div className="report-modal-actions" style={{ justifyContent: "flex-end" }}>
             <button
               type="button"
-              className="btn-press"
+              className="report-btn-secondary btn-press"
               onClick={() => setPreviewOpen(false)}
-              style={{ padding: "10px 18px", borderRadius: "8px", background: "transparent", color: "#94a3b8", border: "1px solid rgba(255, 255, 255, 0.15)", fontWeight: 600 }}
             >
               Back to Edit
             </button>
             <button
               type="button"
-              className="btn-press"
+              className="report-btn-primary btn-press"
               onClick={() => handleSend()}
               disabled={loading}
-              style={{ padding: "10px 22px", borderRadius: "8px", background: "var(--primary, #6366f1)", color: "#ffffff", border: "none", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
                 {loading ? "progress_activity" : "send"}

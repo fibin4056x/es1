@@ -1,39 +1,21 @@
+import Modal from "../../components/common/Modal/Modal";
 import DivisionForm from "./DivisionForm";
-import "./DivisionModal.css";
 
-function EditDivisionModal({
-  open,
-  division,
-  onClose,
-  reload,
-}) {
-  if (!open) return null;
-
+function EditDivisionModal({ open, division, onClose, reload }) {
   return (
-    <div className="modal-overlay">
-
-      <div className="modal">
-
-        <div className="modal-header">
-
-          <h2>Edit Division</h2>
-
-          <button onClick={onClose}>
-            ✖
-          </button>
-
-        </div>
-
-        <DivisionForm
-          division={division}
-          isEdit={true}
-          onClose={onClose}
-          reload={reload}
-        />
-
-      </div>
-
-    </div>
+    <Modal
+      isOpen={open}
+      onClose={onClose}
+      title="Edit Division"
+      maxWidth="580px"
+    >
+      <DivisionForm
+        division={division}
+        isEdit={true}
+        onClose={onClose}
+        reload={reload}
+      />
+    </Modal>
   );
 }
 

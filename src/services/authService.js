@@ -12,7 +12,19 @@ export const loginUser = async (email, password) => {
 };
 
 /**
- * 2. Request OTP for first-time teacher verification
+ * 2. Logout user (clears HTTP-only cookies on server)
+ */
+export const logoutUser = async () => {
+  try {
+    const response = await api.post("/auth/logout");
+    return response.data;
+  } catch (err) {
+    return null;
+  }
+};
+
+/**
+ * 3. Request OTP for first-time teacher verification
  */
 export const requestTeacherOtp = async (email) => {
   const response = await api.post("/auth/teacher/request-verification-otp", {
@@ -22,7 +34,7 @@ export const requestTeacherOtp = async (email) => {
 };
 
 /**
- * 3. Verify OTP for first-time teacher
+ * 4. Verify OTP for first-time teacher
  */
 export const verifyTeacherOtp = async (email, otp) => {
   const response = await api.post("/auth/teacher/verify-otp", {
@@ -33,7 +45,7 @@ export const verifyTeacherOtp = async (email, otp) => {
 };
 
 /**
- * 4. Complete first login (Set permanent password)
+ * 5. Complete first login (Set permanent password)
  */
 export const completeFirstLogin = async (setupToken, newPassword, confirmPassword) => {
   const response = await api.post(
@@ -49,7 +61,7 @@ export const completeFirstLogin = async (setupToken, newPassword, confirmPasswor
 };
 
 /**
- * 5. Forgot Password - Request OTP
+ * 6. Forgot Password - Request OTP
  */
 export const requestForgotPasswordOtp = async (email) => {
   const response = await api.post("/auth/forgot-password/request-otp", {
@@ -59,7 +71,7 @@ export const requestForgotPasswordOtp = async (email) => {
 };
 
 /**
- * 6. Forgot Password - Verify OTP
+ * 7. Forgot Password - Verify OTP
  */
 export const verifyForgotPasswordOtp = async (email, otp) => {
   const response = await api.post("/auth/forgot-password/verify-otp", {
@@ -70,7 +82,7 @@ export const verifyForgotPasswordOtp = async (email, otp) => {
 };
 
 /**
- * 7. Forgot Password - Reset Password
+ * 8. Forgot Password - Reset Password
  */
 export const resetPassword = async (resetToken, newPassword, confirmPassword) => {
   const response = await api.post(
@@ -86,7 +98,7 @@ export const resetPassword = async (resetToken, newPassword, confirmPassword) =>
 };
 
 /**
- * 8. Change Password (Authenticated user)
+ * 9. Change Password (Authenticated user)
  */
 export const changePassword = async (currentPassword, newPassword, confirmPassword) => {
   const response = await api.patch("/auth/change-password", {
@@ -98,7 +110,7 @@ export const changePassword = async (currentPassword, newPassword, confirmPasswo
 };
 
 /**
- * 9. Update Profile
+ * 10. Update Profile
  */
 export const updateProfile = async (profileData) => {
   const response = await api.put("/auth/profile", profileData);
@@ -106,7 +118,7 @@ export const updateProfile = async (profileData) => {
 };
 
 /**
- * 10. Get Current Authenticated User Info
+ * 11. Get Current Authenticated User Info
  */
 export const getMe = async () => {
   const response = await api.get("/auth/me");

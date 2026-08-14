@@ -1,5 +1,6 @@
 import { useState, useLayoutEffect, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
+import ConfirmModal from "../../components/common/Modal/ConfirmModal";
 import { updateTeacherStatus, deleteTeacher } from "../../services/TeacherService";
 import { toast } from "react-toastify";
 import "./TeacherRow.css";
@@ -21,6 +22,8 @@ function TeacherRow({
   assignedDivisions = [],
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const triggerRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -44,10 +47,6 @@ function TeacherRow({
     .slice(0, 2)
     .toUpperCase();
 
-  /** Writes the dropdown's fixed-position coordinates straight onto its DOM node.
-   *  Kept out of JSX/state on purpose — this is the only thing about the menu
-   *  that's genuinely dynamic (depends on the trigger's live position), so it's
-   *  set imperatively via the ref rather than as an inline style attribute. */
   const updateMenuPosition = useCallback(() => {
     const rect = triggerRef.current?.getBoundingClientRect();
     const node = dropdownRef.current;
@@ -91,29 +90,30 @@ function TeacherRow({
     [teacher.status, teacher._id, reload, closeMenu]
   );
 
-  const handleDelete = useCallback(
-    async (event) => {
+  const handleDeleteClick = useCallback(
+    (event) => {
       event.stopPropagation();
       closeMenu();
-      const confirmDelete = window.confirm(`Are you sure you want to delete ${teacher.name}?`);
-      if (!confirmDelete) return;
-
-      try {
-        await deleteTeacher(teacher._id);
-        toast.success("Teacher deleted successfully");
-        reload();
-      } catch (err) {
-        console.error(err);
-        toast.error("Unable to delete teacher");
-      }
+      setConfirmOpen(true);
     },
-    [teacher._id, teacher.name, reload, closeMenu]
+    [closeMenu]
   );
 
-  // Position the menu after the portal has actually painted, not just mounted —
-  // fonts/icons finishing their load right after mount can shift row heights
-  // and stale out a position computed too early. The extra rAF pass re-measures
-  // once more after the browser's next paint, to catch any late layout shift.
+  const handleConfirmDelete = async () => {
+    setLoading(true);
+    try {
+      await deleteTeacher(teacher._id);
+      toast.success("Teacher deleted successfully");
+      setConfirmOpen(false);
+      reload();
+    } catch (err) {
+      console.error(err);
+      toast.error("Unable to delete teacher");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useLayoutEffect(() => {
     if (!isMenuOpen) return;
     updateMenuPosition();
@@ -121,7 +121,6 @@ function TeacherRow({
     return () => cancelAnimationFrame(raf);
   }, [isMenuOpen, updateMenuPosition]);
 
-  // Close on outside click (covers both the trigger button and the portaled menu)
   useEffect(() => {
     if (!isMenuOpen) return;
 
@@ -137,8 +136,6 @@ function TeacherRow({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isMenuOpen, closeMenu]);
 
-  // Keep the menu glued to the button on scroll/resize instead of drifting or
-  // getting clipped by the table's own scroll container.
   useEffect(() => {
     if (!isMenuOpen) return;
 
@@ -151,111 +148,123 @@ function TeacherRow({
   }, [isMenuOpen, updateMenuPosition]);
 
   return (
-    <tr className="teacher-row" onClick={handleRowClick}>
-      {/* Teacher Info */}
-      <td>
-        <div className="teacher-profile">
-          {teacher.avatar ? (
-            <img className="teacher-avatar" src={teacher.avatar} alt={`${teacher.name} avatar`} />
-          ) : (
-            <div className="teacher-avatar-fallback">{initials}</div>
-          )}
+    <>
+      <tr className="teacher-row" onClick={handleRowClick}>
+        {/* Teacher Info */}
+        <td>
+          <div className="teacher-profile">
+            {teacher.avatar ? (
+              <img className="teacher-avatar" src={teacher.avatar} alt={`${teacher.name} avatar`} />
+            ) : (
+              <div className="teacher-avatar-fallback">{initials}</div>
+            )}
 
-          <div className="teacher-profile-info">
-            <span className="teacher-name">{teacher.name}</span>
-            <span className="teacher-role">Educator</span>
+            <div className="teacher-profile-info">
+              <span className="teacher-name">{teacher.name}</span>
+              <span className="teacher-role">Educator</span>
+            </div>
           </div>
-        </div>
-      </td>
+        </td>
 
-      {/* Employee ID */}
-      <td className="teacher-emp-id">{empId}</td>
+        {/* Employee ID */}
+        <td className="teacher-emp-id">{empId}</td>
 
-      {/* Subject */}
-      <td className="teacher-subject">{subject}</td>
+        {/* Subject */}
+        <td className="teacher-subject">{subject}</td>
 
-      {/* Assigned Class */}
-      <td className="teacher-assigned-class">{assignedStr}</td>
+        {/* Assigned Class */}
+        <td className="teacher-assigned-class">{assignedStr}</td>
 
-      {/* Contact */}
-      <td>
-        <div className="teacher-contact">
-          <span className="teacher-email">{teacher.email || "Not Available"}</span>
-          <span className="teacher-phone">{phone}</span>
-        </div>
-      </td>
+        {/* Contact */}
+        <td>
+          <div className="teacher-contact">
+            <span className="teacher-email">{teacher.email || "Not Available"}</span>
+            <span className="teacher-phone">{phone}</span>
+          </div>
+        </td>
 
-      {/* Status */}
-      <td>
-        <span className={`teacher-badge ${teacher.status || "active"}`}>
-          {(teacher.status || "active").toUpperCase()}
-        </span>
-      </td>
+        {/* Status */}
+        <td>
+          <span className={`teacher-badge ${teacher.status || "active"}`}>
+            {(teacher.status || "active").toUpperCase()}
+          </span>
+        </td>
 
-      {/* Actions */}
-      <td className="teacher-actions-cell" onClick={(event) => event.stopPropagation()}>
-        <button
-          type="button"
-          ref={triggerRef}
-          className="teacher-action-btn"
-          aria-label="Teacher Actions"
-          aria-haspopup="menu"
-          aria-expanded={isMenuOpen}
-          onClick={handleToggleMenu}
-        >
-          <span className="material-symbols-outlined">more_vert</span>
-        </button>
+        {/* Actions */}
+        <td className="teacher-actions-cell" onClick={(event) => event.stopPropagation()}>
+          <button
+            type="button"
+            ref={triggerRef}
+            className="teacher-action-btn"
+            aria-label="Teacher Actions"
+            aria-haspopup="menu"
+            aria-expanded={isMenuOpen}
+            onClick={handleToggleMenu}
+          >
+            <span className="material-symbols-outlined">more_vert</span>
+          </button>
 
-        {isMenuOpen &&
-          createPortal(
-            <div ref={dropdownRef} className="teacher-dropdown" role="menu">
-              <button
-                type="button"
-                onClick={() => {
-                  closeMenu();
-                  handleRowClick();
-                }}
-              >
-                <span className="material-symbols-outlined action-icon">visibility</span>
-                View Details
-              </button>
+          {isMenuOpen &&
+            createPortal(
+              <div ref={dropdownRef} className="teacher-dropdown" role="menu">
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeMenu();
+                    handleRowClick();
+                  }}
+                >
+                  <span className="material-symbols-outlined action-icon">visibility</span>
+                  View Details
+                </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  closeMenu();
-                  onEdit(teacher);
-                }}
-              >
-                <span className="material-symbols-outlined action-icon">edit</span>
-                Edit Teacher
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeMenu();
+                    onEdit(teacher);
+                  }}
+                >
+                  <span className="material-symbols-outlined action-icon">edit</span>
+                  Edit Teacher
+                </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  closeMenu();
-                  onAssignClass(teacher);
-                }}
-              >
-                <span className="material-symbols-outlined action-icon">assignment_ind</span>
-                Assign Class
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeMenu();
+                    onAssignClass(teacher);
+                  }}
+                >
+                  <span className="material-symbols-outlined action-icon">assignment_ind</span>
+                  Assign Class
+                </button>
 
-              <button type="button" onClick={handleStatusChange}>
-                <span className="material-symbols-outlined action-icon">sync</span>
-                Change Status
-              </button>
+                <button type="button" onClick={handleStatusChange}>
+                  <span className="material-symbols-outlined action-icon">sync</span>
+                  Change Status
+                </button>
 
-              <button type="button" className="danger" onClick={handleDelete}>
-                <span className="material-symbols-outlined action-icon">delete</span>
-                Delete Teacher
-              </button>
-            </div>,
-            document.body
-          )}
-      </td>
-    </tr>
+                <button type="button" className="danger" onClick={handleDeleteClick}>
+                  <span className="material-symbols-outlined action-icon">delete</span>
+                  Delete Teacher
+                </button>
+              </div>,
+              document.body
+            )}
+        </td>
+      </tr>
+
+      <ConfirmModal
+        isOpen={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Teacher"
+        message={`Are you sure you want to delete ${teacher.name}? This action cannot be undone.`}
+        confirmText="Delete Teacher"
+        loading={loading}
+      />
+    </>
   );
 }
 

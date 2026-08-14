@@ -333,7 +333,7 @@ function Reports() {
             {/* Read Filter */}
             {activeTab === "inbox" && (
               <select
-                style={{ padding: "10px 14px", borderRadius: "8px", background: "rgba(15, 23, 42, 0.6)", color: "#ffffff", border: "1px solid rgba(255, 255, 255, 0.15)", fontSize: "0.875rem" }}
+                className="reports-filter-select"
                 value={readFilter}
                 onChange={(e) => {
                   setReadFilter(e.target.value);

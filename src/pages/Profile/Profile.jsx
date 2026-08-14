@@ -22,12 +22,9 @@ function Profile() {
   useEffect(() => {
     const fetchLatestUser = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (token) {
-          const res = await api.get("/auth/me");
-          if (res.data?.data) {
-            login(res.data.data, token);
-          }
+        const res = await api.get("/auth/me");
+        if (res.data?.data) {
+          login(res.data.data);
         }
       } catch (error) {
         console.error("Failed to sync profile:", error);
@@ -80,8 +77,7 @@ function Profile() {
       const res = await updateProfile(formData);
       
       // Update session locally
-      const token = localStorage.getItem("token");
-      login(res.data, token);
+      login(res.data);
 
       toast.success("Profile updated successfully!");
       setIsEditOpen(false);

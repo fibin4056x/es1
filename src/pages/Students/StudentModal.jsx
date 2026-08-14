@@ -1,35 +1,16 @@
+import Modal from "../../components/common/Modal/Modal";
 import StudentForm from "./StudentForm";
 
-function StudentModal({
-  open,
-  onClose,
-  reload,
-}) {
-  if (!open) return null;
-
+function StudentModal({ open, onClose, reload }) {
   return (
-    <div className="modal-overlay">
-      <div className="modal">
-
-        <div className="modal-header">
-
-          <h2>Add Student</h2>
-
-          <button
-            onClick={onClose}
-          >
-            ✖
-          </button>
-
-        </div>
-
-        <StudentForm
-          onClose={onClose}
-          reload={reload}
-        />
-
-      </div>
-    </div>
+    <Modal
+      isOpen={open}
+      onClose={onClose}
+      title="Add Student"
+      maxWidth="680px"
+    >
+      <StudentForm onClose={onClose} reload={reload} />
+    </Modal>
   );
 }
 

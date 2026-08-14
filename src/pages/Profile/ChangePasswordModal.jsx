@@ -34,7 +34,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
       if (!passwordsMatch) {
         toast.error("New password and confirmation password do not match.");
       } else {
-        toast.error("Please fill in all required fields and satisfy password requirements.");
+        toast.error("Please satisfy all password complexity requirements.");
       }
       return;
     }
@@ -43,10 +43,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
     try {
       await changePassword(currentPassword, newPassword, confirmPassword);
       toast.success("Password changed successfully!");
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      onClose();
+      handleClose();
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to change password.");
     } finally {
@@ -66,17 +63,16 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
       isOpen={isOpen}
       onClose={handleClose}
       title="Change Password"
-      maxWidth="500px"
+      maxWidth="480px"
     >
-      <form onSubmit={handleSubmit} className="premium-form">
+      <form onSubmit={handleSubmit} className="change-pw-form">
         {/* Current Password */}
-        <div className="login-input-wrapper" style={{ marginBottom: "16px" }}>
-          <label className="login-input-label" htmlFor="profile-current-pw">Current Password</label>
-          <div className="login-input-field-container">
-            <span className="material-symbols-outlined login-input-icon">lock</span>
+        <div className="change-pw-field">
+          <label htmlFor="profile-current-pw">Current Password</label>
+          <div className="change-pw-input-box">
+            <span className="material-symbols-outlined pw-icon">lock</span>
             <input
               id="profile-current-pw"
-              className="login-input"
               type={showCurrent ? "text" : "password"}
               placeholder="Enter current password"
               required
@@ -86,8 +82,9 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
             />
             <button
               type="button"
-              className="login-password-toggle"
+              className="pw-toggle-btn"
               onClick={() => setShowCurrent(!showCurrent)}
+              aria-label={showCurrent ? "Hide password" : "Show password"}
             >
               <span className="material-symbols-outlined">
                 {showCurrent ? "visibility_off" : "visibility"}
@@ -97,13 +94,12 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
         </div>
 
         {/* New Password */}
-        <div className="login-input-wrapper" style={{ marginBottom: "16px" }}>
-          <label className="login-input-label" htmlFor="profile-new-pw">New Password</label>
-          <div className="login-input-field-container">
-            <span className="material-symbols-outlined login-input-icon">key</span>
+        <div className="change-pw-field">
+          <label htmlFor="profile-new-pw">New Password</label>
+          <div className="change-pw-input-box">
+            <span className="material-symbols-outlined pw-icon">key</span>
             <input
               id="profile-new-pw"
-              className="login-input"
               type={showNew ? "text" : "password"}
               placeholder="Enter new password"
               required
@@ -113,8 +109,9 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
             />
             <button
               type="button"
-              className="login-password-toggle"
+              className="pw-toggle-btn"
               onClick={() => setShowNew(!showNew)}
+              aria-label={showNew ? "Hide password" : "Show password"}
             >
               <span className="material-symbols-outlined">
                 {showNew ? "visibility_off" : "visibility"}
@@ -124,13 +121,12 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
         </div>
 
         {/* Confirm New Password */}
-        <div className="login-input-wrapper" style={{ marginBottom: "20px" }}>
-          <label className="login-input-label" htmlFor="profile-confirm-pw">Confirm New Password</label>
-          <div className="login-input-field-container">
-            <span className="material-symbols-outlined login-input-icon">key_off</span>
+        <div className="change-pw-field">
+          <label htmlFor="profile-confirm-pw">Confirm New Password</label>
+          <div className="change-pw-input-box">
+            <span className="material-symbols-outlined pw-icon">key_off</span>
             <input
               id="profile-confirm-pw"
-              className="login-input"
               type={showConfirm ? "text" : "password"}
               placeholder="Re-enter new password"
               required
@@ -140,8 +136,9 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
             />
             <button
               type="button"
-              className="login-password-toggle"
+              className="pw-toggle-btn"
               onClick={() => setShowConfirm(!showConfirm)}
+              aria-label={showConfirm ? "Hide password" : "Show password"}
             >
               <span className="material-symbols-outlined">
                 {showConfirm ? "visibility_off" : "visibility"}
@@ -151,50 +148,58 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
         </div>
 
         {/* Password Requirements */}
-        <div className="password-requirements-card" style={{ marginBottom: "20px" }}>
-          <div className="password-requirements-title">Password Requirements</div>
-          <div className="password-req-list">
-            <div className={`password-req-item ${hasMinLength ? "met" : ""}`}>
-              <span className="material-symbols-outlined">{hasMinLength ? "check_circle" : "cancel"}</span>
-              Minimum 8 characters
+        <div className="pw-req-card">
+          <div className="pw-req-title">Password Requirements</div>
+          <div className="pw-req-list">
+            <div className={`pw-req-item ${hasMinLength ? "met" : ""}`}>
+              <span className="material-symbols-outlined">
+                {hasMinLength ? "check_circle" : "cancel"}
+              </span>
+              <span>Minimum 8 characters</span>
             </div>
-            <div className={`password-req-item ${hasUppercase ? "met" : ""}`}>
-              <span className="material-symbols-outlined">{hasUppercase ? "check_circle" : "cancel"}</span>
-              At least one uppercase letter (A-Z)
+            <div className={`pw-req-item ${hasUppercase ? "met" : ""}`}>
+              <span className="material-symbols-outlined">
+                {hasUppercase ? "check_circle" : "cancel"}
+              </span>
+              <span>At least one uppercase letter (A-Z)</span>
             </div>
-            <div className={`password-req-item ${hasNumber ? "met" : ""}`}>
-              <span className="material-symbols-outlined">{hasNumber ? "check_circle" : "cancel"}</span>
-              At least one number (0-9)
+            <div className={`pw-req-item ${hasNumber ? "met" : ""}`}>
+              <span className="material-symbols-outlined">
+                {hasNumber ? "check_circle" : "cancel"}
+              </span>
+              <span>At least one number (0-9)</span>
             </div>
-            <div className={`password-req-item ${hasSpecial ? "met" : ""}`}>
-              <span className="material-symbols-outlined">{hasSpecial ? "check_circle" : "cancel"}</span>
-              At least one special character (!@#$%^&*)
+            <div className={`pw-req-item ${hasSpecial ? "met" : ""}`}>
+              <span className="material-symbols-outlined">
+                {hasSpecial ? "check_circle" : "cancel"}
+              </span>
+              <span>At least one special character (!@#$%^&*)</span>
             </div>
-            <div className={`password-req-item ${passwordsMatch ? "met" : ""}`}>
-              <span className="material-symbols-outlined">{passwordsMatch ? "check_circle" : "cancel"}</span>
-              Passwords match
+            <div className={`pw-req-item ${passwordsMatch ? "met" : ""}`}>
+              <span className="material-symbols-outlined">
+                {passwordsMatch ? "check_circle" : "cancel"}
+              </span>
+              <span>Passwords match</span>
             </div>
           </div>
         </div>
 
         {/* Actions */}
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+        <div className="change-pw-actions">
           <button
             type="button"
-            className="btn-press"
+            className="change-pw-cancel"
             onClick={handleClose}
             disabled={loading}
-            style={{ padding: "10px 18px", borderRadius: "8px", background: "transparent", color: "#94a3b8", border: "1px solid rgba(255, 255, 255, 0.15)", fontWeight: 600 }}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="btn-press"
+            className="change-pw-submit"
             disabled={loading || !isFormValid}
-            style={{ padding: "10px 22px", borderRadius: "8px", background: "var(--primary, #6366f1)", color: "#ffffff", border: "none", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+            <span className="material-symbols-outlined">
               {loading ? "progress_activity" : "lock_reset"}
             </span>
             <span>{loading ? "Updating..." : "Update Password"}</span>

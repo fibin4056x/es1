@@ -1,81 +1,191 @@
+/* ==========================================================================
+   PREMIUM MODAL DESIGN SYSTEM (DARK & LIGHT ADAPTIVE)
+   ========================================================================== */
+
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(3, 7, 18, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: var(--z-modal);
-  padding: 1rem;
+  z-index: 1000;
+  padding: 1.25rem;
 }
 
 .modal-card {
   width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border-main);
-  border-radius: var(--radius-xl);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-lg);
+  background: var(--surface, #13131f);
+  border: 1px solid var(--border-main, rgba(255, 255, 255, 0.12));
+  border-radius: 22px;
+  padding: 1.75rem;
+  box-shadow: 
+    0 25px 60px -15px rgba(0, 0, 0, 0.65),
+    0 0 40px rgba(99, 102, 241, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
   max-height: 90vh;
   overflow-y: auto;
+  color: var(--text-main, #e4e1ed);
+  position: relative;
 }
 
 .modal-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-main);
-  margin-bottom: 1rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-main, rgba(255, 255, 255, 0.08));
+  margin-bottom: 1.25rem;
+}
+
+.modal-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-header-icon {
+  font-size: 24px;
+  color: var(--primary, #6366f1);
+  background: rgba(99, 102, 241, 0.12);
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(99, 102, 241, 0.25);
 }
 
 .modal-title {
-  font-size: var(--text-lg);
-  font-weight: var(--font-bold);
-  color: var(--text-main);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
   margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.modal-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted, #94a3b8);
+  margin: 3px 0 0 0;
 }
 
 .close-modal-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-main, rgba(255, 255, 255, 0.1));
+  color: var(--text-muted, #94a3b8);
   cursor: pointer;
-  padding: 0.25rem;
-  border-radius: var(--radius-full);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--transition-fast);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
 }
 
 .close-modal-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-main);
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  transform: rotate(90deg);
 }
 
 .modal-body {
   flex: 1;
 }
 
+/* Custom scrollbar inside modal */
+.modal-card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-card::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-card::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
 @keyframes scaleUp {
   from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0.96) translateY(10px);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1) translateY(0);
   }
 }
 
 .animate-scale-up {
-  animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ==========================================================================
+   LIGHT MODE OVERRIDES FOR MODAL
+   ========================================================================== */
+
+html:not(.dark) .modal-overlay {
+  background: rgba(15, 23, 42, 0.45);
+}
+
+html:not(.dark) .modal-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #0f172a;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.18),
+    0 0 25px rgba(79, 70, 229, 0.08);
+}
+
+html:not(.dark) .modal-header {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+html:not(.dark) .modal-title {
+  color: #0f172a;
+}
+
+html:not(.dark) .modal-subtitle {
+  color: #64748b;
+}
+
+html:not(.dark) .close-modal-btn {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #64748b;
+}
+
+html:not(.dark) .close-modal-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+html:not(.dark) .modal-card::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: 0.75rem;
+  }
+
+  .modal-card {
+    padding: 1.25rem;
+    border-radius: 18px;
+    max-height: 94vh;
+  }
+
+  .modal-title {
+    font-size: 1.18rem;
+  }
 }

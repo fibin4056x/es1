@@ -1,13 +1,14 @@
 import "./Modal.css";
 
-
 export default function Modal({
   isOpen,
   open,
   onClose,
   title,
+  subtitle,
   children,
-  maxWidth = "550px",
+  maxWidth = "560px",
+  icon,
 }) {
   const isModalOpen = isOpen !== undefined ? isOpen : open;
 
@@ -21,16 +22,28 @@ export default function Modal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header">
-          <h2 className="modal-title">{title}</h2>
+          <div className="modal-title-wrapper">
+            {icon && (
+              <span className="material-symbols-outlined modal-header-icon">
+                {icon}
+              </span>
+            )}
+            <div>
+              <h2 className="modal-title">{title}</h2>
+              {subtitle && <p className="modal-subtitle">{subtitle}</p>}
+            </div>
+          </div>
+
           <button
             type="button"
-            className="close-modal-btn"
+            className="close-modal-btn btn-press"
             onClick={onClose}
             aria-label="Close Modal"
           >
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
+
         <div className="modal-body">{children}</div>
       </div>
     </div>

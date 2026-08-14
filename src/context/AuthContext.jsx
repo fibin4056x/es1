@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { AuthContext } from "./authContextInstance";
-import { getMe } from "../services/authService";
+import { getMe, logoutUser } from "../services/authService";
 
 export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
@@ -14,15 +14,7 @@ export function AuthProvider({ children }) {
   });
 
   const fetchUser = useCallback(async () => {
-    const token = localStorage.getItem("token");
     const isLoginPage = typeof window !== "undefined" && window.location.pathname === "/login";
-
-    // If no token exists and user is on login page, skip /auth/me request to avoid unneeded 401 console errors
-    if (!token && isLoginPage) {
-      setUser(null);
-      setLoading(false);
-      return;
-    }
 
     try {
       const res = await getMe();
@@ -30,7 +22,7 @@ export function AuthProvider({ children }) {
       if (userData && userData._id) {
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
-      } else if (!user) {
+      } else {
         setUser(null);
         localStorage.removeItem("user");
       }
@@ -38,7 +30,6 @@ export function AuthProvider({ children }) {
       // Unauthenticated or expired session
       setUser(null);
       localStorage.removeItem("user");
-      localStorage.removeItem("token");
     } finally {
       setLoading(false);
     }
@@ -48,22 +39,24 @@ export function AuthProvider({ children }) {
     fetchUser();
   }, [fetchUser]);
 
-  const login = (userData, token) => {
-    if (token) {
-      localStorage.setItem("token", token);
-    }
+  const login = (userData) => {
     if (userData) {
       localStorage.setItem("user", JSON.stringify(userData));
+      setUser(userData);
     }
-    setUser(userData);
     setLoading(false);
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setUser(null);
-    setLoading(false);
+  const logout = async () => {
+    try {
+      await logoutUser();
+    } catch (err) {
+      // Ignore API logout error
+    } finally {
+      localStorage.removeItem("user");
+      setUser(null);
+      setLoading(false);
+    }
   };
 
   const updateUser = (userData) => {

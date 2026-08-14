@@ -63,7 +63,6 @@ export default function Login() {
 
       const resData = res?.data || res;
       const userObj = resData?.user || res?.user || resData;
-      const tokenStr = resData?.token || res?.token || resData?.accessToken || res?.accessToken;
 
       // Check if backend requires first-time teacher verification
       if (resData?.requiresVerification || res?.requiresVerification) {
@@ -73,10 +72,10 @@ export default function Login() {
         return;
       }
 
-      if (userObj && (userObj.role || userObj._id || userObj.email || tokenStr)) {
+      if (userObj && (userObj.role || userObj._id || userObj.email)) {
         setIsSuccess(true);
         setTimeout(() => {
-          login(userObj, tokenStr);
+          login(userObj);
           navigate("/dashboard");
         }, 800);
       } else {
@@ -117,11 +116,10 @@ export default function Login() {
       const response = await completeFirstLogin(setupToken, newPassword, confirmPassword);
       const resData = response?.data || response;
       const userObj = resData?.user || response?.user || resData;
-      const tokenStr = resData?.token || response?.token;
 
       toast.success("Account activated successfully! Logging you in...");
       setTimeout(() => {
-        login(userObj, tokenStr);
+        login(userObj);
         navigate("/dashboard");
       }, 600);
     } catch (error) {

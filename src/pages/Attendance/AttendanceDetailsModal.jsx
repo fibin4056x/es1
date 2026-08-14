@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
+import ConfirmModal from "../../components/common/Modal/ConfirmModal";
 import {
   uploadAttendanceDocuments,
   deleteAttendanceDocument,
@@ -42,7 +44,7 @@ export default function AttendanceDetailsModal({
       selectedFile.name?.toLowerCase().endsWith(".pdf");
 
     if (!isPdf) {
-      alert("Only PDF files are allowed.");
+      toast.warning("Only PDF files are allowed.");
       return;
     }
 
@@ -58,11 +60,12 @@ export default function AttendanceDetailsModal({
       );
 
       const updatedData = response.data?.data || response.data || response;
+      toast.success("Document uploaded successfully.");
       onUpdateRecord?.(updatedData);
       setSelectedFile(null);
     } catch (error) {
       console.error(error);
-      alert(
+      toast.error(
         error.response?.data?.message ||
           "Failed to upload document."
       );
@@ -71,22 +74,30 @@ export default function AttendanceDetailsModal({
     }
   };
 
-  const handleDelete = async (documentId) => {
-    if (!window.confirm("Delete this document?")) return;
+  const [deleteDocId, setDeleteDocId] = useState(null);
+
+  const handleDelete = (documentId) => {
+    setDeleteDocId(documentId);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteDocId) return;
 
     try {
       setLoading(true);
 
       const response = await deleteAttendanceDocument(
         attendanceRecord._id,
-        documentId
+        deleteDocId
       );
 
       const updatedData = response.data?.data || response.data || response;
+      toast.success("Document deleted successfully.");
       onUpdateRecord?.(updatedData);
+      setDeleteDocId(null);
     } catch (error) {
       console.error(error);
-      alert(
+      toast.error(
         error.response?.data?.message ||
           "Failed to delete document."
       );
@@ -202,6 +213,16 @@ export default function AttendanceDetailsModal({
           )}
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={!!deleteDocId}
+        onClose={() => setDeleteDocId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Document"
+        message="Are you sure you want to delete this document? This action cannot be undone."
+        confirmText="Delete Document"
+        loading={loading}
+      />
     </div>
   );
 }

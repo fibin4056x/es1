@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import Modal from "../../components/common/Modal/Modal";
+import ConfirmModal from "../../components/common/Modal/ConfirmModal";
 import FileUpload from "../../components/common/FileUpload/FileUpload";
 import {
   updateAttendance,
@@ -109,17 +110,24 @@ export default function AttendanceEditModal({
     }
   };
 
-  const handleDeleteDoc = async (docId) => {
+  const [deleteDocId, setDeleteDocId] = useState(null);
+
+  const handleDeleteDoc = (docId) => {
     if (!recordId) return;
-    if (!window.confirm("Are you sure you want to delete this document?")) return;
+    setDeleteDocId(docId);
+  };
+
+  const handleConfirmDeleteDoc = async () => {
+    if (!recordId || !deleteDocId) return;
 
     setUploading(true);
     try {
-      const res = await deleteAttendanceDocument(recordId, docId);
+      const res = await deleteAttendanceDocument(recordId, deleteDocId);
       toast.success("Document deleted.");
       if (onRecordSaved) {
         onRecordSaved(res.data);
       }
+      setDeleteDocId(null);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to delete document.");
     } finally {
@@ -252,6 +260,16 @@ export default function AttendanceEditModal({
           )}
         </div>
       </form>
+
+      <ConfirmModal
+        isOpen={!!deleteDocId}
+        onClose={() => setDeleteDocId(null)}
+        onConfirm={handleConfirmDeleteDoc}
+        title="Delete Document"
+        message="Are you sure you want to delete this document? This action cannot be undone."
+        confirmText="Delete Document"
+        loading={uploading}
+      />
     </Modal>
   );
 }

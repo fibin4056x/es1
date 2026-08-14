@@ -293,3 +293,47 @@ button:disabled {
   font-size: 18px;
   line-height: 1;
 }
+
+/* =========================================================
+   RESPONSIVE TABLE WRAPPER & MOBILE BREAKPOINTS
+========================================================= */
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1rem;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: var(--border-glass, rgba(255, 255, 255, 0.2));
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+
+  .page-title {
+    font-size: 1.5rem !important;
+  }
+
+  .page-subtitle {
+    font-size: 0.875rem !important;
+  }
+
+  .glass-panel,
+  .glass-card {
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+  }
+}

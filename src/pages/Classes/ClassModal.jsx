@@ -1,37 +1,16 @@
+import Modal from "../../components/common/Modal/Modal";
 import ClassForm from "./ClassForm";
 
-function ClassModal({
-  open,
-  onClose,
-  reload,
-}) {
-  if (!open) return null;
-
+function ClassModal({ open, onClose, reload }) {
   return (
-    <div className="modal-overlay">
-
-      <div className="modal">
-
-        <div className="modal-header">
-
-          <h2>Add Class</h2>
-
-          <button
-            onClick={onClose}
-          >
-            ✖
-          </button>
-
-        </div>
-
-        <ClassForm
-          onClose={onClose}
-          reload={reload}
-        />
-
-      </div>
-
-    </div>
+    <Modal
+      isOpen={open}
+      onClose={onClose}
+      title="Add Class"
+      maxWidth="500px"
+    >
+      <ClassForm onClose={onClose} reload={reload} />
+    </Modal>
   );
 }
 

@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import ConfirmModal from "../../components/common/Modal/ConfirmModal";
 import {
   uploadAttendanceDocuments,
   replaceAttendanceDocument,
@@ -92,19 +93,24 @@ function AttendanceDocumentModal({
      DELETE DOCUMENT
   ========================================= */
 
-  const handleDelete = async (docId) => {
-    if (!window.confirm("Are you sure you want to delete this document?")) {
-      return;
-    }
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+
+  const handleDelete = (docId) => {
+    setDeleteTargetId(docId);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTargetId) return;
 
     try {
       setUploading(true);
-      const res = await deleteAttendanceDocument(attendanceId, docId);
+      const res = await deleteAttendanceDocument(attendanceId, deleteTargetId);
       toast.success("Document deleted successfully.");
       
       if (res && res.data) {
         onUpdateRecord(res.data);
       }
+      setDeleteTargetId(null);
     } catch (error) {
       console.error(error);
       toast.error(
@@ -324,6 +330,16 @@ function AttendanceDocumentModal({
           />
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={!!deleteTargetId}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Document"
+        message="Are you sure you want to delete this document attachment? This action cannot be undone."
+        confirmText="Delete Document"
+        loading={uploading}
+      />
     </div>
   );
 }

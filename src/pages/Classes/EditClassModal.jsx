@@ -1,40 +1,21 @@
+import Modal from "../../components/common/Modal/Modal";
 import ClassForm from "./ClassForm";
 
-function EditClassModal({
-  open,
-  classData,
-  onClose,
-  reload,
-}) {
-  if (!open) return null;
-
+function EditClassModal({ open, classData, onClose, reload }) {
   return (
-    <div className="modal-overlay">
-
-      <div className="modal">
-
-        <div className="modal-header">
-
-          <h2>Edit Class</h2>
-
-          <button
-            onClick={onClose}
-          >
-            ✖
-          </button>
-
-        </div>
-
-        <ClassForm
-          classData={classData}
-          isEdit={true}
-          onClose={onClose}
-          reload={reload}
-        />
-
-      </div>
-
-    </div>
+    <Modal
+      isOpen={open}
+      onClose={onClose}
+      title="Edit Class"
+      maxWidth="500px"
+    >
+      <ClassForm
+        classData={classData}
+        isEdit={true}
+        onClose={onClose}
+        reload={reload}
+      />
+    </Modal>
   );
 }
 

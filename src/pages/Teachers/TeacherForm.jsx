@@ -22,19 +22,16 @@ function TeacherForm({
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    Promise.resolve().then(() => {
-      if (isEdit && teacher) {
-        setForm({
-          name: teacher.name || "",
-          email: teacher.email || "",
-          password: "",
-        });
-      } else {
-        setForm(INITIAL_FORM);
-      }
-    });
+    if (isEdit && teacher) {
+      setForm({
+        name: teacher.name || "",
+        email: teacher.email || "",
+        password: "",
+      });
+    } else {
+      setForm(INITIAL_FORM);
+    }
   }, [isEdit, teacher]);
-
 
   const handleChange = ({ target }) => {
     const { name, value } = target;
@@ -48,7 +45,7 @@ function TeacherForm({
     e.preventDefault();
 
     if (!form.name.trim()) {
-      toast.warning("Teacher name is required.");
+      toast.warning("Teacher full name is required.");
       return;
     }
 
@@ -76,10 +73,10 @@ function TeacherForm({
     try {
       if (isEdit) {
         await updateTeacher(teacher._id, payload);
-        toast.success("Teacher updated successfully.");
+        toast.success("Teacher profile updated successfully.");
       } else {
         await createTeacher(payload);
-        toast.success("Teacher created successfully.");
+        toast.success("Teacher account created successfully.");
       }
 
       reload?.();
@@ -88,9 +85,7 @@ function TeacherForm({
       console.error(err);
       toast.error(
         err.response?.data?.message ||
-          (isEdit
-            ? "Unable to update teacher."
-            : "Unable to create teacher.")
+          (isEdit ? "Failed to update teacher." : "Failed to create teacher.")
       );
     } finally {
       setLoading(false);
@@ -98,103 +93,99 @@ function TeacherForm({
   };
 
   return (
-    <form
-      className="obsidian-form teacher-form-modern"
-      onSubmit={handleSubmit}
-      noValidate
-    >
-      <div className="form-subtitle">
-        <p>{isEdit ? "Update account credentials and educator details." : "Create a new educator profile and send login credentials."}</p>
-      </div>
+    <form className="teacher-form-styled" onSubmit={handleSubmit} noValidate>
+      <p className="teacher-form-description">
+        {isEdit
+          ? "Update the teacher's name, email address, or assign a new password."
+          : "Enter the teacher's name, email address, and account credentials."}
+      </p>
 
-      {/* Name Input */}
-      <div className="form-group">
-        <label htmlFor="teacher-name">
-          Teacher Name <span className="required-star">*</span>
-        </label>
-        <div className="input-with-icon">
-          <span className="material-symbols-outlined input-prefix-icon">person</span>
-          <input
-            id="teacher-name"
-            type="text"
-            name="name"
-            placeholder="e.g. Dr. Eleanor Vance"
-            autoComplete="name"
-            value={form.name}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
+      <div className="teacher-form-fields">
+        {/* Full Name */}
+        <div className="teacher-field-group">
+          <label htmlFor="teacher-name">
+            Full Name <span className="field-required">*</span>
+          </label>
+          <div className="teacher-input-wrapper">
+            <span className="material-symbols-outlined input-icon">person</span>
+            <input
+              id="teacher-name"
+              type="text"
+              name="name"
+              placeholder="e.g. Eleanor Vance"
+              value={form.name}
+              onChange={handleChange}
+              disabled={loading}
+              autoComplete="name"
+              required
+            />
+          </div>
+        </div>
+
+        {/* Email Address */}
+        <div className="teacher-field-group">
+          <label htmlFor="teacher-email">
+            Email Address <span className="field-required">*</span>
+          </label>
+          <div className="teacher-input-wrapper">
+            <span className="material-symbols-outlined input-icon">alternate_email</span>
+            <input
+              id="teacher-email"
+              type="email"
+              name="email"
+              placeholder="e.g. eleanor@school.edu"
+              value={form.email}
+              onChange={handleChange}
+              disabled={loading}
+              autoComplete="email"
+              required
+            />
+          </div>
+        </div>
+
+        {/* Password */}
+        <div className="teacher-field-group">
+          <label htmlFor="teacher-password">
+            {isEdit ? "New Password (Optional)" : "Password "}
+            {!isEdit && <span className="field-required">*</span>}
+          </label>
+          <div className="teacher-input-wrapper">
+            <span className="material-symbols-outlined input-icon">lock</span>
+            <input
+              id="teacher-password"
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder={
+                isEdit
+                  ? "Leave blank to keep existing password"
+                  : "Enter account password"
+              }
+              value={form.password}
+              onChange={handleChange}
+              disabled={loading}
+              autoComplete={isEdit ? "new-password" : "current-password"}
+              required={!isEdit}
+            />
+            <button
+              type="button"
+              className="password-toggle-button"
+              onClick={() => setShowPassword(!showPassword)}
+              tabIndex={-1}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              <span className="material-symbols-outlined">
+                {showPassword ? "visibility_off" : "visibility"}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Email Input */}
-      <div className="form-group">
-        <label htmlFor="teacher-email">
-          Email Address <span className="required-star">*</span>
-        </label>
-        <div className="input-with-icon">
-          <span className="material-symbols-outlined input-prefix-icon">alternate_email</span>
-          <input
-            id="teacher-email"
-            type="email"
-            name="email"
-            placeholder="e.g. eleanor.vance@school.edu"
-            autoComplete="email"
-            value={form.email}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-        </div>
-      </div>
-
-      {/* Password Input */}
-      <div className="form-group">
-        <label htmlFor="teacher-password">
-          {isEdit
-            ? "Password (Leave blank to keep current)"
-            : "Password "}
-          {!isEdit && <span className="required-star">*</span>}
-        </label>
-        <div className="input-with-icon">
-          <span className="material-symbols-outlined input-prefix-icon">key</span>
-          <input
-            id="teacher-password"
-            type={showPassword ? "text" : "password"}
-            name="password"
-            placeholder={
-              isEdit
-                ? "•••••••• (Leave blank to keep current)"
-                : "Enter account password"
-            }
-            autoComplete={
-              isEdit ? "new-password" : "current-password"
-            }
-            value={form.password}
-            onChange={handleChange}
-            required={!isEdit}
-            disabled={loading}
-          />
-          <button
-            type="button"
-            className="password-toggle-btn"
-            onClick={() => setShowPassword(!showPassword)}
-            tabIndex={-1}
-            aria-label={showPassword ? "Hide password" : "Show password"}
-          >
-            <span className="material-symbols-outlined">
-              {showPassword ? "visibility_off" : "visibility"}
-            </span>
-          </button>
-        </div>
-      </div>
-
-      {/* Form Actions */}
-      <div className="modal-actions">
+      {/* Action Footer */}
+      <div className="teacher-form-actions">
         <button
           type="button"
-          className="cancel-btn btn-press"
+          className="btn-cancel"
           onClick={onClose}
           disabled={loading}
         >
@@ -203,19 +194,22 @@ function TeacherForm({
 
         <button
           type="submit"
-          className="submit-btn btn-press"
+          className="btn-submit"
           disabled={loading}
         >
-          <span className="material-symbols-outlined">
-            {loading ? "progress_activity" : isEdit ? "check_circle" : "add_circle"}
-          </span>
-          <span>
-            {loading
-              ? "Saving..."
-              : isEdit
-              ? "Update Teacher"
-              : "Create Teacher"}
-          </span>
+          {loading ? (
+            <>
+              <span className="material-symbols-outlined spin-animation">progress_activity</span>
+              <span>Saving...</span>
+            </>
+          ) : (
+            <>
+              <span className="material-symbols-outlined">
+                {isEdit ? "check_circle" : "person_add"}
+              </span>
+              <span>{isEdit ? "Update Teacher" : "Create Teacher"}</span>
+            </>
+          )}
         </button>
       </div>
     </form>

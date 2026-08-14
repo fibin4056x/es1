@@ -4,7 +4,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api"
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
+  withCredentials: true, // HTTP-only cookies are automatically sent with all requests
   headers: {
     "Content-Type": "application/json",
   },
@@ -16,12 +16,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
+    // Credentials (HTTP-only cookies) are automatically sent via withCredentials: true
     return config;
   },
   (error) => Promise.reject(error)
@@ -34,12 +29,12 @@ api.interceptors.request.use(
 let isRefreshing = false;
 let failedQueue = [];
 
-const processQueue = (error, token = null) => {
+const processQueue = (error) => {
   failedQueue.forEach(({ resolve, reject }) => {
     if (error) {
       reject(error);
     } else {
-      resolve(token);
+      resolve();
     }
   });
 
@@ -95,20 +90,20 @@ api.interceptors.response.use(
 
     const isAuthEndpoint =
       originalRequest?.url?.includes("/auth/login") ||
+      originalRequest?.url?.includes("/auth/logout") ||
       originalRequest?.url?.includes("/auth/refresh") ||
       originalRequest?.url?.includes("/auth/teacher/verify-otp") ||
       originalRequest?.url?.includes("/auth/forgot-password");
 
     const isLoginPage = typeof window !== "undefined" && window.location.pathname === "/login";
-    const hasToken = typeof localStorage !== "undefined" && !!localStorage.getItem("token");
 
-    // Skip token refreshing for auth endpoints, retry loops, or when unauthenticated on login page
+    // Skip token refreshing for auth endpoints, retry loops, or when on login page
     if (
       status !== 401 ||
       !originalRequest ||
       originalRequest._retry ||
       isAuthEndpoint ||
-      (isLoginPage && !hasToken)
+      isLoginPage
     ) {
       return Promise.reject(error);
     }
@@ -119,57 +114,31 @@ api.interceptors.response.use(
 
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
-        failedQueue.push({
-          resolve,
-          reject,
-        });
+        failedQueue.push({ resolve, reject });
       })
-        .then((token) => {
-          if (token) {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-          }
-          return api(originalRequest);
-        })
-        .catch((refreshError) => {
-          return Promise.reject(refreshError);
-        });
+        .then(() => api(originalRequest))
+        .catch((refreshError) => Promise.reject(refreshError));
     }
 
     /* ========================================================
-       START TOKEN REFRESH
+       START TOKEN REFRESH (HTTP-ONLY COOKIE ROTATION)
     ======================================================== */
 
     originalRequest._retry = true;
     isRefreshing = true;
 
     try {
-      // Direct refresh request using raw un-intercepted axios
-      const refreshResponse = await axios.post(
+      // Direct refresh request using raw un-intercepted axios (HTTP-only cookie rotation)
+      await axios.post(
         `${API_BASE_URL}/auth/refresh`,
         {},
         { withCredentials: true }
       );
 
-      const newToken =
-        refreshResponse.data?.token ||
-        refreshResponse.data?.data?.token ||
-        refreshResponse.data?.data?.accessToken ||
-        refreshResponse.data?.accessToken;
-
-      if (newToken) {
-        localStorage.setItem("token", newToken);
-        api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        processQueue(null, newToken);
-        return api(originalRequest);
-      } else {
-        processQueue(null, null);
-        return api(originalRequest);
-      }
+      processQueue(null);
+      return api(originalRequest);
     } catch (refreshError) {
-      processQueue(refreshError, null);
-
-      localStorage.removeItem("token");
+      processQueue(refreshError);
       localStorage.removeItem("user");
 
       if (window.location.pathname !== "/login") {
