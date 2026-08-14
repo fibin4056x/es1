@@ -13,7 +13,8 @@ const getDocumentUrl = (url) => {
   if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("blob:")) {
     return url;
   }
-  const backendBase = "http://localhost:5000";
+  const apiBase = import.meta.env.VITE_API_URL || "https://slms-txsf.onrender.com/api";
+  const backendBase = apiBase.replace(/\/api\/?$/, "");
   return `${backendBase}${url.startsWith("/") ? "" : "/"}${url}`;
 };
 

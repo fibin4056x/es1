@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://slms-txsf.onrender.com/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true, // HTTP-only cookies are automatically sent with all requests
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -16,7 +16,16 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    // Credentials (HTTP-only cookies) are automatically sent via withCredentials: true
+    const token = localStorage.getItem("accessToken");
+    if (
+      typeof token === "string" &&
+      token.trim().length > 0 &&
+      token !== "undefined" &&
+      token !== "null"
+    ) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)
@@ -92,6 +101,7 @@ api.interceptors.response.use(
       originalRequest?.url?.includes("/auth/login") ||
       originalRequest?.url?.includes("/auth/logout") ||
       originalRequest?.url?.includes("/auth/refresh") ||
+      originalRequest?.url?.includes("/auth/me") ||
       originalRequest?.url?.includes("/auth/teacher/verify-otp") ||
       originalRequest?.url?.includes("/auth/forgot-password");
 
@@ -121,27 +131,59 @@ api.interceptors.response.use(
     }
 
     /* ========================================================
-       START TOKEN REFRESH (HTTP-ONLY COOKIE ROTATION)
+       START TOKEN REFRESH
     ======================================================== */
 
     originalRequest._retry = true;
     isRefreshing = true;
 
+    const storedRefreshToken = localStorage.getItem("refreshToken");
+
+    if (
+      typeof storedRefreshToken !== "string" ||
+      storedRefreshToken.trim().length === 0 ||
+      storedRefreshToken === "undefined" ||
+      storedRefreshToken === "null"
+    ) {
+      isRefreshing = false;
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+      return Promise.reject(error);
+    }
+
     try {
-      // Direct refresh request using raw un-intercepted axios (HTTP-only cookie rotation)
-      await axios.post(
+      const refreshResponse = await axios.post(
         `${API_BASE_URL}/auth/refresh`,
-        {},
+        { refreshToken: storedRefreshToken },
         { withCredentials: true }
       );
 
-      processQueue(null);
-      return api(originalRequest);
+      const resData = refreshResponse.data?.data || refreshResponse.data;
+      const newAccessToken = resData?.accessToken || resData?.token;
+      const newRefreshToken = resData?.refreshToken;
+
+      if (newAccessToken && typeof newAccessToken === "string") {
+        localStorage.setItem("accessToken", newAccessToken);
+        if (newRefreshToken && typeof newRefreshToken === "string") {
+          localStorage.setItem("refreshToken", newRefreshToken);
+        }
+
+        originalRequest.headers = originalRequest.headers || {};
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+        processQueue(null);
+        return api(originalRequest);
+      } else {
+        throw new Error("No token returned from refresh");
+      }
     } catch (refreshError) {
       processQueue(refreshError);
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
 
-      if (window.location.pathname !== "/login") {
+      if (typeof window !== "undefined" && window.location.pathname !== "/login") {
         window.location.href = "/login";
       }
 

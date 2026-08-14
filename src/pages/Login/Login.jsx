@@ -53,6 +53,33 @@ export default function Login() {
     };
   }, []);
 
+  const extractAuthPayload = (res) => {
+    if (!res) return { userObj: null, accessToken: null, refreshToken: null };
+    const resData = res?.data || res;
+    const userObj =
+      resData?.user ||
+      res?.user ||
+      resData?.data?.user ||
+      (resData && typeof resData === "object" && (resData.role || resData._id || resData.id || resData.email) ? resData : null);
+
+    const accessToken =
+      (typeof resData?.accessToken === "string" && resData.accessToken) ||
+      (typeof resData?.token === "string" && resData.token) ||
+      (typeof res?.accessToken === "string" && res.accessToken) ||
+      (typeof res?.token === "string" && res.token) ||
+      (typeof resData?.data?.accessToken === "string" && resData.data.accessToken) ||
+      (typeof resData?.data?.token === "string" && resData.data.token) ||
+      null;
+
+    const refreshToken =
+      (typeof resData?.refreshToken === "string" && resData.refreshToken) ||
+      (typeof res?.refreshToken === "string" && res.refreshToken) ||
+      (typeof resData?.data?.refreshToken === "string" && resData.data.refreshToken) ||
+      null;
+
+    return { userObj, accessToken, refreshToken, requiresVerification: Boolean(resData?.requiresVerification || res?.requiresVerification) };
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isLoading) return;
@@ -60,24 +87,23 @@ export default function Login() {
     setIsLoading(true);
     try {
       const res = await loginUser(email, password);
-
-      const resData = res?.data || res;
-      const userObj = resData?.user || res?.user || resData;
+      const { userObj, accessToken, refreshToken, requiresVerification } = extractAuthPayload(res);
 
       // Check if backend requires first-time teacher verification
-      if (resData?.requiresVerification || res?.requiresVerification) {
+      if (requiresVerification) {
         setIsLoading(false);
         setAuthView("otp");
         toast.info("Verification required for first-time teacher login. OTP sent to your email.");
         return;
       }
 
-      if (userObj && (userObj.role || userObj._id || userObj.email)) {
+      if (userObj && (userObj.role || userObj._id || userObj.id || userObj.email)) {
         setIsSuccess(true);
+        // Persist token and auth context immediately to avoid navigation timing bugs
+        login(userObj, accessToken, refreshToken);
         setTimeout(() => {
-          login(userObj);
           navigate("/dashboard");
-        }, 800);
+        }, 600);
       } else {
         setIsLoading(false);
         toast.error("Login failed. Invalid account details returned from server.");
@@ -114,12 +140,11 @@ export default function Login() {
     setIsLoading(true);
     try {
       const response = await completeFirstLogin(setupToken, newPassword, confirmPassword);
-      const resData = response?.data || response;
-      const userObj = resData?.user || response?.user || resData;
+      const { userObj, accessToken, refreshToken } = extractAuthPayload(response);
 
       toast.success("Account activated successfully! Logging you in...");
+      login(userObj, accessToken, refreshToken);
       setTimeout(() => {
-        login(userObj);
         navigate("/dashboard");
       }, 600);
     } catch (error) {
@@ -498,3 +523,4 @@ export default function Login() {
     </div>
   );
 }
+

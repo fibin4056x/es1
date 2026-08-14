@@ -113,7 +113,7 @@ export const changePassword = async (currentPassword, newPassword, confirmPasswo
  * 10. Update Profile
  */
 export const updateProfile = async (profileData) => {
-  const response = await api.put("/auth/profile", profileData);
+  const response = await api.patch("/auth/profile", profileData);
   return response.data;
 };
 
