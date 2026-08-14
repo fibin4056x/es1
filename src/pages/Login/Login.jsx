@@ -82,7 +82,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isLoading) return;
+    if (isLoading || isSuccess) return;
 
     setIsLoading(true);
     try {
@@ -99,6 +99,7 @@ export default function Login() {
 
       if (userObj && (userObj.role || userObj._id || userObj.id || userObj.email)) {
         setIsSuccess(true);
+        setIsLoading(false);
         // Persist token and auth context immediately to avoid navigation timing bugs
         login(userObj, accessToken, refreshToken);
         setTimeout(() => {
@@ -474,15 +475,15 @@ export default function Login() {
                   className={`submit-auth-btn btn-press ${isSuccess ? "success-state" : ""}`}
                   disabled={isLoading || isSuccess}
                 >
-                  {isLoading ? (
-                    <span className="btn-spinner-wrapper">
-                      <span className="login-loading-spinner"></span>
-                      <span>Authenticating...</span>
-                    </span>
-                  ) : isSuccess ? (
+                  {isSuccess ? (
                     <span className="btn-success-wrapper">
                       <span className="material-symbols-outlined">check_circle</span>
                       <span>Success! Redirecting...</span>
+                    </span>
+                  ) : isLoading ? (
+                    <span className="btn-spinner-wrapper">
+                      <span className="login-loading-spinner"></span>
+                      <span>Authenticating...</span>
                     </span>
                   ) : (
                     <span>Sign In to Portal</span>

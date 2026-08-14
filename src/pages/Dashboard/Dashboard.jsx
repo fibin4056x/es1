@@ -58,7 +58,7 @@ function Dashboard() {
 
       if (res.data) {
         setStats(res.data);
-      } else if (res.error) {
+      } else if (res.error && (isPrincipal || res.error?.response?.status !== 403)) {
         setError(getApiErrorMessage(res.error, "Failed to load dashboard statistics from server."));
       }
 
