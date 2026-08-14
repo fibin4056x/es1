@@ -16,9 +16,17 @@ export const downloadImportTemplate = async (format = "csv") => {
 /**
  * Bulk import students via file upload (.csv, .xlsx, .xls)
  */
-export const importStudents = async (file) => {
+export const importStudents = async (file, defaultClassId = "", defaultDivisionId = "") => {
   const formData = new FormData();
   formData.append("file", file);
+  if (defaultClassId) {
+    formData.append("classId", defaultClassId);
+    formData.append("defaultClassId", defaultClassId);
+  }
+  if (defaultDivisionId) {
+    formData.append("divisionId", defaultDivisionId);
+    formData.append("defaultDivisionId", defaultDivisionId);
+  }
 
   const response = await api.post("/import/students", formData, {
     headers: {

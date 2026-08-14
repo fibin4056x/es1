@@ -1,7 +1,9 @@
 /* eslint-disable */
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import { downloadImportTemplate, importStudents } from "../../services/importService";
+import { getClassList } from "../../services/ClassService";
+import { getDivisionList } from "../../services/DivisionService";
 
 function ImportModal({ open, onClose, reload }) {
   const [file, setFile] = useState(null);
@@ -9,9 +11,38 @@ function ImportModal({ open, onClose, reload }) {
   const [downloadingTemplate, setDownloadingTemplate] = useState(false);
   const [importSummary, setImportSummary] = useState(null);
 
+  const [classes, setClasses] = useState([]);
+  const [divisions, setDivisions] = useState([]);
+  const [defaultClassId, setDefaultClassId] = useState("");
+  const [defaultDivisionId, setDefaultDivisionId] = useState("");
+
   const fileInputRef = useRef(null);
 
+  useEffect(() => {
+    if (!open) return;
+
+    const loadOptions = async () => {
+      try {
+        const [clsRes, divRes] = await Promise.all([
+          getClassList().catch(() => ({ data: [] })),
+          getDivisionList().catch(() => ({ data: [] })),
+        ]);
+        const clsList = Array.isArray(clsRes.data) ? clsRes.data : Array.isArray(clsRes) ? clsRes : [];
+        const divList = Array.isArray(divRes.data) ? divRes.data : Array.isArray(divRes) ? divRes : [];
+        setClasses(clsList);
+        setDivisions(divList);
+      } catch (err) {
+        console.error("Failed to load class/division options:", err);
+      }
+    };
+    loadOptions();
+  }, [open]);
+
   if (!open) return null;
+
+  const filteredDivisions = defaultClassId
+    ? divisions.filter((d) => d.classId === defaultClassId || d.classId?._id === defaultClassId)
+    : divisions;
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -40,7 +71,7 @@ function ImportModal({ open, onClose, reload }) {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!file) {
       toast.warning("Please select a file to import.");
       return;
@@ -50,7 +81,7 @@ function ImportModal({ open, onClose, reload }) {
     setImportSummary(null);
 
     try {
-      const res = await importStudents(file);
+      const res = await importStudents(file, defaultClassId, defaultDivisionId);
       const summaryData = res.data || res;
       setImportSummary(summaryData);
       toast.success("Student import completed successfully!");
@@ -70,10 +101,33 @@ function ImportModal({ open, onClose, reload }) {
   const handleClose = () => {
     setFile(null);
     setImportSummary(null);
+    setDefaultClassId("");
+    setDefaultDivisionId("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
     onClose();
+  };
+
+  const formatRowError = (err) => {
+    const rowNum = err.row ? `Row ${err.row}` : "Row";
+    const adm = err.admissionNumber ? ` (Adm: ${err.admissionNumber})` : "";
+    let reason = err.reason || err.message || "Invalid data";
+
+    if (reason.includes("Valid Division") || reason.includes("required field(s): Valid Division") || reason.includes("Division is required")) {
+      return `${rowNum}${adm}: Division is missing. Select a Default Division above or provide a Division in the spreadsheet.`;
+    }
+    if (reason.includes("Valid Class") || reason.includes("required field(s): Valid Class") || reason.includes("Class is required")) {
+      return `${rowNum}${adm}: Class is missing. Select a Default Class above or provide a Class in the spreadsheet.`;
+    }
+    if (reason.includes("nameEnglish") || reason.includes("Student Name") || reason.includes("Name is required")) {
+      return `${rowNum}${adm}: Student Name is required.`;
+    }
+    if (reason.includes("E11000") || reason.includes("already exists") || reason.includes("duplicate key")) {
+      return `${rowNum}${adm}: Admission Number already exists.`;
+    }
+
+    return `${rowNum}${adm}: ${reason}`;
   };
 
   return (
@@ -98,19 +152,21 @@ function ImportModal({ open, onClose, reload }) {
         className="glass-card"
         style={{
           width: "100%",
-          maxWidth: "500px",
+          maxWidth: "540px",
           background: "var(--surface, #18181b)",
           border: "1px solid var(--border-main, rgba(255, 255, 255, 0.12))",
           borderRadius: "16px",
           padding: "24px",
           boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
+          maxHeight: "90vh",
+          overflowY: "auto",
         }}
       >
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <div>
             <h3 style={{ margin: 0, fontSize: "20px", fontWeight: 700, color: "var(--text-main, #f8fafc)" }}>
-              Import Students
+              Smart Bulk Student Import
             </h3>
             <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "var(--text-muted, #94a3b8)" }}>
               Upload CSV or Excel files to bulk add students.
@@ -129,6 +185,82 @@ function ImportModal({ open, onClose, reload }) {
           >
             <span className="material-symbols-outlined">close</span>
           </button>
+        </div>
+
+        {/* Default Assignment Section */}
+        <div
+          style={{
+            background: "rgba(99, 102, 241, 0.06)",
+            border: "1px solid rgba(99, 102, 241, 0.2)",
+            borderRadius: "12px",
+            padding: "16px",
+            marginBottom: "20px",
+          }}
+        >
+          <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-main, #f8fafc)", marginBottom: "4px", display: "flex", alignItems: "center", gap: "6px" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "#818cf8" }}>tune</span>
+            Default Assignment
+          </div>
+          <p style={{ margin: "0 0 12px 0", fontSize: "12px", color: "var(--text-muted, #94a3b8)" }}>
+            These values will be applied to all students unless a row contains its own Class/Division.
+          </p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "var(--text-secondary, #cbd5e1)", marginBottom: "4px" }}>
+                Default Class
+              </label>
+              <select
+                value={defaultClassId}
+                onChange={(e) => {
+                  setDefaultClassId(e.target.value);
+                  setDefaultDivisionId("");
+                }}
+                style={{
+                  width: "100%",
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  background: "var(--surface-light, #27272a)",
+                  border: "1px solid var(--border-main, rgba(255,255,255,0.15))",
+                  color: "var(--text-main, #ffffff)",
+                  fontSize: "13px",
+                }}
+              >
+                <option value="">-- Select Class --</option>
+                {classes.map((cls) => (
+                  <option key={cls._id} value={cls._id}>
+                    {cls.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "var(--text-secondary, #cbd5e1)", marginBottom: "4px" }}>
+                Default Division
+              </label>
+              <select
+                value={defaultDivisionId}
+                onChange={(e) => setDefaultDivisionId(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  background: "var(--surface-light, #27272a)",
+                  border: "1px solid var(--border-main, rgba(255,255,255,0.15))",
+                  color: "var(--text-main, #ffffff)",
+                  fontSize: "13px",
+                }}
+              >
+                <option value="">-- Select Division --</option>
+                {filteredDivisions.map((div) => (
+                  <option key={div._id} value={div._id}>
+                    {div.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* Template Download Section */}
@@ -237,7 +369,7 @@ function ImportModal({ open, onClose, reload }) {
               {importSummary.errors && importSummary.errors.length > 0 && (
                 <div style={{ marginTop: "12px", borderTop: "1px solid rgba(239, 68, 68, 0.2)", paddingTop: "8px" }}>
                   <div style={{ fontWeight: 700, marginBottom: "6px", color: "#f87171", fontSize: "12px" }}>
-                    Failure Reasons:
+                    Failure Reasons ({importSummary.errors.length}):
                   </div>
                   <div style={{ maxHeight: "140px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "6px" }}>
                     {importSummary.errors.map((err, idx) => (
@@ -245,13 +377,14 @@ function ImportModal({ open, onClose, reload }) {
                         key={idx}
                         style={{
                           background: "rgba(0, 0, 0, 0.3)",
-                          padding: "6px 10px",
+                          padding: "8px 12px",
                           borderRadius: "6px",
                           fontSize: "12px",
                           color: "#fca5a5",
+                          borderLeft: "3px solid #ef4444",
                         }}
                       >
-                        <strong>Row {err.row}</strong> (Adm: {err.admissionNumber}): {err.reason}
+                        {formatRowError(err)}
                       </div>
                     ))}
                   </div>
