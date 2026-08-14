@@ -1,5 +1,5 @@
 import TeacherRow from "./TeacherRow";
-import "./Teachertable.css"
+import "./TeacherTable.css"
 function TeacherSkeletonRow() {
   return (
     <tr className="skeleton-row">
