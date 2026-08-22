@@ -26,11 +26,22 @@ export default function Login() {
   const navigate = useNavigate();
 
   const {
+    user,
     login,
     startOtpVerification,
     clearOtpVerification,
     pendingOtpEmail,
   } = useAuth();
+
+  /* ============================================================
+     AUTO-REDIRECT IF ALREADY LOGGED IN
+  ============================================================ */
+
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
 
   /* ============================================================
      AUTH STATE

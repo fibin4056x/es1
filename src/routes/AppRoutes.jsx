@@ -5,6 +5,7 @@ import Loader from "../components/common/Loader/Loader";
 import DashboardLayout from "../layouts/DashboardLayout";
 import AuthLayout from "../layouts/AuthLayout";
 import PrivateRoute from "./PrivateRoute";
+import PublicRoutes from "./PublicRoutes";
 
 const Login = lazy(() => import("../pages/Login/Login"));
 const Dashboard = lazy(() => import("../pages/Dashboard/Dashboard"));
@@ -30,9 +31,11 @@ function AppRoutes() {
     <Suspense fallback={<PageLoader />}>
       <Routes>
         {/* Authentication */}
-        <Route element={<AuthLayout />}>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<Login />} />
+        <Route element={<PublicRoutes />}>
+          <Route element={<AuthLayout />}>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/login" element={<Login />} />
+          </Route>
         </Route>
 
         {/* Protected Layout */}
