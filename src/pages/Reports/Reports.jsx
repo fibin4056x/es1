@@ -41,10 +41,10 @@ function Reports() {
       let res = null;
       try {
         res = await getReports(params);
-      } catch (e) {
+      } catch {
         try {
           res = await getInboxReports(params);
-        } catch (e2) {
+        } catch {
           res = await getSentReports(params).catch(() => ({ data: [] }));
         }
       }

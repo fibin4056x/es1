@@ -61,6 +61,7 @@ function AttendanceDocumentModal({
   const [uploading, setUploading] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [replacingDocId, setReplacingDocId] = useState(null);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
   
   const fileInputRef = useRef(null);
   const replaceInputRef = useRef(null);
@@ -140,8 +141,6 @@ function AttendanceDocumentModal({
   /* =========================================
      DELETE DOCUMENT
   ========================================= */
-
-  const [deleteTargetId, setDeleteTargetId] = useState(null);
 
   const handleDelete = (docId) => {
     setDeleteTargetId(docId);

@@ -1,550 +1,1202 @@
 import "./Login.css";
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
 import {
   loginUser,
   verifyTeacherOtp,
+  resendOtp,
   completeFirstLogin,
 } from "../../services/authService";
+
 import { useAuth } from "../../hooks/UseAuth";
 import { toast } from "react-toastify";
 
 import useMouseParallax from "./useMouseParallax";
 import ThemeToggle from "../../components/common/ThemeToggle/ThemeToggle";
+
 import OtpScreen from "./OtpScreen";
 import PasswordSetupScreen from "./PasswordSetupScreen";
 import ForgotPasswordModal from "./ForgotPasswordModal";
-import api, { getApiErrorMessage } from "../../services/api";
+
+import { getApiErrorMessage } from "../../services/api";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, startOtpVerification, clearOtpVerification, pendingOtpEmail } = useAuth();
 
-  const [authView, setAuthView] = useState(() => (pendingOtpEmail ? "otp" : "login")); // "login" | "otp" | "password_setup"
-  const [email, setEmail] = useState(() => pendingOtpEmail || "");
+  const {
+    login,
+    startOtpVerification,
+    clearOtpVerification,
+    pendingOtpEmail,
+  } = useAuth();
+
+  /* ============================================================
+     AUTH STATE
+  ============================================================ */
+
+  const [authView, setAuthView] = useState(
+    () => (pendingOtpEmail ? "otp" : "login")
+  );
+
+  const [email, setEmail] = useState(
+    () => pendingOtpEmail || ""
+  );
+
   const [password, setPassword] = useState("");
-  const [setupToken, setSetupToken] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
 
-  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
-  const [previewStats, setPreviewStats] = useState(null);
+  const [showPassword, setShowPassword] =
+    useState(false);
 
-  // Custom hook for mouse movement parallax effect on left panel
+  const [isLoading, setIsLoading] =
+    useState(false);
+
+  const [isSuccess, setIsSuccess] =
+    useState(false);
+
+  const [forgotPasswordOpen, setForgotPasswordOpen] =
+    useState(false);
+
+  const [previewStats] =
+    useState(null);
+
+  /* ============================================================
+     PARALLAX
+  ============================================================ */
+
   const parallax = useMouseParallax(20);
 
+  /* ============================================================
+     RESTORE OTP STATE
+  ============================================================ */
+
   useEffect(() => {
-    if (pendingOtpEmail && !email) {
+    if (pendingOtpEmail) {
       setEmail(pendingOtpEmail);
       setAuthView("otp");
     }
-  }, [pendingOtpEmail, email]);
+  }, [pendingOtpEmail]);
 
-  const extractAuthPayload = (res) => {
-    if (!res) return { userObj: null, accessToken: null, refreshToken: null, requiresVerification: false };
-    const resData = res?.data || res;
-    const userObj =
-      resData?.user ||
-      res?.user ||
-      resData?.data?.user ||
-      (resData && typeof resData === "object" && (resData.role || resData._id || resData.id || resData.email) ? resData : null);
+  /* ============================================================
+     LOGIN
+     
+     Backend flow:
+     
+     email + password
+          ↓
+     backend sends OTP
+          ↓
+     frontend opens OTP screen
+  ============================================================ */
 
-    const accessToken =
-      (typeof resData?.accessToken === "string" && resData.accessToken) ||
-      (typeof resData?.token === "string" && resData.token) ||
-      (typeof res?.accessToken === "string" && res.accessToken) ||
-      (typeof res?.token === "string" && res.token) ||
-      (typeof resData?.data?.accessToken === "string" && resData.data.accessToken) ||
-      (typeof resData?.data?.token === "string" && resData.data.token) ||
-      null;
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-    const refreshToken =
-      (typeof resData?.refreshToken === "string" && resData.refreshToken) ||
-      (typeof res?.refreshToken === "string" && res.refreshToken) ||
-      (typeof resData?.data?.refreshToken === "string" && resData.data.refreshToken) ||
-      null;
-
-    const requiresVerification = Boolean(
-      resData?.requiresVerification ||
-      res?.requiresVerification ||
-      resData?.requiresOtp ||
-      res?.requiresOtp ||
-      resData?.otpRequired ||
-      res?.otpRequired
-    );
-
-    return { userObj, accessToken, refreshToken, requiresVerification };
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (isLoading || isSuccess) return;
-
-    setIsLoading(true);
-    try {
-      const res = await loginUser(email, password);
-      const { userObj, accessToken, refreshToken, requiresVerification } = extractAuthPayload(res);
-
-      // Enforce OTP Verification step when required by backend or OTP credentials rule
-      if (requiresVerification) {
-        setIsLoading(false);
-        startOtpVerification(email);
-        setAuthView("otp");
-        toast.info("Verification code sent to your registered email. Enter code to continue.");
-        return;
-      }
-
-      if (userObj && (userObj.role || userObj._id || userObj.id || userObj.email)) {
-        setIsSuccess(true);
-        setIsLoading(false);
-        // Persist token and auth context immediately to avoid navigation timing bugs
-        login(userObj, accessToken, refreshToken);
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 600);
-      } else {
-        // If login response returns initial state requiring OTP verification
-        startOtpVerification(email);
-        setIsLoading(false);
-        setAuthView("otp");
-        toast.info("Enter the verification code sent to your email to access your account.");
-      }
-    } catch (error) {
-      setIsLoading(false);
-      const userMsg = getApiErrorMessage(error, "Login failed. Please verify your email and password.");
-      toast.error(userMsg);
+    if (isLoading || isSuccess) {
+      return;
     }
-  };
 
-  const handleVerifyTeacherOtp = async (otpCode) => {
+    const cleanEmail = email.trim();
+
+    if (!cleanEmail) {
+      toast.error("Please enter your email address.");
+      return;
+    }
+
+    if (!password) {
+      toast.error("Please enter your password.");
+      return;
+    }
+
     setIsLoading(true);
-    try {
-      const response = await verifyTeacherOtp(email, otpCode);
-      const { userObj, accessToken, refreshToken } = extractAuthPayload(response);
-      const resData = response?.data || response;
-      const setupTokenVal = resData?.setupToken || response?.setupToken;
 
-      if (setupTokenVal) {
-        setSetupToken(setupTokenVal);
-        setAuthView("password_setup");
-        toast.success("OTP verified. Please set your permanent account password.");
-      } else if (userObj || accessToken) {
-        toast.success("Verification successful! Access granted.");
-        login(userObj, accessToken, refreshToken);
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 600);
-      } else {
-        toast.error("Verification failed. Invalid response from server.");
-      }
+    try {
+      await loginUser(
+        cleanEmail,
+        password
+      );
+
+      /*
+       * IMPORTANT:
+       *
+       * The backend intentionally does NOT return
+       * authentication tokens here.
+       *
+       * It sends the OTP instead.
+       */
+
+      startOtpVerification(cleanEmail);
+
+      setAuthView("otp");
+
+      toast.success(
+        "Verification code sent to your registered email."
+      );
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Invalid or expired OTP verification code."));
+      toast.error(
+        getApiErrorMessage(
+          error,
+          "Login failed. Please check your email and password."
+        )
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
+  /* ============================================================
+     VERIFY LOGIN / TEACHER OTP
+     
+     IMPORTANT:
+     
+     Backend stores:
+     
+     Normal login:
+       accessToken → HttpOnly cookie
+       refreshToken → HttpOnly cookie
+     
+     Teacher first login:
+       setupToken → HttpOnly cookie
+     
+     Therefore frontend NEVER reads those tokens.
+  ============================================================ */
+
+const handleVerifyTeacherOtp = async (otpCode) => {
+  if (isLoading) return;
+
+  const cleanEmail = email.trim();
+
+  if (!cleanEmail) {
+    toast.error("Email session is missing. Please start again.");
+    return;
+  }
+
+  if (!otpCode || String(otpCode).trim().length !== 6) {
+    toast.error("Please enter the 6-digit verification code.");
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const response = await verifyTeacherOtp(
+      cleanEmail,
+      String(otpCode).trim()
+    );
+
+    /*
+     * IMPORTANT
+     *
+     * Axios:
+     *
+     * response
+     *   └── response.data       <- ApiResponse
+     *         └── data          <- actual backend payload
+     *
+     * Therefore we need response.data.data.
+     */
+    const payload =
+      response?.data?.data ||
+      response?.data ||
+      response ||
+      {};
+
+    /*
+     * Teacher first login:
+     *
+     * Backend returns:
+     *
+     * {
+     *   requiresPasswordSetup: true,
+     *   setupToken: "...",
+     *   user: {...}
+     * }
+     *
+     * setupToken is stored as an HttpOnly cookie.
+     */
+    const requiresPasswordSetup = Boolean(
+      payload?.requiresPasswordSetup ||
+      payload?.firstLogin ||
+      payload?.isFirstLogin ||
+      payload?.setupRequired
+    );
+
+    if (requiresPasswordSetup) {
+      /*
+       * DO NOT:
+       *
+       * - call login()
+       * - call /auth/me
+       * - navigate to dashboard
+       *
+       * User must create permanent password first.
+       */
+      setAuthView("password_setup");
+
+      toast.success(
+        "Email verified. Please create your permanent password."
+      );
+
+      return;
+    }
+
+    /*
+     * Normal login OTP
+     *
+     * At this point backend should have created:
+     *
+     * accessToken cookie
+     * refreshToken cookie
+     *
+     * Now we can fetch the authenticated user.
+     */
+    await login(payload);
+
+    clearOtpVerification();
+
+    setIsSuccess(true);
+
+    toast.success("Login successful.");
+
+    setTimeout(() => {
+      navigate("/dashboard", {
+        replace: true,
+      });
+    }, 500);
+  } catch (error) {
+    toast.error(
+      getApiErrorMessage(
+        error,
+        "Invalid or expired verification code."
+      )
+    );
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  /* ============================================================
+     RESEND OTP
+  ============================================================ */
+
   const handleResendOtp = async () => {
+    if (isLoading) {
+      return;
+    }
+
+    const cleanEmail = email.trim();
+
+    if (!cleanEmail) {
+      toast.error(
+        "Email session is missing. Please start again."
+      );
+      return;
+    }
+
     try {
-      await resendOtp(email);
-      toast.success("A new verification code has been sent to your email.");
+      await resendOtp(cleanEmail);
+
+      toast.success(
+        "A new verification code has been sent."
+      );
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Failed to resend verification code."));
+      toast.error(
+        getApiErrorMessage(
+          error,
+          "Failed to resend verification code."
+        )
+      );
+
       throw error;
     }
   };
 
-  const handleCompleteFirstLogin = async (newPassword, confirmPassword) => {
-    setIsLoading(true);
-    try {
-      const response = await completeFirstLogin(setupToken, newPassword, confirmPassword);
-      const { userObj, accessToken, refreshToken } = extractAuthPayload(response);
+  /* ============================================================
+     COMPLETE TEACHER FIRST LOGIN
+     
+     IMPORTANT:
+     
+     DO NOT SEND setupToken.
+     
+     Backend reads:
+       req.cookies.setupToken
+  ============================================================ */
 
-      toast.success("Account activated successfully! Logging you in...");
-      login(userObj, accessToken, refreshToken);
+  const handleCompleteFirstLogin = async (
+    newPassword,
+    confirmPassword
+  ) => {
+    if (isLoading) {
+      return;
+    }
+
+    if (!newPassword || !confirmPassword) {
+      toast.error(
+        "Please enter and confirm your new password."
+      );
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error(
+        "Passwords do not match."
+      );
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      /*
+       * setupToken is automatically sent through the
+       * HttpOnly cookie because api.js uses withCredentials.
+       */
+
+      await completeFirstLogin(
+        newPassword,
+        confirmPassword
+      );
+
+      /*
+       * Backend has now created the authentication cookies.
+       *
+       * AuthContext fetches the user using /auth/me.
+       */
+
+      await login(null);
+
+      clearOtpVerification();
+
+      setIsSuccess(true);
+
+      toast.success(
+        "Account setup completed successfully."
+      );
+
       setTimeout(() => {
-        navigate("/dashboard");
-      }, 600);
+        navigate("/dashboard", {
+          replace: true,
+        });
+      }, 500);
     } catch (error) {
+      toast.error(
+        getApiErrorMessage(
+          error,
+          "Failed to complete account setup."
+        )
+      );
+    } finally {
       setIsLoading(false);
-      toast.error(getApiErrorMessage(error, "Failed to complete account setup."));
     }
   };
 
-  // Fallback defaults in case backend preview stats are loading or unavailable
+  /* ============================================================
+     PREVIEW DATA
+  ============================================================ */
+
   const defaultStats = {
     studentsCount: 1248,
+
     teachersCount: 84,
+
     classesCount: 24,
+
     attendance: {
       percentage: 94.2,
       present: 1175,
       total: 1248,
     },
+
     studentsList: [
-      { name: "Alex Johnson", grade: "Grade 10-A" },
-      { name: "Sophia Williams", grade: "Grade 12-C" },
-      { name: "Ryan Garcia", grade: "Grade 9-B" },
+      {
+        name: "Alex Johnson",
+        grade: "Grade 10-A",
+      },
+      {
+        name: "Sophia Williams",
+        grade: "Grade 12-C",
+      },
+      {
+        name: "Ryan Garcia",
+        grade: "Grade 9-B",
+      },
     ],
+
     classesSchedule: [
-      { time: "09:30 AM", subject: "Advanced Mathematics", teacher: "Dr. Ethan Hunt • Room A4" },
-      { time: "10:15 AM", subject: "Physics Lab Experiments", teacher: "Prof. Sarah Connor • Lab B" },
+      {
+        time: "09:30 AM",
+        subject: "Advanced Mathematics",
+        teacher:
+          "Dr. Ethan Hunt • Room A4",
+      },
+      {
+        time: "10:15 AM",
+        subject: "Physics Lab Experiments",
+        teacher:
+          "Prof. Sarah Connor • Lab B",
+      },
     ],
+
     activityLogs: [
-      { type: "blue", text: "Report cards generated for <strong>Grade 10B</strong>", time: "2 mins ago" },
-      { type: "green", text: "Leave application filed by <strong>Anna's Parents</strong>", time: "10 mins ago" },
+      {
+        type: "blue",
+        text:
+          "Report cards generated for <strong>Grade 10B</strong>",
+        time: "2 mins ago",
+      },
+      {
+        type: "green",
+        text:
+          "Leave application filed by <strong>Anna's Parents</strong>",
+        time: "10 mins ago",
+      },
     ],
   };
 
-  const stats = previewStats || defaultStats;
-  const studentsCount = Number(stats?.studentsCount ?? defaultStats.studentsCount);
-  const teachersCount = Number(stats?.teachersCount ?? defaultStats.teachersCount);
-  const attendancePresent = Number(stats?.attendance?.present ?? defaultStats.attendance.present);
-  const attendanceTotal = Number(stats?.attendance?.total ?? defaultStats.attendance.total);
-  const attendanceRate = Number(stats?.attendance?.percentage ?? defaultStats.attendance.percentage);
-  const studentsList = Array.isArray(stats?.studentsList) ? stats.studentsList : defaultStats.studentsList;
-  const classesSchedule = Array.isArray(stats?.classesSchedule) ? stats.classesSchedule : defaultStats.classesSchedule;
-  const activityLogs = Array.isArray(stats?.activityLogs) ? stats.activityLogs : defaultStats.activityLogs;
+  const stats =
+    previewStats || defaultStats;
 
-  const strokeDashoffset = 201 - (201 * attendanceRate) / 100;
+  const studentsCount = Number(
+    stats?.studentsCount ??
+      defaultStats.studentsCount
+  );
+
+  const teachersCount = Number(
+    stats?.teachersCount ??
+      defaultStats.teachersCount
+  );
+
+  const attendancePresent = Number(
+    stats?.attendance?.present ??
+      defaultStats.attendance.present
+  );
+
+  const attendanceTotal = Number(
+    stats?.attendance?.total ??
+      defaultStats.attendance.total
+  );
+
+  const attendanceRate = Number(
+    stats?.attendance?.percentage ??
+      defaultStats.attendance.percentage
+  );
+
+  const studentsList =
+    Array.isArray(stats?.studentsList)
+      ? stats.studentsList
+      : defaultStats.studentsList;
+
+  const classesSchedule =
+    Array.isArray(stats?.classesSchedule)
+      ? stats.classesSchedule
+      : defaultStats.classesSchedule;
+
+  const activityLogs =
+    Array.isArray(stats?.activityLogs)
+      ? stats.activityLogs
+      : defaultStats.activityLogs;
+
+  const safeAttendanceRate = Math.min(
+    100,
+    Math.max(0, attendanceRate)
+  );
+
+  const strokeDashoffset =
+    201 -
+    (201 * safeAttendanceRate) /
+      100;
+
+  /* ============================================================
+     RENDER
+  ============================================================ */
 
   return (
     <div className="login-page-container">
-      {/* LEFT SIDE: IMMERSIVE ANIMATED WORKSPACE (60%) */}
-      <section className="login-left-panel" aria-hidden="true">
-        {/* Animated Aurora backgrounds */}
-        <div className="aurora-bg"></div>
-        <div className="light-rays"></div>
 
-        {/* Soft Glowing Particles */}
+      {/* ========================================================
+          LEFT PANEL
+      ======================================================== */}
+
+      <section
+        className="login-left-panel"
+        aria-hidden="true"
+      >
+        <div className="aurora-bg" />
+
+        <div className="light-rays" />
+
         <div className="particles-container">
-          <div className="particle particle-1"></div>
-          <div className="particle particle-2"></div>
-          <div className="particle particle-3"></div>
-          <div className="particle particle-4"></div>
+          <div className="particle particle-1" />
+          <div className="particle particle-2" />
+          <div className="particle particle-3" />
+          <div className="particle particle-4" />
         </div>
 
-        {/* Floating Abstract Glass Shapes */}
         <div className="floating-shapes">
-          <div className="abstract-shape shape-1"></div>
-          <div className="abstract-shape shape-2"></div>
+          <div className="abstract-shape shape-1" />
+          <div className="abstract-shape shape-2" />
         </div>
 
-        {/* Layered Interactive Glass Dashboard Widgets */}
-        <div 
-          className="widgets-container" 
+        <div
+          className="widgets-container"
           style={{
-            "--parallax-x": parallax.x,
-            "--parallax-y": parallax.y,
+            "--parallax-x": `${parallax.x}px`,
+            "--parallax-y": `${parallax.y}px`,
           }}
         >
-          {/* 1. Student Management Card */}
-          <div className="glass-widget widget-students">
-            <header className="widget-header">
-              <div className="widget-icon-box">
-                <span className="material-symbols-outlined">group</span>
-              </div>
-              <div>
-                <h3 className="widget-title">Student Intake</h3>
-                <p className="widget-subtitle">Academic Year 2026</p>
-              </div>
-            </header>
-            <div className="student-stat-row">
-              <span className="student-stat-num">{studentsCount.toLocaleString()}</span>
-              <span className="student-stat-trend">
-                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>trending_up</span>
-                +4.8%
-              </span>
-            </div>
-            <div className="student-list">
-              {studentsList.slice(0, 3).map((student, i) => (
-                <div className="student-item" key={i}>
-                  <span className="student-name">{student.name}</span>
-                  <span className="student-class">{student.grade}</span>
-                </div>
-              ))}
-            </div>
-          </div>
 
-          {/* 2. Attendance Analytics Widget */}
-          <div className="glass-widget widget-attendance">
+          {/* STUDENTS */}
+
+          <div className="glass-widget widget-students">
+
             <header className="widget-header">
+
               <div className="widget-icon-box">
-                <span className="material-symbols-outlined">analytics</span>
-              </div>
-              <div>
-                <h3 className="widget-title">Daily Attendance</h3>
-                <p className="widget-subtitle">All Classes</p>
-              </div>
-            </header>
-            <div className="attendance-ring-container">
-              <div className="attendance-svg-box">
-                <svg width="70" height="70" viewBox="0 0 70 70">
-                  <defs>
-                    <linearGradient id="attendanceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#06B6D4" />
-                      <stop offset="100%" stopColor="#6366F1" />
-                    </linearGradient>
-                  </defs>
-                  <circle className="attendance-svg-ring-bg" cx="35" cy="35" r="32" />
-                  <circle 
-                    className="attendance-svg-ring-fill" 
-                    cx="35" 
-                    cy="35" 
-                    r="32" 
-                    style={{ strokeDashoffset }}
-                  />
-                </svg>
-                <div className="attendance-percentage-text">{Math.round(attendanceRate)}%</div>
-              </div>
-              <div className="attendance-info-box">
-                <span className="attendance-label">Present Today</span>
-                <span className="attendance-value">
-                  {attendancePresent.toLocaleString()} / {attendanceTotal.toLocaleString()}
+                <span className="material-symbols-outlined">
+                  group
                 </span>
               </div>
+
+              <div>
+                <h3 className="widget-title">
+                  Student Intake
+                </h3>
+
+                <p className="widget-subtitle">
+                  Academic Year 2026
+                </p>
+              </div>
+
+            </header>
+
+            <div className="student-stat-row">
+
+              <span className="student-stat-num">
+                {studentsCount.toLocaleString()}
+              </span>
+
+              <span className="student-stat-trend">
+                <span
+                  className="material-symbols-outlined"
+                  style={{
+                    fontSize: "14px",
+                  }}
+                >
+                  trending_up
+                </span>
+
+                +4.8%
+              </span>
+
             </div>
+
+            <div className="student-list">
+
+              {studentsList
+                .slice(0, 3)
+                .map((student, index) => (
+                  <div
+                    className="student-item"
+                    key={`${student.name}-${index}`}
+                  >
+                    <span className="student-name">
+                      {student.name}
+                    </span>
+
+                    <span className="student-class">
+                      {student.grade}
+                    </span>
+                  </div>
+                ))}
+
+            </div>
+
           </div>
 
-          {/* 3. Class Overview / Schedules Widget */}
+          {/* ATTENDANCE */}
+
+          <div className="glass-widget widget-attendance">
+
+            <header className="widget-header">
+
+              <div className="widget-icon-box">
+                <span className="material-symbols-outlined">
+                  analytics
+                </span>
+              </div>
+
+              <div>
+                <h3 className="widget-title">
+                  Daily Attendance
+                </h3>
+
+                <p className="widget-subtitle">
+                  All Classes
+                </p>
+              </div>
+
+            </header>
+
+            <div className="attendance-ring-container">
+
+              <div className="attendance-svg-box">
+
+                <svg
+                  width="70"
+                  height="70"
+                  viewBox="0 0 70 70"
+                >
+
+                  <defs>
+                    <linearGradient
+                      id="attendanceGradient"
+                      x1="0%"
+                      y1="0%"
+                      x2="100%"
+                      y2="100%"
+                    >
+                      <stop
+                        offset="0%"
+                        stopColor="#06B6D4"
+                      />
+
+                      <stop
+                        offset="100%"
+                        stopColor="#6366F1"
+                      />
+                    </linearGradient>
+                  </defs>
+
+                  <circle
+                    className="attendance-svg-ring-bg"
+                    cx="35"
+                    cy="35"
+                    r="32"
+                  />
+
+                  <circle
+                    className="attendance-svg-ring-fill"
+                    cx="35"
+                    cy="35"
+                    r="32"
+                    style={{
+                      strokeDashoffset,
+                    }}
+                  />
+
+                </svg>
+
+                <div className="attendance-percentage-text">
+                  {Math.round(
+                    safeAttendanceRate
+                  )}
+                  %
+                </div>
+
+              </div>
+
+              <div className="attendance-info-box">
+
+                <span className="attendance-label">
+                  Present Today
+                </span>
+
+                <span className="attendance-value">
+                  {attendancePresent.toLocaleString()}{" "}
+                  /{" "}
+                  {attendanceTotal.toLocaleString()}
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* CLASSES */}
+
           <div className="glass-widget widget-classes">
+
             <header className="widget-header">
+
               <div className="widget-icon-box">
-                <span className="material-symbols-outlined">school</span>
+                <span className="material-symbols-outlined">
+                  school
+                </span>
               </div>
+
               <div>
-                <h3 className="widget-title">Ongoing Classes</h3>
-                <p className="widget-subtitle">Period 3 Active Schedule</p>
+                <h3 className="widget-title">
+                  Ongoing Classes
+                </h3>
+
+                <p className="widget-subtitle">
+                  Period 3 Active Schedule
+                </p>
               </div>
+
             </header>
+
             <div className="schedule-grid">
-              {classesSchedule.slice(0, 2).map((schedule, i) => (
-                <div className="schedule-item" key={i}>
-                  <div className="schedule-time-box">{schedule.time}</div>
-                  <div className="schedule-details">
-                    <span className="schedule-subject">{schedule.subject}</span>
-                    <span className="schedule-teacher">{schedule.teacher}</span>
+
+              {classesSchedule
+                .slice(0, 2)
+                .map((schedule, index) => (
+                  <div
+                    className="schedule-item"
+                    key={`${schedule.subject}-${index}`}
+                  >
+
+                    <div className="schedule-time-box">
+                      {schedule.time}
+                    </div>
+
+                    <div className="schedule-details">
+
+                      <span className="schedule-subject">
+                        {schedule.subject}
+                      </span>
+
+                      <span className="schedule-teacher">
+                        {schedule.teacher}
+                      </span>
+
+                    </div>
+
                   </div>
-                </div>
-              ))}
+                ))}
+
             </div>
+
           </div>
 
-          {/* 4. Teacher Statistics Widget */}
+          {/* TEACHERS */}
+
           <div className="glass-widget widget-teachers">
+
             <header className="widget-header">
+
               <div className="widget-icon-box">
-                <span className="material-symbols-outlined">badge</span>
+                <span className="material-symbols-outlined">
+                  badge
+                </span>
               </div>
+
               <div>
-                <h3 className="widget-title">Faculty Roster</h3>
-                <p className="widget-subtitle">Teacher Check-ins</p>
+                <h3 className="widget-title">
+                  Faculty Roster
+                </h3>
+
+                <p className="widget-subtitle">
+                  Teacher Check-ins
+                </p>
               </div>
+
             </header>
+
             <div className="teacher-grid">
+
               <div className="teacher-grid-item">
-                <div className="teacher-grid-num">{teachersCount}</div>
-                <div className="teacher-grid-label">Total</div>
-              </div>
-              <div className="teacher-grid-item">
+
                 <div className="teacher-grid-num">
-                  {Math.max(1, Math.round(teachersCount * 0.9))}
+                  {teachersCount}
                 </div>
-                <div className="teacher-grid-label">On Duty</div>
+
+                <div className="teacher-grid-label">
+                  Total
+                </div>
+
               </div>
+
+              <div className="teacher-grid-item">
+
+                <div className="teacher-grid-num">
+                  {Math.max(
+                    1,
+                    Math.round(
+                      teachersCount * 0.9
+                    )
+                  )}
+                </div>
+
+                <div className="teacher-grid-label">
+                  On Duty
+                </div>
+
+              </div>
+
             </div>
+
           </div>
 
-          {/* 5. Live Notifications / Activity Feed */}
+          {/* ACTIVITY */}
+
           <div className="glass-widget widget-notifications">
+
             <header className="widget-header">
+
               <div className="widget-icon-box">
-                <span className="material-symbols-outlined">notifications</span>
+                <span className="material-symbols-outlined">
+                  notifications
+                </span>
               </div>
+
               <div>
-                <h3 className="widget-title">Activity Logs</h3>
-                <p className="widget-subtitle">Real-time system events</p>
+                <h3 className="widget-title">
+                  Activity Logs
+                </h3>
+
+                <p className="widget-subtitle">
+                  Real-time system events
+                </p>
               </div>
+
             </header>
+
             <div className="activity-list">
-              {activityLogs.slice(0, 2).map((log, i) => (
-                <div className="activity-item" key={i}>
-                  <span className={`activity-dot dot-${log.type}`}></span>
-                  <div className="activity-content">
-                    <p 
-                      className="activity-text" 
-                      dangerouslySetInnerHTML={{ __html: log.text }}
+
+              {activityLogs
+                .slice(0, 2)
+                .map((log, index) => (
+                  <div
+                    className="activity-item"
+                    key={`${log.time}-${index}`}
+                  >
+
+                    <span
+                      className={`activity-dot dot-${log.type}`}
                     />
-                    <span className="activity-time">{log.time}</span>
+
+                    <div className="activity-content">
+
+                      <p
+                        className="activity-text"
+                        dangerouslySetInnerHTML={{
+                          __html: log.text,
+                        }}
+                      />
+
+                      <span className="activity-time">
+                        {log.time}
+                      </span>
+
+                    </div>
+
                   </div>
-                </div>
-              ))}
+                ))}
+
             </div>
+
           </div>
+
         </div>
 
-        {/* Ambient Brand Overlay Footer */}
         <div className="left-panel-footer">
+
           <div className="brand-trust-badge">
-            <span className="material-symbols-outlined trust-icon">verified_user</span>
-            <span>Enterprise SLMS • Next-Gen Education Management</span>
+
+            <span className="material-symbols-outlined trust-icon">
+              verified_user
+            </span>
+
+            <span>
+              Enterprise SLMS • Next-Gen Education Management
+            </span>
+
           </div>
+
         </div>
+
       </section>
 
-      {/* RIGHT SIDE: AUTHENTICATION CONTAINER (40%) */}
+      {/* ========================================================
+          RIGHT AUTH PANEL
+      ======================================================== */}
+
       <section className="login-right-panel">
+
         <div className="theme-toggle-fixed-position">
           <ThemeToggle />
         </div>
 
         <div className="auth-card-wrapper animate-fade-in-up">
-          {/* BRAND HEADER */}
+
+          {/* BRAND */}
+
           <header className="auth-header">
+
             <div className="auth-logo-badge">
-              <span className="material-symbols-outlined logo-symbol">school</span>
+
+              <span className="material-symbols-outlined logo-symbol">
+                school
+              </span>
+
             </div>
-            <h1 className="auth-brand-title">EduTrack</h1>
-            <p className="auth-brand-subtitle">School Learning Management System</p>
+
+            <h1 className="auth-brand-title">
+              EduTrack
+            </h1>
+
+            <p className="auth-brand-subtitle">
+              School Learning Management System
+            </p>
+
           </header>
 
-          {/* AUTH VIEW RENDERER */}
+          {/* ====================================================
+              LOGIN
+          ==================================================== */}
+
           {authView === "login" && (
             <div className="auth-form-container">
+
               <div className="welcome-text-box">
-                <h2>Welcome Back</h2>
-                <p>Enter your credentials to access your portal.</p>
+
+                <h2>
+                  Welcome Back
+                </h2>
+
+                <p>
+                  Enter your credentials to access your portal.
+                </p>
+
               </div>
 
-              <form onSubmit={handleSubmit} className="auth-form" noValidate>
-                {/* Email Field */}
+              <form
+                onSubmit={handleSubmit}
+                className="auth-form"
+                noValidate
+              >
+
+                {/* EMAIL */}
+
                 <div className="form-group">
-                  <label htmlFor="login-email">Email Address</label>
+
+                  <label htmlFor="login-email">
+                    Email Address
+                  </label>
+
                   <div className="input-field-wrapper">
-                    <span className="material-symbols-outlined field-icon">mail</span>
+
+                    <span className="material-symbols-outlined field-icon">
+                      mail
+                    </span>
+
                     <input
                       id="login-email"
                       type="email"
-                      required
                       placeholder="name@school.edu"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(event) =>
+                        setEmail(
+                          event.target.value
+                        )
+                      }
                       className="form-input"
                       autoComplete="email"
+                      autoCapitalize="none"
+                      spellCheck="false"
                       disabled={isLoading}
+                      required
                     />
+
                   </div>
+
                 </div>
 
-                {/* Password Field */}
+                {/* PASSWORD */}
+
                 <div className="form-group">
+
                   <div className="label-with-action">
-                    <label htmlFor="login-password">Password</label>
+
+                    <label htmlFor="login-password">
+                      Password
+                    </label>
+
                     <button
                       type="button"
                       className="forgot-password-link"
-                      onClick={() => setForgotPasswordOpen(true)}
+                      onClick={() =>
+                        setForgotPasswordOpen(true)
+                      }
+                      disabled={isLoading}
                     >
                       Forgot Password?
                     </button>
+
                   </div>
+
                   <div className="input-field-wrapper">
-                    <span className="material-symbols-outlined field-icon">lock</span>
+
+                    <span className="material-symbols-outlined field-icon">
+                      lock
+                    </span>
+
                     <input
                       id="login-password"
-                      type={showPassword ? "text" : "password"}
-                      required
+                      type={
+                        showPassword
+                          ? "text"
+                          : "password"
+                      }
                       placeholder="••••••••••••"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(event) =>
+                        setPassword(
+                          event.target.value
+                        )
+                      }
                       className="form-input"
                       autoComplete="current-password"
                       disabled={isLoading}
+                      required
                     />
+
                     <button
                       type="button"
                       className="toggle-password-btn"
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      onClick={() =>
+                        setShowPassword(
+                          (previous) =>
+                            !previous
+                        )
+                      }
+                      aria-label={
+                        showPassword
+                          ? "Hide password"
+                          : "Show password"
+                      }
+                      disabled={isLoading}
                     >
+
                       <span className="material-symbols-outlined">
-                        {showPassword ? "visibility_off" : "visibility"}
+                        {showPassword
+                          ? "visibility_off"
+                          : "visibility"}
                       </span>
+
                     </button>
+
                   </div>
+
                 </div>
 
-                {/* Options Row */}
-                <div className="form-options-row">
-                  <label className="checkbox-container">
-                    <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                    />
-                    <span className="checkbox-label">Keep me signed in</span>
-                  </label>
-                </div>
+                {/* SUBMIT */}
 
-                {/* Submit Action Button */}
                 <button
                   type="submit"
-                  className={`submit-auth-btn btn-press ${isSuccess ? "success-state" : ""}`}
-                  disabled={isLoading || isSuccess}
+                  className={`submit-auth-btn btn-press ${
+                    isSuccess
+                      ? "success-state"
+                      : ""
+                  }`}
+                  disabled={
+                    isLoading ||
+                    isSuccess
+                  }
+                  aria-busy={isLoading}
                 >
+
                   {isSuccess ? (
                     <span className="btn-success-wrapper">
-                      <span className="material-symbols-outlined">check_circle</span>
-                      <span>Success! Redirecting...</span>
+
+                      <span className="material-symbols-outlined">
+                        check_circle
+                      </span>
+
+                      <span>
+                        Success! Redirecting...
+                      </span>
+
                     </span>
                   ) : isLoading ? (
                     <span className="btn-spinner-wrapper">
-                      <span className="login-loading-spinner"></span>
-                      <span>Authenticating...</span>
+
+                      <span className="login-loading-spinner" />
+
+                      <span>
+                        Sending verification code...
+                      </span>
+
                     </span>
                   ) : (
-                    <span>Sign In to Portal</span>
+                    <span>
+                      Continue to Verification
+                    </span>
                   )}
+
                 </button>
+
               </form>
+
             </div>
           )}
+
+          {/* ====================================================
+              OTP
+          ==================================================== */}
 
           {authView === "otp" && (
             <OtpScreen
               email={email}
-              onVerify={handleVerifyTeacherOtp}
-              onResend={handleResendOtp}
+              onVerify={
+                handleVerifyTeacherOtp
+              }
+              onResend={
+                handleResendOtp
+              }
               onBack={() => {
                 clearOtpVerification();
                 setAuthView("login");
+                setPassword("");
+                setIsSuccess(false);
               }}
               isLoading={isLoading}
             />
           )}
 
+          {/* ====================================================
+              FIRST LOGIN PASSWORD SETUP
+          ==================================================== */}
+
           {authView === "password_setup" && (
             <PasswordSetupScreen
-              onComplete={handleCompleteFirstLogin}
+              onComplete={
+                handleCompleteFirstLogin
+              }
               isLoading={isLoading}
             />
           )}
 
-          {/* Security Footer */}
+          {/* ====================================================
+              FOOTER
+          ==================================================== */}
+
           <footer className="auth-footer">
-            <p>Protected by Enterprise Role Authentication & Session Management</p>
+
+            <p>
+              Protected by Enterprise Role Authentication & Session Management
+            </p>
+
           </footer>
+
         </div>
+
       </section>
 
-      {/* Forgot Password Modal */}
+      {/* ========================================================
+          FORGOT PASSWORD
+      ======================================================== */}
+
       <ForgotPasswordModal
         open={forgotPasswordOpen}
-        onClose={() => setForgotPasswordOpen(false)}
+        onClose={() =>
+          setForgotPasswordOpen(false)
+        }
       />
+
     </div>
   );
 }
-

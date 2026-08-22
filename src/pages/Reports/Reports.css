@@ -512,5 +512,5 @@ html:not(.dark) .report-file-item {
   .charts-grid,
   .tables-grid {
     grid-template-columns: 1fr;
-  }
+  } 
 }

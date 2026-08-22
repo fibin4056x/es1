@@ -34,6 +34,7 @@ export default function AttendanceDetailsModal({
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [deleteDocId, setDeleteDocId] = useState(null);
 
   if (!open || !attendanceRecord) return null;
 
@@ -74,8 +75,6 @@ export default function AttendanceDetailsModal({
       setLoading(false);
     }
   };
-
-  const [deleteDocId, setDeleteDocId] = useState(null);
 
   const handleDelete = (documentId) => {
     setDeleteDocId(documentId);

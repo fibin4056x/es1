@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/UseAuth";
 
@@ -31,7 +30,7 @@ function Profile() {
       }
     };
     fetchLatestUser();
-  }, []);
+  }, [login]);
 
   // Update local form state when user changes
   useEffect(() => {
@@ -89,10 +88,6 @@ function Profile() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSecurityKeyChange = () => {
-    toast.info("Security key rotation initialized. Check email for details.");
   };
 
   return (

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { useEffect, useState, useCallback } from "react";
 import { getDivisions } from "../../services/DivisionService";
 import DivisionTable from "./DivisionTable";

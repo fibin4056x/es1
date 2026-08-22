@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { getClasses } from "../../services/ClassService";

@@ -69,7 +69,7 @@ function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isPrincipal]);
 
   useEffect(() => {
     fetchDashboard();
@@ -186,7 +186,7 @@ function Dashboard() {
       <div className="cards-grid">
         <StatCard
           title="Total Students"
-          value={stats.students || 0}
+          value={stats.students ?? stats.studentStats?.total ?? stats.studentStats?.active ?? 0}
           icon="groups"
           trendText={stats.studentsTrend ? `${stats.studentsTrend}%` : null}
           trendType={stats.studentsTrend ? (stats.studentsTrend > 0 ? "up" : "down") : null}
@@ -195,7 +195,7 @@ function Dashboard() {
 
         <StatCard
           title="Total Teachers"
-          value={stats.teachers || 0}
+          value={stats.teachers ?? stats.teacherStats?.total ?? stats.teacherStats?.active ?? 0}
           icon="school"
           trendText={stats.teachersTrend ? `${stats.teachersTrend}%` : null}
           trendType={stats.teachersTrend ? (stats.teachersTrend > 0 ? "up" : "down") : null}
@@ -240,24 +240,28 @@ function Dashboard() {
               {upcomingEvents.length === 0 ? (
                 <p className="no-events-sm">No upcoming events scheduled.</p>
               ) : (
-                upcomingEvents.slice(0, 4).map((ev) => (
-                  <div key={ev._id || ev.id} className="dash-event-item">
-                    <div className="event-date-pill">
-                      <span>{new Date(ev.startDate || Date.now()).getDate()}</span>
-                      <small>
-                        {new Date(ev.startDate || Date.now()).toLocaleString("default", {
-                          month: "short",
-                        })}
-                      </small>
+                upcomingEvents.slice(0, 4).map((ev) => {
+                  const evDate = ev.startDate ? new Date(ev.startDate) : null;
+                  const dayNum = evDate ? evDate.getDate() : "-";
+                  const monthName = evDate
+                    ? evDate.toLocaleString("default", { month: "short" })
+                    : "Event";
+
+                  return (
+                    <div key={ev._id || ev.id} className="dash-event-item">
+                      <div className="event-date-pill">
+                        <span>{dayNum}</span>
+                        <small>{monthName}</small>
+                      </div>
+                      <div className="event-item-info">
+                        <h4>{ev.title}</h4>
+                        <span className={`badge-cat category-${ev.category || "event"}`}>
+                          {ev.category || "Event"}
+                        </span>
+                      </div>
                     </div>
-                    <div className="event-item-info">
-                      <h4>{ev.title}</h4>
-                      <span className={`badge-cat category-${ev.category || "event"}`}>
-                        {ev.category || "Event"}
-                      </span>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>

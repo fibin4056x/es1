@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { useEffect, useState, useCallback } from "react";
 import { getStudents } from "../../services/StudentService";
 import { getClassList } from "../../services/ClassService";

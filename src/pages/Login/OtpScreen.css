@@ -1,28 +1,65 @@
+/* ============================================================
+   EDUTRACK — OTP VERIFICATION
+   Responsive / Glass UI / Mobile Friendly
+============================================================ */
+
 .otp-screen-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   width: 100%;
   max-width: 440px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-primary, #f8fafc);
 }
 
+/* ============================================================
+   HEADER
+============================================================ */
+
 .otp-header {
+  width: 100%;
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 26px;
 }
 
 .otp-icon-circle {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 16px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 16px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      rgba(129, 140, 248, 0.24),
+      rgba(99, 102, 241, 0.08)
+    );
+
+  border: 1px solid rgba(129, 140, 248, 0.32);
+
   color: var(--primary, #6366f1);
+
+  box-shadow:
+    0 0 0 6px rgba(99, 102, 241, 0.04),
+    0 10px 30px rgba(99, 102, 241, 0.15);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.otp-icon-circle:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 0 0 7px rgba(99, 102, 241, 0.05),
+    0 14px 35px rgba(99, 102, 241, 0.2);
 }
 
 .otp-icon-circle .material-symbols-outlined {
@@ -30,112 +67,528 @@
 }
 
 .otp-title {
-  font-size: 1.5rem;
+  margin: 0 0 8px;
+
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  line-height: 1.25;
   font-weight: 700;
-  color: var(--text-main, #f8fafc);
-  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+
+  color: var(--text-primary, #f8fafc);
 }
 
 .otp-subtitle {
+  margin: 0 auto;
+
+  max-width: 340px;
+
   font-size: 0.875rem;
+  line-height: 1.55;
+
   color: var(--text-muted, #94a3b8);
-  line-height: 1.5;
 }
 
 .otp-email-highlight {
+  display: block;
+
+  max-width: 100%;
+
+  margin-top: 5px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
   color: var(--primary-light, #818cf8);
+
+  font-size: 0.875rem;
   font-weight: 600;
 }
 
-.otp-inputs-grid {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-bottom: 20px;
+/* ============================================================
+   FORM
+============================================================ */
+
+.otp-form {
   width: 100%;
 }
 
-.otp-input-box {
-  width: 48px;
-  height: 56px;
-  border-radius: 12px;
-  border: 1.5px solid var(--border-main, rgba(255, 255, 255, 0.15));
-  background: rgba(15, 23, 42, 0.6);
-  color: var(--text-main, #ffffff);
-  font-size: 1.5rem;
-  font-weight: 700;
-  text-align: center;
-  outline: none;
-  transition: all 0.2s ease;
-}
+/* ============================================================
+   OTP INPUTS
+============================================================ */
 
-.otp-input-box:focus {
-  border-color: var(--primary, #6366f1);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
-  background: rgba(30, 41, 59, 0.8);
-}
+.otp-inputs-grid {
+  width: 100%;
 
-.otp-input-box.has-value {
-  border-color: rgba(99, 102, 241, 0.5);
-  background: rgba(30, 41, 59, 0.9);
-}
-
-.otp-timer-row {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  gap: clamp(7px, 2vw, 10px);
+
+  margin-bottom: 20px;
+}
+
+.otp-input-box {
+  flex: 0 1 48px;
+
+  width: 48px;
+  height: 56px;
+
+  min-width: 0;
+
+  border: 1.5px solid
+    var(--glass-border, rgba(255, 255, 255, 0.12));
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.045),
+      rgba(255, 255, 255, 0.018)
+    );
+
+  color: var(--text-primary, #ffffff);
+
+  font-size: 1.5rem;
+  line-height: 1;
+  font-weight: 700;
+
+  text-align: center;
+
+  outline: none;
+
+  caret-color: var(--primary, #6366f1);
+
+  -webkit-appearance: none;
+  appearance: none;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* Remove number spinner if browser changes input type */
+.otp-input-box::-webkit-outer-spin-button,
+.otp-input-box::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hover */
+
+.otp-input-box:not(:disabled):hover {
+  border-color: rgba(255, 255, 255, 0.22);
+
+  background:
+    rgba(255, 255, 255, 0.055);
+}
+
+/* Focus */
+
+.otp-input-box:focus {
+  border-color: var(--primary, #6366f1);
+
+  background:
+    rgba(99, 102, 241, 0.08);
+
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.16),
+    0 0 22px rgba(99, 102, 241, 0.14);
+
+  transform: translateY(-1px);
+}
+
+/* Filled */
+
+.otp-input-box.has-value {
+  border-color: rgba(99, 102, 241, 0.55);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(99, 102, 241, 0.13),
+      rgba(139, 92, 246, 0.06)
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 12px rgba(99, 102, 241, 0.08);
+}
+
+/* Expired */
+
+.otp-input-box.is-expired {
+  border-color: rgba(239, 68, 68, 0.25);
+
+  background: rgba(239, 68, 68, 0.04);
+
+  color: rgba(248, 250, 252, 0.45);
+}
+
+/* Disabled */
+
+.otp-input-box:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* ============================================================
+   TIMER
+============================================================ */
+
+.otp-timer-row {
+  min-height: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   gap: 6px;
-  font-size: 0.875rem;
-  color: var(--text-muted, #94a3b8);
+
   margin-bottom: 24px;
+
+  font-size: 0.8125rem;
+
+  color: var(--text-muted, #94a3b8);
+
+  transition: color 0.2s ease;
+}
+
+.otp-timer-row .material-symbols-outlined {
+  font-size: 18px;
 }
 
 .otp-timer-text {
-  font-weight: 600;
+  margin-left: 2px;
+
   color: var(--warning, #f59e0b);
+
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
 }
 
 .otp-timer-expired {
   color: var(--danger, #ef4444);
+  font-weight: 600;
 }
 
+.otp-timer-row.is-expired {
+  color: var(--danger, #ef4444);
+}
+
+/* ============================================================
+   RESEND
+============================================================ */
+
 .otp-resend-row {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  gap: 4px;
+
   margin-top: 16px;
+
   text-align: center;
-  font-size: 0.875rem;
+
+  font-size: 0.8125rem;
+
   color: var(--text-muted, #94a3b8);
 }
 
 .otp-resend-btn {
-  background: none;
+  padding: 3px 4px;
+
   border: none;
+  border-radius: 5px;
+
+  background: transparent;
+
   color: var(--primary-light, #818cf8);
+
+  font: inherit;
   font-weight: 600;
+
   cursor: pointer;
-  padding: 0;
-  margin-left: 6px;
-  text-decoration: underline;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.otp-resend-btn:not(:disabled):hover {
+  color: #a5b4fc;
+
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.otp-resend-btn:not(:disabled):focus-visible {
+  outline: 2px solid rgba(99, 102, 241, 0.6);
+  outline-offset: 2px;
 }
 
 .otp-resend-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
-  text-decoration: none;
 }
+
+/* ============================================================
+   BACK BUTTON
+============================================================ */
 
 .otp-back-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted, #94a3b8);
-  font-size: 0.875rem;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+
+  gap: 5px;
+
+  min-height: 40px;
+
+  margin-top: 18px;
+  padding: 7px 12px;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: var(--text-muted, #94a3b8);
+
+  font-size: 0.8125rem;
+  font-weight: 500;
+
   cursor: pointer;
-  margin-top: 20px;
-  transition: color 0.2s ease;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
-.otp-back-btn:hover {
-  color: var(--text-main, #ffffff);
+.otp-back-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.otp-back-btn:hover:not(:disabled) {
+  color: var(--text-primary, #ffffff);
+
+  background: rgba(255, 255, 255, 0.04);
+
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.otp-back-btn:focus-visible {
+  outline: 2px solid rgba(99, 102, 241, 0.6);
+  outline-offset: 2px;
+}
+
+.otp-back-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   TABLET
+============================================================ */
+
+@media (max-width: 768px) {
+  .otp-screen-wrapper {
+    max-width: 100%;
+  }
+
+  .otp-header {
+    margin-bottom: 22px;
+  }
+
+  .otp-inputs-grid {
+    gap: 9px;
+  }
+
+  .otp-input-box {
+    width: 46px;
+    height: 54px;
+    font-size: 1.4rem;
+  }
+}
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 480px) {
+  .otp-header {
+    margin-bottom: 20px;
+  }
+
+  .otp-icon-circle {
+    width: 52px;
+    height: 52px;
+
+    margin-bottom: 13px;
+  }
+
+  .otp-icon-circle .material-symbols-outlined {
+    font-size: 25px;
+  }
+
+  .otp-title {
+    font-size: 1.25rem;
+  }
+
+  .otp-subtitle,
+  .otp-email-highlight {
+    font-size: 0.8125rem;
+  }
+
+  .otp-inputs-grid {
+    gap: 7px;
+  }
+
+  .otp-input-box {
+    width: 43px;
+    height: 52px;
+
+    border-radius: 11px;
+
+    font-size: 1.3rem;
+  }
+
+  .otp-timer-row {
+    margin-bottom: 20px;
+    font-size: 0.78rem;
+  }
+
+  .otp-resend-row {
+    font-size: 0.78rem;
+  }
+}
+
+/* ============================================================
+   SMALL PHONES
+============================================================ */
+
+@media (max-width: 360px) {
+  .otp-inputs-grid {
+    gap: 5px;
+  }
+
+  .otp-input-box {
+    width: 39px;
+    height: 48px;
+
+    border-radius: 9px;
+
+    font-size: 1.2rem;
+  }
+
+  .otp-icon-circle {
+    width: 48px;
+    height: 48px;
+  }
+
+  .otp-title {
+    font-size: 1.15rem;
+  }
+}
+
+/* ============================================================
+   VERY SMALL DEVICES
+============================================================ */
+
+@media (max-width: 320px) {
+  .otp-inputs-grid {
+    gap: 4px;
+  }
+
+  .otp-input-box {
+    width: 36px;
+    height: 45px;
+
+    font-size: 1.1rem;
+  }
+}
+
+/* ============================================================
+   LIGHT THEME
+============================================================ */
+
+html:not(.dark) .otp-input-box {
+  background: rgba(255, 255, 255, 0.8);
+
+  border-color: rgba(15, 23, 42, 0.12);
+
+  color: #0f172a;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+html:not(.dark) .otp-input-box:hover:not(:disabled) {
+  background: #ffffff;
+
+  border-color: rgba(15, 23, 42, 0.2);
+}
+
+html:not(.dark) .otp-input-box:focus {
+  background: #ffffff;
+
+  border-color: #6366f1;
+
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.14),
+    0 8px 20px rgba(99, 102, 241, 0.1);
+}
+
+html:not(.dark) .otp-input-box.has-value {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(99, 102, 241, 0.08),
+      rgba(139, 92, 246, 0.04)
+    );
+
+  border-color: rgba(99, 102, 241, 0.45);
+}
+
+html:not(.dark) .otp-title {
+  color: #0f172a;
+}
+
+html:not(.dark) .otp-icon-circle {
+  background: rgba(99, 102, 241, 0.08);
+
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+html:not(.dark) .otp-back-btn:hover:not(:disabled) {
+  color: #0f172a;
+
+  background: rgba(15, 23, 42, 0.04);
+
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+/* ============================================================
+   REDUCED MOTION
+============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .otp-icon-circle,
+  .otp-input-box,
+  .otp-resend-btn,
+  .otp-back-btn {
+    transition: none;
+  }
 }

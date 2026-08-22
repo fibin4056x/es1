@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import { downloadImportTemplate, importStudents } from "../../services/importService";

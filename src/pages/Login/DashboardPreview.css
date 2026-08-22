@@ -1,165 +1,360 @@
-.ambient{
+/* ============================================================
+   EDUTRACK — AMBIENT BACKGROUND
+   Responsive • Lightweight • No layout interference
+============================================================ */
 
-    position:absolute;
-
-    inset:0;
-    pointer-events: none;
-    overflow:hidden;
-
+.ambient {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+  z-index: 0;
+  contain: layout paint;
 }
 
-/* ========================= */
-/* BLOBS */
-/* ========================= */
+/* ============================================================
+   BLOBS
+============================================================ */
 
-.blob{
-
-    position:absolute;
-
-    border-radius:50%;
-
-    filter:blur(70px);
-
-    opacity:.35;
-
-    animation:float 10s ease-in-out infinite;
-
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(70px);
+  opacity: 0.30;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  animation: ambient-float 12s ease-in-out infinite;
 }
 
-.blob-1{
+/* Blue */
 
-    width:260px;
-    height:260px;
-
-    background:#2563eb;
-
-    top:8%;
-    left:10%;
-
+.blob-1 {
+  width: 260px;
+  height: 260px;
+  top: 8%;
+  left: 10%;
+  background: #2563eb;
 }
 
-.blob-2{
+/* Purple */
 
-    width:320px;
-    height:320px;
-
-    background:#7c3aed;
-
-    right:8%;
-    bottom:10%;
-
-    animation-delay:2s;
-
+.blob-2 {
+  width: 320px;
+  height: 320px;
+  right: 8%;
+  bottom: 10%;
+  background: #7c3aed;
+  animation-delay: -3s;
 }
 
-.blob-3{
+/* Cyan */
 
-    width:180px;
-    height:180px;
-
-    background:#0ea5e9;
-
-    left:40%;
-    top:55%;
-
-    animation-delay:4s;
-
+.blob-3 {
+  width: 180px;
+  height: 180px;
+  left: 40%;
+  top: 55%;
+  background: #0ea5e9;
+  animation-delay: -6s;
 }
 
-/* ========================= */
-/* RINGS */
-/* ========================= */
+/* ============================================================
+   RINGS
+============================================================ */
 
-.ring{
-
-    position:absolute;
-
-    border:1px solid rgba(255,255,255,.08);
-
-    border-radius:50%;
-
+.ring {
+  position: absolute;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
 }
 
-.ring-1{
-
-    width:220px;
-    height:220px;
-
-    top:20%;
-    right:12%;
-
-    animation:rotateSlow 30s linear infinite;
-
+.ring-1 {
+  width: 220px;
+  height: 220px;
+  top: 20%;
+  right: 12%;
+  animation: ambient-rotate 32s linear infinite;
 }
 
-.ring-2{
-
-    width:120px;
-    height:120px;
-
-    bottom:18%;
-    left:18%;
-
-    animation:rotateSlow 22s linear infinite reverse;
-
+.ring-2 {
+  width: 120px;
+  height: 120px;
+  bottom: 18%;
+  left: 18%;
+  animation: ambient-rotate 24s linear infinite reverse;
 }
 
-/* ========================= */
-/* DOTS */
-/* ========================= */
+/* ============================================================
+   DOTS
+============================================================ */
 
-.dot{
-
-    position:absolute;
-
-    width:6px;
-    height:6px;
-
-    border-radius:50%;
-
-    background:white;
-
-    opacity:.18;
-
-    animation:float 7s ease-in-out infinite;
-
+.dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffffff;
+  opacity: 0.16;
+  pointer-events: none;
+  will-change: transform;
+  animation: ambient-float 8s ease-in-out infinite;
 }
 
-.dot-1{top:15%;left:70%;}
-.dot-2{top:65%;left:25%;}
-.dot-3{top:45%;left:85%;}
-.dot-4{bottom:15%;right:25%;}
-
-/* ========================= */
-
-@keyframes float{
-
-0%,100%{
-
-transform:translateY(0px);
-
+.dot-1 {
+  top: 15%;
+  left: 70%;
 }
 
-50%{
-
-transform:translateY(-25px);
-
+.dot-2 {
+  top: 65%;
+  left: 25%;
+  animation-delay: -2s;
 }
 
+.dot-3 {
+  top: 45%;
+  left: 85%;
+  animation-delay: -4s;
 }
 
-@keyframes rotateSlow{
-
-from{
-
-transform:rotate(0deg);
-
+.dot-4 {
+  bottom: 15%;
+  right: 25%;
+  animation-delay: -6s;
 }
 
-to{
+/* ============================================================
+   ANIMATIONS
+============================================================ */
 
-transform:rotate(360deg);
+@keyframes ambient-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
 
+  50% {
+    transform: translate3d(0, -22px, 0);
+  }
 }
 
+@keyframes ambient-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================
+   TABLET
+============================================================ */
+
+@media (max-width: 1024px) {
+  .blob-1 {
+    width: 220px;
+    height: 220px;
+    left: 4%;
+  }
+
+  .blob-2 {
+    width: 260px;
+    height: 260px;
+    right: 2%;
+  }
+
+  .blob-3 {
+    width: 150px;
+    height: 150px;
+    left: 42%;
+  }
+
+  .ring-1 {
+    width: 180px;
+    height: 180px;
+    right: 5%;
+  }
+
+  .ring-2 {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 768px) {
+  .ambient {
+    height: 100%;
+  }
+
+  .blob {
+    filter: blur(55px);
+    opacity: 0.25;
+    animation-duration: 14s;
+  }
+
+  .blob-1 {
+    width: 180px;
+    height: 180px;
+    top: 5%;
+    left: -50px;
+  }
+
+  .blob-2 {
+    width: 220px;
+    height: 220px;
+    right: -70px;
+    bottom: 5%;
+  }
+
+  .blob-3 {
+    width: 130px;
+    height: 130px;
+    left: 38%;
+    top: 50%;
+  }
+
+  .ring-1 {
+    width: 150px;
+    height: 150px;
+    top: 12%;
+    right: -45px;
+  }
+
+  .ring-2 {
+    width: 90px;
+    height: 90px;
+    bottom: 12%;
+    left: -30px;
+  }
+
+  .dot {
+    width: 4px;
+    height: 4px;
+    opacity: 0.11;
+  }
+}
+
+/* ============================================================
+   SMALL PHONES
+============================================================ */
+
+@media (max-width: 480px) {
+  .blob {
+    filter: blur(45px);
+    opacity: 0.20;
+  }
+
+  .blob-1 {
+    width: 150px;
+    height: 150px;
+    top: 8%;
+    left: -55px;
+  }
+
+  .blob-2 {
+    width: 180px;
+    height: 180px;
+    right: -65px;
+    bottom: 8%;
+  }
+
+  .blob-3 {
+    width: 100px;
+    height: 100px;
+    left: 38%;
+    top: 52%;
+  }
+
+  .ring-1 {
+    width: 120px;
+    height: 120px;
+    right: -35px;
+  }
+
+  .ring-2 {
+    width: 70px;
+    height: 70px;
+    left: -25px;
+  }
+
+  .dot {
+    width: 3px;
+    height: 3px;
+  }
+}
+
+/* ============================================================
+   VERY SMALL PHONES
+============================================================ */
+
+@media (max-width: 360px) {
+  .blob {
+    filter: blur(38px);
+    opacity: 0.17;
+  }
+
+  .blob-1 {
+    width: 125px;
+    height: 125px;
+  }
+
+  .blob-2 {
+    width: 150px;
+    height: 150px;
+  }
+
+  .blob-3 {
+    width: 80px;
+    height: 80px;
+  }
+
+  .ring-1 {
+    width: 100px;
+    height: 100px;
+  }
+
+  .ring-2 {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* ============================================================
+   ACCESSIBILITY / PERFORMANCE
+============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .blob,
+  .ring,
+  .dot {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   LOW-POWER / TOUCH DEVICES
+============================================================ */
+
+@media (hover: none) and (pointer: coarse) {
+  .blob {
+    animation-duration: 16s;
+  }
+
+  .ring {
+    animation-duration: 40s;
+  }
 }

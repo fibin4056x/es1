@@ -1,326 +1,595 @@
 /* ==========================================================================
-   EDUTRACK PREMIUM SAAS LOGIN PAGE STYLING
-   Aesthetic: Apple VisionOS / Linear / Stripe Glassmorphism
+   EDUTRACK PREMIUM SAAS LOGIN
+   Responsive UI / UX
+   Theme preserved — layout preserved
    ========================================================================== */
 
 .login-page-container {
-  /* Design System Tokens */
+  /* =========================
+     DESIGN TOKENS
+     ========================= */
+
   --bg-dark: #050816;
+
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-bg-hover: rgba(255, 255, 255, 0.08);
+
   --glass-border: rgba(255, 255, 255, 0.12);
   --glass-border-focus: rgba(99, 102, 241, 0.5);
-  
-  --primary: #6366F1;       /* Indigo */
-  --secondary: #8B5CF6;     /* Purple/Violet */
-  --accent: #06B6D4;        /* Cyan */
-  --success: #22C55E;       /* Emerald/Green */
-  --warning: #F59E0B;       /* Amber */
-  --danger: #EF4444;        /* Red */
-  
-  --text-primary: #F8FAFC;  /* Slate 50 */
-  --text-muted: #94A3B8;     /* Slate 400 */
-  
+
+  --primary: #6366f1;
+  --secondary: #8b5cf6;
+  --accent: #06b6d4;
+
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  --text-primary: #f8fafc;
+  --text-muted: #94a3b8;
+
+  /* Responsive spacing */
+  --page-padding: clamp(14px, 3vw, 40px);
+  --card-padding-x: clamp(18px, 3vw, 32px);
+  --card-padding-y: clamp(22px, 3vw, 36px);
+
   box-sizing: border-box;
+  width: 100%;
+  min-height: 100dvh;
+
   margin: 0;
   padding: 0;
-  min-height: 100vh;
-  width: 100%;
+
   display: flex;
+
   background-color: var(--bg-dark);
   color: var(--text-primary);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
   overflow-x: hidden;
   position: relative;
 }
 
-.login-page-container * {
+.login-page-container *,
+.login-page-container *::before,
+.login-page-container *::after {
   box-sizing: border-box;
 }
 
+/* Prevent images/svg from escaping */
+.login-page-container img,
+.login-page-container svg {
+  max-width: 100%;
+}
+
 /* ==========================================================================
-   LAYOUT SPLIT: LEFT SIDE (60%) & RIGHT SIDE (40%)
+   MAIN SPLIT LAYOUT
    ========================================================================== */
 
 .login-left-panel {
   display: none;
+
   width: 60%;
+  min-width: 0;
+
   position: relative;
   overflow: hidden;
+
   background-color: var(--bg-dark);
+
   border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .login-right-panel {
   width: 100%;
+  min-width: 0;
+  min-height: 100dvh;
+
   display: flex;
   flex-direction: column;
+
   align-items: center;
   justify-content: center;
+
   position: relative;
-  padding: 24px 16px;
+
+  padding:
+    max(24px, env(safe-area-inset-top))
+    max(var(--page-padding), env(safe-area-inset-right))
+    max(24px, env(safe-area-inset-bottom))
+    max(var(--page-padding), env(safe-area-inset-left));
+
   background-color: var(--bg-dark);
+
   z-index: 10;
-  min-height: 100vh;
+
+  overflow-y: auto;
 }
 
+/* Desktop */
 @media (min-width: 1024px) {
   .login-left-panel {
     display: block;
+    flex: 0 0 60%;
   }
+
   .login-right-panel {
+    flex: 0 0 40%;
     width: 40%;
     padding: 32px 40px;
   }
 }
 
+/* Large desktop */
+@media (min-width: 1440px) {
+  .login-left-panel {
+    flex-basis: 62%;
+  }
+
+  .login-right-panel {
+    flex-basis: 38%;
+    width: 38%;
+  }
+}
+
 /* ==========================================================================
-   LEFT SIDE: IMMERSIVE ANIMATED WORKSPACE
+   LEFT PANEL BACKGROUND
    ========================================================================== */
 
 .aurora-bg {
   position: absolute;
-  inset: 0;
-  background: 
-    radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
-    radial-gradient(circle at 80% 30%, rgba(139, 92, 246, 0.12) 0%, transparent 45%),
-    radial-gradient(circle at 40% 70%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 70% 80%, rgba(99, 102, 241, 0.08) 0%, transparent 40%);
+  inset: -10%;
+
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(99, 102, 241, 0.15) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 80% 30%,
+      rgba(139, 92, 246, 0.12) 0%,
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 40% 70%,
+      rgba(6, 182, 212, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 70% 80%,
+      rgba(99, 102, 241, 0.08) 0%,
+      transparent 40%
+    );
+
   filter: blur(60px);
+
   z-index: 1;
+
   animation: aurora-shift 25s ease infinite alternate;
+
+  pointer-events: none;
 }
 
 @keyframes aurora-shift {
-  0% { background-position: 0% 0%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 50% 100%; }
+  0% {
+    background-position: 0% 0%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 50% 100%;
+  }
 }
 
 .light-rays {
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(
-    -45deg,
-    transparent,
-    transparent 100px,
-    rgba(255, 255, 255, 0.01) 100px,
-    rgba(255, 255, 255, 0.01) 200px
-  );
-  mask-image: radial-gradient(circle at 30% 30%, black, transparent 70%);
-  -webkit-mask-image: radial-gradient(circle at 30% 30%, black, transparent 70%);
+
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 100px,
+      rgba(255, 255, 255, 0.01) 100px,
+      rgba(255, 255, 255, 0.01) 200px
+    );
+
+  mask-image:
+    radial-gradient(circle at 30% 30%, black, transparent 70%);
+
+  -webkit-mask-image:
+    radial-gradient(circle at 30% 30%, black, transparent 70%);
+
   z-index: 2;
+
   opacity: 0.6;
+
   animation: rays-flicker 10s ease-in-out infinite alternate;
+
+  pointer-events: none;
 }
 
 @keyframes rays-flicker {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
 }
+
+/* ==========================================================================
+   PARTICLES
+   ========================================================================== */
 
 .particles-container {
   position: absolute;
   inset: 0;
+
   z-index: 2;
+
   pointer-events: none;
 }
 
 .particle {
   position: absolute;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(99, 102, 241, 0.25) 0%,
+      transparent 70%
+    );
+
   border-radius: 50%;
-  pointer-events: none;
+
   filter: blur(5px);
+
   animation: float-particle 15s infinite ease-in-out;
+
+  pointer-events: none;
 }
 
-.particle-1 { width: 120px; height: 120px; top: 15%; left: 10%; animation-delay: 0s; }
-.particle-2 { width: 180px; height: 180px; bottom: 20%; right: 15%; animation-delay: -3s; animation-duration: 22s; }
-.particle-3 { width: 90px; height: 90px; top: 50%; left: 45%; animation-delay: -7s; animation-duration: 18s; }
-.particle-4 { width: 140px; height: 140px; top: 75%; left: 15%; animation-delay: -11s; animation-duration: 25s; }
+.particle-1 {
+  width: 120px;
+  height: 120px;
+
+  top: 15%;
+  left: 10%;
+}
+
+.particle-2 {
+  width: 180px;
+  height: 180px;
+
+  bottom: 20%;
+  right: 15%;
+
+  animation-delay: -3s;
+  animation-duration: 22s;
+}
+
+.particle-3 {
+  width: 90px;
+  height: 90px;
+
+  top: 50%;
+  left: 45%;
+
+  animation-delay: -7s;
+  animation-duration: 18s;
+}
+
+.particle-4 {
+  width: 140px;
+  height: 140px;
+
+  top: 75%;
+  left: 15%;
+
+  animation-delay: -11s;
+  animation-duration: 25s;
+}
 
 @keyframes float-particle {
-  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
-  50% { transform: translate(30px, -40px) scale(1.15); opacity: 0.6; }
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: translate3d(30px, -40px, 0) scale(1.15);
+    opacity: 0.6;
+  }
 }
+
+/* ==========================================================================
+   ABSTRACT SHAPES
+   ========================================================================== */
 
 .floating-shapes {
   position: absolute;
   inset: 0;
+
   z-index: 3;
+
   pointer-events: none;
 }
 
 .abstract-shape {
   position: absolute;
+
   border: 1px solid rgba(255, 255, 255, 0.05);
+
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.02), transparent 60%);
-  box-shadow: inset 0 8px 32px 0 rgba(255, 255, 255, 0.01);
+
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.02),
+      transparent 60%
+    );
+
+  box-shadow:
+    inset 0 8px 32px rgba(255, 255, 255, 0.01);
+
   animation: rotate-shape 40s linear infinite;
 }
 
 .shape-1 {
-  width: 320px;
-  height: 320px;
+  width: clamp(220px, 28vw, 320px);
+  height: clamp(220px, 28vw, 320px);
+
   top: -50px;
   left: -50px;
-  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+
+  border-radius:
+    40% 60% 70% 30% /
+    40% 50% 60% 50%;
 }
 
 .shape-2 {
-  width: 400px;
-  height: 400px;
+  width: clamp(260px, 34vw, 400px);
+  height: clamp(260px, 34vw, 400px);
+
   bottom: -100px;
   right: -50px;
-  border-radius: 50% 40% 30% 70% / 60% 30% 70% 40%;
+
+  border-radius:
+    50% 40% 30% 70% /
+    60% 30% 70% 40%;
 }
 
 @keyframes rotate-shape {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
+
+/* ==========================================================================
+   WIDGET CONTAINER
+   ========================================================================== */
 
 .widgets-container {
   position: absolute;
   inset: 0;
+
   z-index: 4;
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  pointer-events: auto;
+
+  padding: clamp(24px, 4vw, 40px);
+
+  pointer-events: none;
 }
+
+/* ==========================================================================
+   GLASS WIDGETS
+   ========================================================================== */
 
 .glass-widget {
   position: absolute;
+
+  width: min(280px, 26vw);
+
   background: var(--glass-bg);
+
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+
   border: 1px solid var(--glass-border);
+
   border-radius: 20px;
+
   padding: 18px;
-  box-shadow: 
+
+  box-shadow:
     0 10px 40px -10px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  transition: 
+
+  transition:
     transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
     border-color 0.3s ease,
     background-color 0.3s ease,
     box-shadow 0.3s ease;
+
   user-select: none;
+
+  pointer-events: auto;
 }
 
 .glass-widget:hover {
   background: var(--glass-bg-hover);
+
   border-color: rgba(255, 255, 255, 0.22);
-  box-shadow: 
+
+  box-shadow:
     0 15px 45px -8px rgba(0, 0, 0, 0.6),
     0 0 20px rgba(99, 102, 241, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
+/* Widget positions */
+
 .widget-students {
   top: 8%;
   left: 8%;
-  width: 260px;
+
+  width: min(260px, 24vw);
+
   animation: float-slow 8s infinite ease-in-out;
-  transform: translate(calc(var(--parallax-x) * 0.4px), calc(var(--parallax-y) * 0.4px));
 }
 
 .widget-attendance {
   top: 12%;
   right: 8%;
-  width: 220px;
+
+  width: min(220px, 21vw);
+
   animation: float-medium 7s infinite ease-in-out;
+
   animation-delay: -1.5s;
-  transform: translate(calc(var(--parallax-x) * 0.6px), calc(var(--parallax-y) * 0.6px));
 }
 
 .widget-classes {
   top: 42%;
   left: 10%;
-  width: 320px;
+
+  width: min(320px, 29vw);
+
   animation: float-slow 9s infinite ease-in-out;
+
   animation-delay: -3s;
-  transform: translate(calc(var(--parallax-x) * 0.3px), calc(var(--parallax-y) * 0.3px));
 }
 
 .widget-teachers {
   bottom: 12%;
   left: 8%;
-  width: 240px;
+
+  width: min(240px, 22vw);
+
   animation: float-medium 7.5s infinite ease-in-out;
+
   animation-delay: -4s;
-  transform: translate(calc(var(--parallax-x) * 0.5px), calc(var(--parallax-y) * 0.5px));
 }
 
 .widget-notifications {
   bottom: 12%;
   right: 8%;
-  width: 270px;
+
+  width: min(270px, 25vw);
+
   animation: float-slow 8.5s infinite ease-in-out;
+
   animation-delay: -2s;
-  transform: translate(calc(var(--parallax-x) * 0.4px), calc(var(--parallax-y) * 0.4px));
 }
 
 @keyframes float-slow {
-  0%, 100% { transform: translateY(0px) translate(calc(var(--parallax-x) * 0.4px), calc(var(--parallax-y) * 0.4px)); }
-  50% { transform: translateY(-10px) translate(calc(var(--parallax-x) * 0.4px), calc(var(--parallax-y) * 0.4px)); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes float-medium {
-  0%, 100% { transform: translateY(0px) translate(calc(var(--parallax-x) * 0.6px), calc(var(--parallax-y) * 0.6px)); }
-  50% { transform: translateY(-14px) translate(calc(var(--parallax-x) * 0.6px), calc(var(--parallax-y) * 0.6px)); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-14px);
+  }
 }
+
+/* ==========================================================================
+   WIDGET CONTENT
+   ========================================================================== */
 
 .widget-header {
   display: flex;
   align-items: center;
+
   gap: 10px;
+
   margin-bottom: 12px;
 }
 
 .widget-icon-box {
   width: 32px;
   height: 32px;
+
+  flex: 0 0 32px;
+
   border-radius: 8px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-size: 18px;
 }
 
 .widget-title {
   font-size: 13px;
   font-weight: 600;
+
   color: var(--text-primary);
+
   margin: 0;
 }
 
 .widget-subtitle {
   font-size: 11px;
+
   color: var(--text-muted);
+
   margin: 0;
 }
 
 .student-stat-row {
   display: flex;
+
   align-items: baseline;
+
   gap: 8px;
+
   margin-bottom: 8px;
 }
 
 .student-stat-num {
-  font-size: 26px;
+  font-size: clamp(22px, 2vw, 26px);
+
   font-weight: 700;
 }
 
 .student-stat-trend {
   font-size: 11px;
+
   font-weight: 500;
+
   color: var(--success);
+
   display: flex;
   align-items: center;
 }
@@ -328,370 +597,737 @@
 .student-list {
   display: flex;
   flex-direction: column;
+
   gap: 6px;
+
   margin-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+
+  border-top:
+    1px solid rgba(255, 255, 255, 0.05);
+
   padding-top: 8px;
 }
 
 .student-item {
   display: flex;
+
   justify-content: space-between;
   align-items: center;
+
+  gap: 10px;
+
   font-size: 11px;
 }
 
-.student-name { color: var(--text-primary); font-weight: 500; }
-.student-class { color: var(--text-muted); }
+.student-name {
+  color: var(--text-primary);
+
+  font-weight: 500;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.student-class {
+  color: var(--text-muted);
+
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   ATTENDANCE
+   ========================================================================== */
 
 .attendance-ring-container {
   display: flex;
   align-items: center;
+
   gap: 16px;
 }
 
 .attendance-svg-box {
   position: relative;
+
   width: 70px;
   height: 70px;
+
+  flex: 0 0 70px;
 }
 
 .attendance-svg-ring-bg {
   fill: none;
+
   stroke: rgba(255, 255, 255, 0.05);
+
   stroke-width: 6;
 }
 
 .attendance-svg-ring-fill {
   fill: none;
+
   stroke: url(#attendanceGradient);
+
   stroke-width: 6;
+
   stroke-dasharray: 201;
+
   stroke-linecap: round;
+
   transform: rotate(-90deg);
+
   transform-origin: 50% 50%;
-  filter: drop-shadow(0 0 4px rgba(6, 182, 212, 0.5));
+
+  filter:
+    drop-shadow(
+      0 0 4px rgba(6, 182, 212, 0.5)
+    );
 }
 
 .attendance-percentage-text {
   position: absolute;
+
   top: 50%;
   left: 50%;
+
   transform: translate(-50%, -50%);
+
   font-size: 13px;
+
   font-weight: 700;
 }
 
 .attendance-info-box {
   display: flex;
   flex-direction: column;
+
   gap: 2px;
+
+  min-width: 0;
 }
 
-.attendance-label { font-size: 11px; color: var(--text-muted); }
-.attendance-value { font-size: 14px; font-weight: 600; color: var(--accent); }
+.attendance-label {
+  font-size: 11px;
+
+  color: var(--text-muted);
+}
+
+.attendance-value {
+  font-size: 14px;
+
+  font-weight: 600;
+
+  color: var(--accent);
+}
+
+/* ==========================================================================
+   SCHEDULE
+   ========================================================================== */
 
 .schedule-grid {
   display: flex;
   flex-direction: column;
+
   gap: 8px;
 }
 
 .schedule-item {
   display: flex;
   align-items: center;
+
   gap: 10px;
+
   padding: 8px;
+
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+
+  background:
+    rgba(255, 255, 255, 0.02);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.04);
+
+  min-width: 0;
 }
 
 .schedule-time-box {
   font-size: 10px;
+
   color: var(--accent);
-  background: rgba(6, 182, 212, 0.1);
+
+  background:
+    rgba(6, 182, 212, 0.1);
+
   padding: 4px 6px;
+
   border-radius: 6px;
+
+  white-space: nowrap;
+
+  flex-shrink: 0;
+}
+
+.schedule-details {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+}
+
+.schedule-subject {
+  font-size: 12px;
+
+  font-weight: 600;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
   white-space: nowrap;
 }
 
-.schedule-details { display: flex; flex-direction: column; }
-.schedule-subject { font-size: 12px; font-weight: 600; }
-.schedule-teacher { font-size: 10px; color: var(--text-muted); }
+.schedule-teacher {
+  font-size: 10px;
+
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   TEACHER GRID
+   ========================================================================== */
 
 .teacher-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
   gap: 8px;
+
   margin-top: 8px;
 }
 
 .teacher-grid-item {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  min-width: 0;
+
+  background:
+    rgba(255, 255, 255, 0.02);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.04);
+
   padding: 8px;
+
   border-radius: 10px;
+
   text-align: center;
 }
 
-.teacher-grid-num { font-size: 18px; font-weight: 700; color: var(--primary); }
-.teacher-grid-label { font-size: 10px; color: var(--text-muted); }
+.teacher-grid-num {
+  font-size: 18px;
+
+  font-weight: 700;
+
+  color: var(--primary);
+}
+
+.teacher-grid-label {
+  font-size: 10px;
+
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   ACTIVITY
+   ========================================================================== */
 
 .activity-list {
   display: flex;
   flex-direction: column;
+
   gap: 8px;
 }
 
 .activity-item {
   display: flex;
+
   gap: 8px;
+
   font-size: 11px;
+
+  min-width: 0;
 }
 
 .activity-dot {
   width: 6px;
   height: 6px;
+
+  flex: 0 0 6px;
+
   border-radius: 50%;
+
   margin-top: 5px;
-  flex-shrink: 0;
 }
 
-.activity-dot.dot-blue { background-color: var(--primary); box-shadow: 0 0 6px var(--primary); }
-.activity-dot.dot-green { background-color: var(--success); box-shadow: 0 0 6px var(--success); }
+.activity-dot.dot-blue {
+  background-color: var(--primary);
 
-.activity-content { display: flex; flex-direction: column; gap: 2px; }
-.activity-text { color: var(--text-primary); line-height: 1.3; margin: 0; }
-.activity-time { font-size: 9px; color: var(--text-muted); }
+  box-shadow:
+    0 0 6px var(--primary);
+}
+
+.activity-dot.dot-green {
+  background-color: var(--success);
+
+  box-shadow:
+    0 0 6px var(--success);
+}
+
+.activity-content {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+
+  min-width: 0;
+}
+
+.activity-text {
+  color: var(--text-primary);
+
+  line-height: 1.3;
+
+  margin: 0;
+}
+
+.activity-time {
+  font-size: 9px;
+
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   LEFT FOOTER
+   ========================================================================== */
 
 .left-panel-footer {
   position: absolute;
+
   bottom: 24px;
+
   left: 40px;
   right: 40px;
+
   z-index: 10;
 }
 
 .brand-trust-badge {
   display: inline-flex;
+
   align-items: center;
+
   gap: 8px;
+
+  max-width: 100%;
+
   padding: 8px 14px;
+
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  background:
+    rgba(255, 255, 255, 0.03);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+
   backdrop-filter: blur(10px);
+
   font-size: 11px;
+
   color: var(--text-muted);
 }
 
-.trust-icon { font-size: 16px; color: var(--success); }
+.trust-icon {
+  font-size: 16px;
+
+  color: var(--success);
+
+  flex-shrink: 0;
+}
 
 /* ==========================================================================
-   RIGHT SIDE: GLASS CARD & AUTHENTICATION FORM
+   THEME TOGGLE
    ========================================================================== */
 
 .theme-toggle-fixed-position {
   position: absolute;
-  top: 24px;
-  right: 24px;
+
+  top: max(18px, env(safe-area-inset-top));
+
+  right: max(18px, env(safe-area-inset-right));
+
   z-index: 50;
 }
 
+/* ==========================================================================
+   AUTH CARD
+   ========================================================================== */
+
 .auth-card-wrapper,
 .login-card-wrapper {
-  width: 100%;
+  width: min(100%, 440px);
+
   max-width: 440px;
+
+  margin: auto;
+
   z-index: 10;
+
   background: var(--glass-bg);
+
   backdrop-filter: blur(35px);
   -webkit-backdrop-filter: blur(35px);
-  border: 1px solid var(--glass-border);
-  border-radius: 28px;
-  padding: 36px 32px;
-  box-shadow: 
+
+  border:
+    1px solid var(--glass-border);
+
+  border-radius: clamp(20px, 3vw, 28px);
+
+  padding:
+    var(--card-padding-y)
+    var(--card-padding-x);
+
+  box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.6),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  transition: all 0.3s ease;
-  animation: card-entrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
 
-@media (max-width: 480px) {
-  .auth-card-wrapper,
-  .login-card-wrapper {
-    padding: 24px 20px;
-    border-radius: 20px;
-  }
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+
+  animation:
+    card-entrance
+    0.8s
+    cubic-bezier(0.16, 1, 0.3, 1)
+    forwards;
 }
 
 @keyframes card-entrance {
   from {
     opacity: 0;
-    transform: translateY(24px) scale(0.97);
+
+    transform:
+      translateY(24px)
+      scale(0.97);
   }
+
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+
+    transform:
+      translateY(0)
+      scale(1);
   }
 }
+
+/* ==========================================================================
+   AUTH HEADER
+   ========================================================================== */
 
 .auth-header,
 .login-logo-group {
   display: flex;
+
   flex-direction: column;
+
   align-items: center;
+
   text-align: center;
-  margin-bottom: 24px;
+
+  margin-bottom: clamp(18px, 3vw, 24px);
 }
 
 .auth-logo-badge,
 .login-logo-mark {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
   width: 44px;
   height: 44px;
+
+  flex: 0 0 44px;
+
   border-radius: 12px;
+
   display: flex;
+
   align-items: center;
   justify-content: center;
+
   margin-bottom: 12px;
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--secondary)
+    );
+
+  box-shadow:
+    0 0 20px rgba(99, 102, 241, 0.4);
 }
 
 .logo-symbol {
   font-size: 24px;
+
   color: #ffffff;
 }
 
 .auth-brand-title,
 .login-logo-text {
-  font-size: 24px;
+  font-size: clamp(21px, 2vw, 24px);
+
   font-weight: 700;
+
   letter-spacing: -0.02em;
-  margin: 0 0 4px 0;
-  background: linear-gradient(to bottom, #FFFFFF, #CBD5E1);
+
+  margin: 0 0 4px;
+
+  background:
+    linear-gradient(
+      to bottom,
+      #ffffff,
+      #cbd5e1
+    );
+
   -webkit-background-clip: text;
+
   background-clip: text;
+
   -webkit-text-fill-color: transparent;
 }
 
 .auth-brand-subtitle,
 .login-welcome-subtitle {
   font-size: 13px;
+
   color: var(--text-muted);
+
   margin: 0;
+
+  line-height: 1.5;
 }
 
+/* ==========================================================================
+   WELCOME
+   ========================================================================== */
+
 .welcome-text-box {
-  margin-bottom: 24px;
+  margin-bottom: clamp(20px, 3vw, 24px);
+
   text-align: center;
 }
 
 .welcome-text-box h2 {
-  font-size: 20px;
+  font-size: clamp(18px, 2vw, 20px);
+
   font-weight: 700;
-  margin: 0 0 6px 0;
+
+  margin: 0 0 6px;
+
+  line-height: 1.3;
 }
 
 .welcome-text-box p {
   font-size: 13px;
+
   color: var(--text-muted);
+
   margin: 0;
+
+  line-height: 1.5;
 }
 
-/* Form Groups & Inputs */
+/* ==========================================================================
+   FORM
+   ========================================================================== */
+
 .auth-form,
 .login-form-group {
   display: flex;
+
   flex-direction: column;
-  gap: 18px;
+
+  gap: clamp(14px, 2vw, 18px);
 }
 
 .form-group,
 .login-input-wrapper {
   display: flex;
+
   flex-direction: column;
+
   gap: 6px;
+
+  min-width: 0;
 }
 
 .form-group label,
 .login-input-label {
   font-size: 12px;
+
   font-weight: 600;
+
   color: var(--text-primary);
 }
 
 .label-with-action {
   display: flex;
+
   justify-content: space-between;
+
   align-items: center;
+
+  gap: 12px;
 }
+
+/* ==========================================================================
+   LINKS
+   ========================================================================== */
 
 .forgot-password-link,
 .login-forgot-link {
   font-size: 12px;
+
   color: var(--primary);
+
   background: none;
+
   border: none;
+
   cursor: pointer;
-  padding: 0;
+
+  padding: 4px 0;
+
   font-weight: 500;
-  transition: color 0.2s ease;
+
+  transition:
+    color 0.2s ease;
+
   text-decoration: none;
+
+  white-space: nowrap;
 }
 
 .forgot-password-link:hover,
 .login-forgot-link:hover {
   color: var(--secondary);
+
   text-decoration: underline;
 }
+
+.forgot-password-link:focus-visible,
+.login-forgot-link:focus-visible {
+  outline:
+    2px solid var(--primary);
+
+  outline-offset: 4px;
+
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   INPUTS
+   ========================================================================== */
 
 .input-field-wrapper,
 .login-input-field-container {
   position: relative;
+
+  width: 100%;
+
   display: flex;
+
   align-items: center;
 }
 
 .field-icon,
 .login-input-icon {
   position: absolute;
+
   left: 14px;
+
   color: var(--text-muted);
+
   font-size: 20px;
+
   pointer-events: none;
-  transition: color 0.2s ease;
+
+  transition:
+    color 0.2s ease;
+
+  z-index: 2;
 }
 
 .form-input,
 .login-input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--glass-border);
+
+  min-width: 0;
+
+  min-height: 46px;
+
+  background:
+    rgba(255, 255, 255, 0.03);
+
+  border:
+    1px solid var(--glass-border);
+
   border-radius: 12px;
-  padding: 12px 42px;
+
+  padding:
+    12px 44px;
+
   font-size: 14px;
+
+  line-height: 1.4;
+
   color: var(--text-primary);
+
   outline: none;
-  transition: all 0.25s ease;
+
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .form-input::placeholder,
 .login-input::placeholder {
   color: #64748b;
+
+  opacity: 1;
 }
 
 .form-input:hover,
 .login-input:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.2);
+  background:
+    rgba(255, 255, 255, 0.05);
+
+  border-color:
+    rgba(255, 255, 255, 0.2);
 }
 
 .form-input:focus,
 .login-input:focus {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: var(--primary);
-  box-shadow: 0 0 14px rgba(99, 102, 241, 0.3);
+  background:
+    rgba(255, 255, 255, 0.06);
+
+  border-color:
+    var(--primary);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(99, 102, 241, 0.12),
+    0 0 14px
+    rgba(99, 102, 241, 0.25);
 }
 
 .form-input:focus ~ .field-icon,
@@ -699,81 +1335,169 @@
   color: var(--primary);
 }
 
+/* ==========================================================================
+   PASSWORD TOGGLE
+   ========================================================================== */
+
 .toggle-password-btn,
 .login-password-toggle {
   position: absolute;
-  right: 14px;
+
+  right: 8px;
+
+  width: 36px;
+  height: 36px;
+
   background: none;
+
   border: none;
+
+  border-radius: 8px;
+
   color: var(--text-muted);
+
   cursor: pointer;
+
   padding: 0;
+
   display: flex;
+
   align-items: center;
+
   justify-content: center;
+
   outline: none;
-  transition: color 0.2s ease;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
 }
 
 .toggle-password-btn:hover,
 .login-password-toggle:hover {
   color: var(--text-primary);
+
+  background:
+    rgba(255, 255, 255, 0.06);
 }
 
-/* Checkbox Row */
+.toggle-password-btn:focus-visible,
+.login-password-toggle:focus-visible {
+  outline:
+    2px solid var(--primary);
+
+  outline-offset: 1px;
+}
+
+/* ==========================================================================
+   OPTIONS
+   ========================================================================== */
+
 .form-options-row,
 .login-options-row {
   display: flex;
+
   align-items: center;
+
   justify-content: space-between;
-  margin-top: 4px;
+
+  gap: 12px;
+
+  margin-top: 2px;
 }
 
 .checkbox-container,
 .login-checkbox-label {
   display: inline-flex;
+
   align-items: center;
+
   gap: 8px;
+
   cursor: pointer;
+
   user-select: none;
+
   font-size: 13px;
+
   color: var(--text-muted);
+
+  min-width: 0;
 }
 
 .checkbox-container input[type="checkbox"],
 .login-hidden-checkbox {
   accent-color: var(--primary);
+
   width: 16px;
   height: 16px;
+
   cursor: pointer;
+
+  flex-shrink: 0;
 }
 
-/* Submit Action Button */
+/* ==========================================================================
+   SUBMIT BUTTON
+   ========================================================================== */
+
 .submit-auth-btn,
 .login-btn-gradient {
   width: 100%;
-  padding: 13px 20px;
+
+  min-height: 46px;
+
+  padding:
+    12px 20px;
+
   border-radius: 12px;
+
   border: none;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  color: #FFFFFF;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary) 0%,
+      var(--secondary) 100%
+    );
+
+  color: #ffffff;
+
   font-size: 14px;
+
   font-weight: 600;
+
   cursor: pointer;
+
   display: flex;
+
   align-items: center;
+
   justify-content: center;
+
   gap: 8px;
-  box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.4);
-  transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+
+  box-shadow:
+    0 8px 20px -4px
+    rgba(99, 102, 241, 0.4);
+
+  transition:
+    transform 0.25s cubic-bezier(0.25, 1, 0.5, 1),
+    box-shadow 0.25s ease,
+    opacity 0.25s ease;
+
   outline: none;
-  margin-top: 8px;
+
+  margin-top: 6px;
 }
 
 .submit-auth-btn:hover,
 .login-btn-gradient:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 24px -4px rgba(99, 102, 241, 0.5);
+
+  box-shadow:
+    0 12px 24px -4px
+    rgba(99, 102, 241, 0.5);
 }
 
 .submit-auth-btn:active,
@@ -781,79 +1505,691 @@
   transform: translateY(0);
 }
 
+.submit-auth-btn:focus-visible,
+.login-btn-gradient:focus-visible {
+  outline:
+    2px solid rgba(255, 255, 255, 0.9);
+
+  outline-offset: 3px;
+}
+
 .submit-auth-btn:disabled,
 .login-btn-gradient:disabled {
   opacity: 0.65;
+
   cursor: not-allowed;
+
   transform: none;
+
   box-shadow: none;
 }
 
 .submit-auth-btn.success-state {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4);
+  background:
+    linear-gradient(
+      135deg,
+      #10b981 0%,
+      #059669 100%
+    );
+
+  box-shadow:
+    0 8px 20px -4px
+    rgba(16, 185, 129, 0.4);
 }
+
+/* ==========================================================================
+   BUTTON STATES
+   ========================================================================== */
 
 .btn-spinner-wrapper,
 .btn-success-wrapper {
   display: inline-flex;
+
   align-items: center;
+
+  justify-content: center;
+
   gap: 8px;
 }
 
 .login-loading-spinner {
   width: 18px;
   height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+
+  border:
+    2px solid rgba(255, 255, 255, 0.3);
+
   border-top-color: #ffffff;
+
   border-radius: 50%;
-  animation: login-spin 0.8s linear infinite;
+
+  animation:
+    login-spin 0.8s linear infinite;
 }
 
 @keyframes login-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
+
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
 
 .auth-footer {
   margin-top: 24px;
+
   text-align: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+
+  border-top:
+    1px solid rgba(255, 255, 255, 0.06);
+
   padding-top: 16px;
 }
 
 .auth-footer p {
   font-size: 11px;
+
   color: var(--text-muted);
+
   margin: 0;
+
+  line-height: 1.5;
 }
 
-/* Widget Theme Icons */
-.widget-students .widget-icon-box { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
-.widget-attendance .widget-icon-box { background: rgba(6, 182, 212, 0.15); color: var(--accent); }
-.widget-classes .widget-icon-box { background: rgba(139, 92, 246, 0.15); color: var(--secondary); }
-.widget-teachers .widget-icon-box { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
-.widget-notifications .widget-icon-box { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+/* ==========================================================================
+   WIDGET COLORS
+   ========================================================================== */
 
-/* Light Theme Overrides */
+.widget-students .widget-icon-box {
+  background:
+    rgba(99, 102, 241, 0.15);
+
+  color: var(--primary);
+}
+
+.widget-attendance .widget-icon-box {
+  background:
+    rgba(6, 182, 212, 0.15);
+
+  color: var(--accent);
+}
+
+.widget-classes .widget-icon-box {
+  background:
+    rgba(139, 92, 246, 0.15);
+
+  color: var(--secondary);
+}
+
+.widget-teachers .widget-icon-box {
+  background:
+    rgba(99, 102, 241, 0.15);
+
+  color: var(--primary);
+}
+
+.widget-notifications .widget-icon-box {
+  background:
+    rgba(34, 197, 94, 0.15);
+
+  color: var(--success);
+}
+
+/* ==========================================================================
+   TABLET
+   ========================================================================== */
+
+@media (max-width: 1023px) {
+  .login-right-panel {
+    justify-content: center;
+
+    padding:
+      72px 24px
+      32px;
+  }
+
+  .auth-card-wrapper,
+  .login-card-wrapper {
+    width: min(100%, 460px);
+  }
+}
+
+/* ==========================================================================
+   SMALL LAPTOP / TABLET LANDSCAPE
+   ========================================================================== */
+
+@media (min-width: 1024px) and (max-height: 720px) {
+  .login-right-panel {
+    justify-content: flex-start;
+
+    padding-top: 72px;
+    padding-bottom: 32px;
+  }
+
+  .auth-card-wrapper,
+  .login-card-wrapper {
+    margin-top: 12px;
+
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+
+  .auth-header,
+  .login-logo-group {
+    margin-bottom: 16px;
+  }
+
+  .welcome-text-box {
+    margin-bottom: 18px;
+  }
+
+  .auth-form,
+  .login-form-group {
+    gap: 13px;
+  }
+
+  .left-panel-footer {
+    bottom: 16px;
+  }
+}
+
+/* ==========================================================================
+   MOBILE
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  .login-page-container {
+    min-height: 100dvh;
+  }
+
+  /*
+     Keep the same visual concept,
+     but hide the dashboard preview on mobile.
+     This prevents the login UI from becoming crowded.
+  */
+
+  .login-left-panel {
+    display: none;
+  }
+
+  .login-right-panel {
+    width: 100%;
+
+    min-height: 100dvh;
+
+    padding:
+      72px 16px
+      24px;
+
+    justify-content: center;
+
+    overflow-y: auto;
+
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .auth-card-wrapper,
+  .login-card-wrapper {
+    width: 100%;
+
+    max-width: 480px;
+
+    margin: auto;
+
+    border-radius: 20px;
+
+    padding:
+      24px 18px;
+  }
+
+  .theme-toggle-fixed-position {
+    top: 16px;
+    right: 16px;
+  }
+
+  .auth-logo-badge,
+  .login-logo-mark {
+    width: 42px;
+    height: 42px;
+
+    flex-basis: 42px;
+  }
+
+  .auth-brand-title,
+  .login-logo-text {
+    font-size: 22px;
+  }
+
+  .form-input,
+  .login-input {
+    min-height: 48px;
+
+    font-size: 16px;
+    /*
+      Prevent iOS Safari from zooming when
+      an input is focused.
+    */
+  }
+
+  .submit-auth-btn,
+  .login-btn-gradient {
+    min-height: 48px;
+
+    font-size: 15px;
+  }
+
+  .toggle-password-btn,
+  .login-password-toggle {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+/* ==========================================================================
+   SMALL PHONES
+   ========================================================================== */
+
+@media (max-width: 390px) {
+  .login-right-panel {
+    padding:
+      68px 12px
+      20px;
+  }
+
+  .auth-card-wrapper,
+  .login-card-wrapper {
+    padding:
+      20px 15px;
+
+    border-radius: 18px;
+  }
+
+  .auth-logo-badge,
+  .login-logo-mark {
+    width: 40px;
+    height: 40px;
+
+    flex-basis: 40px;
+
+    margin-bottom: 10px;
+  }
+
+  .logo-symbol {
+    font-size: 21px;
+  }
+
+  .auth-brand-title,
+  .login-logo-text {
+    font-size: 20px;
+  }
+
+  .auth-brand-subtitle,
+  .login-welcome-subtitle {
+    font-size: 12px;
+  }
+
+  .welcome-text-box h2 {
+    font-size: 18px;
+  }
+
+  .welcome-text-box p {
+    font-size: 12px;
+  }
+
+  .auth-form,
+  .login-form-group {
+    gap: 13px;
+  }
+
+  .form-options-row,
+  .login-options-row {
+    align-items: flex-start;
+  }
+
+  .checkbox-container,
+  .login-checkbox-label,
+  .forgot-password-link,
+  .login-forgot-link {
+    font-size: 11px;
+  }
+
+  .form-input,
+  .login-input {
+    padding-left: 42px;
+    padding-right: 42px;
+  }
+}
+
+/* ==========================================================================
+   VERY SMALL PHONES
+   ========================================================================== */
+
+@media (max-width: 340px) {
+  .login-right-panel {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .auth-card-wrapper,
+  .login-card-wrapper {
+    padding:
+      18px 12px;
+  }
+
+  .form-options-row,
+  .login-options-row {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 8px;
+  }
+
+  .forgot-password-link,
+  .login-forgot-link {
+    align-self: flex-end;
+  }
+}
+
+/* ==========================================================================
+   TOUCH DEVICES
+   ========================================================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  .glass-widget:hover {
+    background: var(--glass-bg);
+
+    border-color: var(--glass-border);
+
+    box-shadow:
+      0 10px 40px -10px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .submit-auth-btn:hover,
+  .login-btn-gradient:hover {
+    transform: none;
+  }
+
+  .toggle-password-btn,
+  .login-password-toggle,
+  .forgot-password-link,
+  .login-forgot-link {
+    min-height: 40px;
+  }
+}
+
+/* ==========================================================================
+   LIGHT THEME
+   ========================================================================== */
+
 html:not(.dark) .login-page-container {
   --bg-dark: #f8fafc;
+
   --glass-bg: rgba(255, 255, 255, 0.85);
+
+  --glass-bg-hover: rgba(255, 255, 255, 0.95);
+
   --glass-border: rgba(0, 0, 0, 0.08);
-  --text-primary: #0F172A;
-  --text-muted: #64748B;
+
+  --text-primary: #0f172a;
+
+  --text-muted: #64748b;
+
   background-color: #f1f5f9;
 }
 
 html:not(.dark) .auth-brand-title,
 html:not(.dark) .login-logo-text {
-  background: linear-gradient(to bottom, #0F172A, #334155);
+  background:
+    linear-gradient(
+      to bottom,
+      #0f172a,
+      #334155
+    );
+
   -webkit-background-clip: text;
+
   background-clip: text;
 }
 
 html:not(.dark) .form-input,
 html:not(.dark) .login-input {
   background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.12);
+
+  border-color:
+    rgba(0, 0, 0, 0.12);
+
   color: #0f172a;
+}
+
+html:not(.dark) .form-input:hover,
+html:not(.dark) .login-input:hover {
+  background: #ffffff;
+
+  border-color:
+    rgba(0, 0, 0, 0.2);
+}
+
+html:not(.dark) .form-input:focus,
+html:not(.dark) .login-input:focus {
+  background: #ffffff;
+
+  border-color:
+    var(--primary);
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .login-page-container *,
+  .login-page-container *::before,
+  .login-page-container *::after {
+    animation-duration: 0.01ms !important;
+
+    animation-iteration-count: 1 !important;
+
+    transition-duration: 0.01ms !important;
+
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   PRINT / EXTREME FALLBACK
+   ========================================================================== */
+
+@media (max-width: 280px) {
+  .login-right-panel {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .auth-card-wrapper,
+  .login-card-wrapper {
+    padding: 16px 10px;
+  }
+
+  .auth-form,
+  .login-form-group {
+    gap: 11px;
+  }
+}
+
+/* ============================================================
+   FORGOT PASSWORD MODAL
+============================================================ */
+
+.forgot-password-modal-content {
+  width: 100%;
+  padding: 8px 4px;
+}
+
+.forgot-password-intro {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.forgot-password-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 16px;
+
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+
+  color: var(--primary);
+
+  box-shadow:
+    0 8px 24px rgba(99, 102, 241, 0.12);
+}
+
+.forgot-password-icon .material-symbols-outlined {
+  font-size: 26px;
+}
+
+.forgot-password-intro h3 {
+  margin: 0 0 7px;
+
+  font-size: 1.15rem;
+  line-height: 1.35;
+  font-weight: 700;
+
+  color: var(--text-primary);
+}
+
+.forgot-password-intro p {
+  max-width: 380px;
+  margin: 0 auto;
+
+  font-size: 0.85rem;
+  line-height: 1.55;
+
+  color: var(--text-muted);
+}
+
+
+/* ============================================================
+   SUCCESS
+============================================================ */
+
+.forgot-password-success {
+  text-align: center;
+  padding: 12px 0 4px;
+}
+
+.forgot-password-success-icon {
+  width: 68px;
+  height: 68px;
+
+  margin: 0 auto 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+
+  color: #10b981;
+
+  box-shadow:
+    0 10px 30px rgba(16, 185, 129, 0.12);
+
+  animation: forgot-success-pop 0.45s
+    cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.forgot-password-success-icon .material-symbols-outlined {
+  font-size: 36px;
+}
+
+.forgot-password-success h3 {
+  margin: 0 0 8px;
+
+  font-size: 1.2rem;
+  font-weight: 700;
+
+  color: var(--text-primary);
+}
+
+.forgot-password-success p {
+  max-width: 360px;
+
+  margin: 0 auto 24px;
+
+  font-size: 0.875rem;
+  line-height: 1.55;
+
+  color: var(--text-muted);
+}
+
+@keyframes forgot-success-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 480px) {
+  .forgot-password-modal-content {
+    padding: 4px 0;
+  }
+
+  .forgot-password-intro {
+    margin-bottom: 20px;
+  }
+
+  .forgot-password-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+  }
+
+  .forgot-password-intro h3 {
+    font-size: 1.05rem;
+  }
+
+  .forgot-password-intro p {
+    font-size: 0.8rem;
+  }
+
+  .forgot-password-success {
+    padding: 8px 0;
+  }
+
+  .forgot-password-success-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .forgot-password-success h3 {
+    font-size: 1.05rem;
+  }
+
+  .forgot-password-success p {
+    font-size: 0.82rem;
+  }
 }
