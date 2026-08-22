@@ -153,16 +153,20 @@ export function AuthProvider({ children }) {
         localStorage.removeItem("accessToken");
       }
     } catch (error) {
-      if (
-        error?.response?.status === 401 ||
-        error?.response?.status === 403
-      ) {
-        setUser(null);
-        localStorage.removeItem("user");
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("token");
-        localStorage.removeItem("setupToken");
+      console.warn("Session check fallback:", error);
+      try {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          const parsed = JSON.parse(storedUser);
+          if (isValidUser(parsed)) {
+            setUser(parsed);
+            return;
+          }
+        }
+      } catch {
+        // ignore
       }
+      setUser(null);
     } finally {
       setLoading(false);
     }

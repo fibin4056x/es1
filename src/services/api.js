@@ -286,20 +286,6 @@ api.interceptors.response.use(
         // Ignore logout cleanup failure.
       }
 
-      /*
-       * Clear frontend application state and token cache.
-       */
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("user");
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("token");
-        localStorage.removeItem("setupToken");
-
-        if (window.location.pathname !== "/login") {
-          window.location.href = "/login";
-        }
-      }
-
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
