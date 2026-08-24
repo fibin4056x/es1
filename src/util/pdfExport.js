@@ -65,12 +65,21 @@ const loadImageAsDataUrl = (url) => {
 };
 
 /**
+ * Helper to safely extract full URL from string or attachment object without reconstructing
+ */
+const getAttachmentUrl = (att) => {
+  if (!att) return "";
+  if (typeof att === "string") return att;
+  return att.url || att.secure_url || att.fileUrl || att.path || "";
+};
+
+/**
  * Checks if an attachment is an image based on URL, mimeType, or filename
  */
 const isImageAttachment = (att) => {
   if (!att) return false;
-  const url = typeof att === "string" ? att : att.url || att.path || "";
-  const name = typeof att === "object" ? att.originalName || att.name || "" : "";
+  const url = getAttachmentUrl(att);
+  const name = typeof att === "object" ? att.originalName || att.name || att.filename || "" : "";
   const mime = typeof att === "object" ? att.mimeType || att.contentType || "" : "";
 
   if (mime && mime.toLowerCase().startsWith("image/")) return true;
@@ -295,8 +304,8 @@ export const exportReportDetailPDF = async (report) => {
 
     for (let i = 0; i < imageAttachments.length; i++) {
       const att = imageAttachments[i];
-      const imageUrl = typeof att === "string" ? att : att.url || att.path || "";
-      const filename = typeof att === "object" ? att.originalName || att.name || `Image ${i + 1}` : `Image ${i + 1}`;
+      const imageUrl = getAttachmentUrl(att);
+      const filename = typeof att === "object" ? att.originalName || att.name || att.filename || `Image ${i + 1}` : `Image ${i + 1}`;
 
       const loadedImg = await loadImageAsDataUrl(imageUrl);
 
@@ -374,8 +383,8 @@ export const exportReportDetailPDF = async (report) => {
         currY = 25;
       }
 
-      const filename = typeof att === "object" ? att.originalName || att.name || `Document ${idx + 1}` : `Document ${idx + 1}`;
-      const fileUrl = typeof att === "string" ? att : att.url || att.path || "N/A";
+      const filename = typeof att === "object" ? att.originalName || att.name || att.filename || `Document ${idx + 1}` : `Document ${idx + 1}`;
+      const fileUrl = getAttachmentUrl(att) || "N/A";
 
       doc.setFillColor(248, 250, 252);
       doc.setDrawColor(226, 232, 240);

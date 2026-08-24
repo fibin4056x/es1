@@ -138,18 +138,40 @@ export default function ReportViewModal({ isOpen, onClose, reportId, onReportDel
                   Attachments ({report.attachments.length})
                 </h4>
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                  {report.attachments.map((att, idx) => (
-                    <a
-                      key={att._id || idx}
-                      href={att.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 14px", borderRadius: "8px", background: "rgba(99, 102, 241, 0.15)", border: "1px solid rgba(99, 102, 241, 0.3)", color: "#818cf8", fontSize: "0.875rem", fontWeight: 600, textDecoration: "none" }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>description</span>
-                      <span>{att.originalName || `Attachment ${idx + 1}`}</span>
-                    </a>
-                  ))}
+                  {report.attachments.map((att, idx) => {
+                    const fileUrl = typeof att === "string" ? att : att?.url || att?.secure_url || att?.fileUrl || att?.path || "";
+                    const fileName = typeof att === "object" ? att?.originalName || att?.name || att?.filename || `Attachment ${idx + 1}` : `Attachment ${idx + 1}`;
+                    const isPdf = typeof att === "object" ? att?.format === "pdf" || att?.resource_type === "raw" || fileName.toLowerCase().endsWith(".pdf") || fileUrl.toLowerCase().endsWith(".pdf") : fileUrl.toLowerCase().endsWith(".pdf");
+
+                    return (
+                      <div key={att._id || att.public_id || idx} style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                        <a
+                          href={fileUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 14px", borderRadius: "8px", background: "rgba(99, 102, 241, 0.15)", border: "1px solid rgba(99, 102, 241, 0.3)", color: "#818cf8", fontSize: "0.875rem", fontWeight: 600, textDecoration: "none" }}
+                          title="View / Open Attachment"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                            {isPdf ? "picture_as_pdf" : "description"}
+                          </span>
+                          <span>{fileName}</span>
+                        </a>
+                        {fileUrl && (
+                          <a
+                            href={fileUrl}
+                            download={fileName}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "8px", borderRadius: "8px", background: "rgba(255, 255, 255, 0.08)", border: "1px solid rgba(255, 255, 255, 0.15)", color: "#f8fafc", textDecoration: "none" }}
+                            title="Download Attachment"
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>download</span>
+                          </a>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
