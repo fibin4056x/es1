@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import Modal from "../../components/common/Modal/Modal";
 import ConfirmModal from "../../components/common/Modal/ConfirmModal";
-import { getReportById, markReportRead, deleteReport } from "../../services/reportService";
+import { getReportById, markReportRead, deleteReport, deleteReportAttachment } from "../../services/reportService";
 import { exportReportDetailPDF } from "../../util/pdfExport";
 import { toast } from "react-toastify";
 
-export default function ReportViewModal({ isOpen, onClose, reportId, onReportDeleted }) {
+export default function ReportViewModal({ isOpen, onClose, reportId, onReportDeleted, onEditReport }) {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -42,6 +42,29 @@ export default function ReportViewModal({ isOpen, onClose, reportId, onReportDel
       toast.error(err.response?.data?.message || "Failed to delete report.");
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleDeleteSingleAttachment = async (att, idx) => {
+    if (!report) return;
+    const attId = att._id || att.public_id || idx;
+    try {
+      await deleteReportAttachment(report._id, attId);
+      setReport((prev) =>
+        prev
+          ? {
+              ...prev,
+              attachments: (prev.attachments || []).filter((item, i) => {
+                const itemKey = item._id || item.public_id || i;
+                return itemKey !== attId && i !== idx;
+              }),
+            }
+          : prev
+      );
+      toast.success("Attachment removed successfully.");
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to remove attachment.");
     }
   };
 
@@ -169,6 +192,14 @@ export default function ReportViewModal({ isOpen, onClose, reportId, onReportDel
                             <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>download</span>
                           </a>
                         )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteSingleAttachment(att, idx)}
+                          style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "8px", borderRadius: "8px", background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#ef4444", cursor: "pointer" }}
+                          title="Delete / Remove Attachment"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>delete</span>
+                        </button>
                       </div>
                     );
                   })}
@@ -188,7 +219,21 @@ export default function ReportViewModal({ isOpen, onClose, reportId, onReportDel
                 Delete Report
               </button>
 
-              <div style={{ display: "flex", gap: "10px" }}>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                {onEditReport && (
+                  <button
+                    type="button"
+                    className="report-btn-secondary btn-press"
+                    onClick={() => {
+                      onClose();
+                      onEditReport(report);
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>edit</span>
+                    Edit Report
+                  </button>
+                )}
+
                 <button
                   type="button"
                   className="report-btn-secondary btn-press"

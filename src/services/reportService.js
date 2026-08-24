@@ -122,6 +122,66 @@ export const deleteReport = async (id) => {
 };
 
 /**
+ * 13. Update Report
+ * PUT or PATCH /api/reports/:id
+ */
+export const updateReport = async (id, formData) => {
+  try {
+    const response = await api.put(`/reports/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (err) {
+    if (err?.response?.status === 404 || err?.response?.status === 405) {
+      const response = await api.patch(`/reports/${id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    }
+    throw err;
+  }
+};
+
+/**
+ * 14. Delete Single Report Attachment
+ * DELETE /api/reports/:id/attachments/:attachmentId
+ */
+export const deleteReportAttachment = async (reportId, attachmentId) => {
+  const endpoints = [
+    `/reports/${reportId}/attachments/${attachmentId}`,
+    `/reports/${reportId}/attachment/${attachmentId}`,
+  ];
+
+  let lastError = null;
+
+  for (const endpoint of endpoints) {
+    try {
+      const response = await api.delete(endpoint);
+      return response.data;
+    } catch (err) {
+      lastError = err;
+      const status = err?.response?.status;
+      if (status === 404 || status === 405) {
+        continue;
+      }
+      throw err;
+    }
+  }
+
+  // Fallback: If discrete endpoint isn't supported, send PATCH/PUT with deleteAttachmentId
+  try {
+    const response = await api.patch(`/reports/${reportId}`, { deleteAttachmentId: attachmentId });
+    return response.data;
+  } catch {
+    throw lastError;
+  }
+};
+
+/**
  * Legacy Fallback Helper
  */
 export const getAttendanceReports = async (params = {}) => {

@@ -28,6 +28,17 @@ function Reports() {
   const [composeOpen, setComposeOpen] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [reportToEdit, setReportToEdit] = useState(null);
+
+  const handleOpenCompose = () => {
+    setReportToEdit(null);
+    setComposeOpen(true);
+  };
+
+  const handleEditReport = (report) => {
+    setReportToEdit(report);
+    setComposeOpen(true);
+  };
 
   const handleExportPDF = async () => {
     if (reportsList.length === 0) {
@@ -164,7 +175,7 @@ function Reports() {
           <button
             type="button"
             className="reports-tab-btn compose-tab-btn btn-press"
-            onClick={() => setComposeOpen(true)}
+            onClick={handleOpenCompose}
           >
             <span className="material-symbols-outlined">add</span>
             Create Report
@@ -279,11 +290,15 @@ function Reports() {
         )}
       </div>
 
-      {/* COMPOSE REPORT MODAL */}
+      {/* COMPOSE / EDIT REPORT MODAL */}
       <ReportComposeModal
         isOpen={composeOpen}
-        onClose={() => setComposeOpen(false)}
+        onClose={() => {
+          setComposeOpen(false);
+          setReportToEdit(null);
+        }}
         onReportSent={fetchReports}
+        reportToEdit={reportToEdit}
       />
 
       {/* VIEW REPORT MODAL */}
@@ -295,6 +310,7 @@ function Reports() {
         }}
         reportId={selectedReportId}
         onReportDeleted={fetchReports}
+        onEditReport={handleEditReport}
       />
     </div>
   );

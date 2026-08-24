@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Modal from "../../components/common/Modal/Modal";
 import FileUpload from "../../components/common/FileUpload/FileUpload";
-import { createReport } from "../../services/reportService";
+import { createReport, updateReport } from "../../services/reportService";
 import { getStudents } from "../../services/StudentService";
 import { useAuth } from "../../hooks/UseAuth";
 
@@ -17,7 +17,7 @@ const extractArray = (res, keys = []) => {
   return [];
 };
 
-export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
+export default function ReportComposeModal({ isOpen, onClose, onReportSent, reportToEdit = null }) {
   const { user } = useAuth();
   const [students, setStudents] = useState([]);
 
@@ -25,13 +25,33 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [files, setFiles] = useState([]);
+  const [existingAttachments, setExistingAttachments] = useState([]);
+  const [removedAttachmentIds, setRemovedAttachmentIds] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
 
-  // Load student choices for selector
+  const isEditMode = Boolean(reportToEdit);
+
+  // Load student choices and initialize form
   useEffect(() => {
     if (!isOpen) return;
+
+    if (reportToEdit) {
+      setStudentId(reportToEdit.studentId?._id || reportToEdit.studentId || "");
+      setSubject(reportToEdit.subject || reportToEdit.title || "");
+      setBody(reportToEdit.body || "");
+      setExistingAttachments(Array.isArray(reportToEdit.attachments) ? reportToEdit.attachments : []);
+      setRemovedAttachmentIds([]);
+      setFiles([]);
+    } else {
+      setStudentId("");
+      setSubject("");
+      setBody("");
+      setExistingAttachments([]);
+      setRemovedAttachmentIds([]);
+      setFiles([]);
+    }
 
     const loadData = async () => {
       try {
@@ -44,7 +64,7 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
       }
     };
     loadData();
-  }, [isOpen]);
+  }, [isOpen, reportToEdit]);
 
   const handleFileSelect = (selectedFiles) => {
     if (!selectedFiles || selectedFiles.length === 0) return;
@@ -53,6 +73,12 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
 
   const handleRemoveFile = (index) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleRemoveExistingAttachment = (att, index) => {
+    const attId = att._id || att.public_id || index;
+    setRemovedAttachmentIds((prev) => [...prev, attId]);
+    setExistingAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
   const validateForm = () => {
@@ -87,20 +113,31 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
         formData.append("attachments", file);
       });
 
-      await createReport(formData);
-      toast.success("Report submitted successfully.");
+      if (removedAttachmentIds.length > 0) {
+        formData.append("removedAttachmentIds", JSON.stringify(removedAttachmentIds));
+      }
+
+      if (isEditMode) {
+        await updateReport(reportToEdit._id, formData);
+        toast.success("Report updated successfully.");
+      } else {
+        await createReport(formData);
+        toast.success("Report submitted successfully.");
+      }
 
       // Reset form
       setStudentId("");
       setSubject("");
       setBody("");
       setFiles([]);
+      setExistingAttachments([]);
+      setRemovedAttachmentIds([]);
       setPreviewOpen(false);
 
       if (onReportSent) onReportSent();
       onClose();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to submit report.");
+      toast.error(err.response?.data?.message || (isEditMode ? "Failed to update report." : "Failed to submit report."));
     } finally {
       setLoading(false);
     }
@@ -172,6 +209,26 @@ export default function ReportComposeModal({ isOpen, onClose, onReportSent }) {
             <label className="report-form-label">
               Attachment (PDF, JPG, JPEG, PNG)
             </label>
+
+            {existingAttachments.length > 0 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "8px" }}>
+                <span style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 600 }}>Existing Attachments:</span>
+                {existingAttachments.map((att, idx) => {
+                  const fileName = typeof att === "object" ? att.originalName || att.name || att.filename || `Attachment ${idx + 1}` : `Attachment ${idx + 1}`;
+                  return (
+                    <div key={att._id || idx} className="report-file-item" style={{ background: "rgba(99, 102, 241, 0.1)", borderColor: "rgba(99, 102, 241, 0.3)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span className="material-symbols-outlined" style={{ color: "#818cf8", fontSize: "20px" }}>description</span>
+                        <span style={{ fontSize: "0.875rem", color: "#818cf8" }}>{fileName}</span>
+                      </div>
+                      <button type="button" onClick={() => handleRemoveExistingAttachment(att, idx)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center" }} title="Remove existing attachment">
+                        <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>close</span>
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {files.length > 0 && (
               <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "8px" }}>
