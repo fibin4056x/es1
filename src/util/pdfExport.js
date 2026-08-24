@@ -378,29 +378,34 @@ export const exportReportDetailPDF = async (report) => {
     currY += 8;
 
     docAttachments.forEach((att, idx) => {
-      if (currY + 16 > 270) {
+      const filename = typeof att === "object" ? att.originalName || att.name || att.filename || `Document ${idx + 1}` : `Document ${idx + 1}`;
+      const fileUrl = getAttachmentUrl(att) || "N/A";
+
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      const urlLines = doc.splitTextToSize(`URL: ${fileUrl}`, 174);
+      const cardHeight = Math.max(16, 10 + urlLines.length * 4);
+
+      if (currY + cardHeight > 270) {
         doc.addPage();
         currY = 25;
       }
 
-      const filename = typeof att === "object" ? att.originalName || att.name || att.filename || `Document ${idx + 1}` : `Document ${idx + 1}`;
-      const fileUrl = getAttachmentUrl(att) || "N/A";
-
       doc.setFillColor(248, 250, 252);
       doc.setDrawColor(226, 232, 240);
-      doc.roundedRect(14, currY, 182, 14, 2, 2, "FD");
+      doc.roundedRect(14, currY, 182, cardHeight, 2, 2, "FD");
 
       doc.setFontSize(9);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(79, 70, 229);
-      doc.text(`Document ${idx + 1}: ${filename}`, 18, currY + 9);
+      doc.text(`Document ${idx + 1}: ${filename}`, 18, currY + 7);
 
+      doc.setFontSize(8);
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(100, 116, 139);
-      const shortUrl = fileUrl.length > 60 ? `${fileUrl.slice(0, 57)}...` : fileUrl;
-      doc.text(`URL: ${shortUrl}`, 110, currY + 9);
+      doc.setTextColor(51, 65, 85);
+      doc.text(urlLines, 18, currY + 12);
 
-      currY += 18;
+      currY += cardHeight + 4;
     });
   }
 
