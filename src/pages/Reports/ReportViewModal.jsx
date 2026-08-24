@@ -57,11 +57,11 @@ export default function ReportViewModal({ isOpen, onClose, reportId, onReportDel
     }
   };
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     if (!report) return;
     try {
       setExporting(true);
-      exportReportDetailPDF(report);
+      await exportReportDetailPDF(report);
       toast.success("PDF generated successfully.");
     } catch (err) {
       console.error(err);

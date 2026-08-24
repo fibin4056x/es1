@@ -29,14 +29,14 @@ function Reports() {
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     if (reportsList.length === 0) {
       toast.warning("No reports available to export.");
       return;
     }
     try {
       setIsExporting(true);
-      exportReportsListPDF(reportsList, reportsSearch);
+      await exportReportsListPDF(reportsList, reportsSearch);
       toast.success("PDF report generated successfully.");
     } catch (err) {
       console.error(err);

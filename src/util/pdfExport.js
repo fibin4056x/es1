@@ -18,11 +18,72 @@ const formatDate = (dateVal) => {
 };
 
 /**
+ * Preloads an image URL and converts it into a Data URL with aspect ratio dimensions
+ */
+const loadImageAsDataUrl = (url) => {
+  return new Promise((resolve) => {
+    if (!url) {
+      resolve(null);
+      return;
+    }
+
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        const w = img.naturalWidth || img.width || 800;
+        const h = img.naturalHeight || img.height || 600;
+        canvas.width = w;
+        canvas.height = h;
+
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+        resolve({
+          dataUrl,
+          width: w,
+          height: h,
+          aspectRatio: w / h,
+        });
+      } catch (err) {
+        console.warn("Canvas export warning for image URL:", url, err);
+        resolve(null);
+      }
+    };
+
+    img.onerror = () => {
+      console.warn("Failed to load image from URL:", url);
+      resolve(null);
+    };
+
+    img.src = url;
+  });
+};
+
+/**
+ * Checks if an attachment is an image based on URL, mimeType, or filename
+ */
+const isImageAttachment = (att) => {
+  if (!att) return false;
+  const url = typeof att === "string" ? att : att.url || att.path || "";
+  const name = typeof att === "object" ? att.originalName || att.name || "" : "";
+  const mime = typeof att === "object" ? att.mimeType || att.contentType || "" : "";
+
+  if (mime && mime.toLowerCase().startsWith("image/")) return true;
+  if (url.includes("/image/upload/")) return true;
+  const match = (url || name).match(/\.(jpeg|jpg|png|webp|gif|bmp|svg)($|\?)/i);
+  return Boolean(match);
+};
+
+/**
  * Export reports list to PDF document with autoTable
  */
-export const exportReportsListPDF = (reportsList = [], searchFilter = "") => {
+export const exportReportsListPDF = async (reportsList = [], searchFilter = "") => {
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-
   const primaryColor = [79, 70, 229]; // Indigo #4f46e5
 
   // Header Banner
@@ -123,9 +184,9 @@ export const exportReportsListPDF = (reportsList = [], searchFilter = "") => {
 };
 
 /**
- * Export single report detail to PDF document
+ * Export single report detail to PDF document including embedded images & document attachment references
  */
-export const exportReportDetailPDF = (report) => {
+export const exportReportDetailPDF = async (report) => {
   if (!report) return;
 
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
@@ -189,12 +250,12 @@ export const exportReportDetailPDF = (report) => {
   doc.text(splitTitle, 14, 87);
 
   const titleHeight = splitTitle.length * 6;
-  const bodyStartY = 87 + titleHeight + 6;
+  let currY = 87 + titleHeight + 6;
 
   // Body Content Section
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
-  doc.text("Report Details:", 14, bodyStartY);
+  doc.text("Report Details:", 14, currY);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
@@ -202,9 +263,139 @@ export const exportReportDetailPDF = (report) => {
 
   const bodyText = report.body || "No additional text details provided.";
   const splitBody = doc.splitTextToSize(bodyText, 182);
-  doc.text(splitBody, 14, bodyStartY + 7);
+  doc.text(splitBody, 14, currY + 7);
 
-  // Footer
+  currY = currY + 7 + splitBody.length * 5 + 12;
+
+  // Process Attachments (Separate Images & Documents)
+  const rawAttachments = Array.isArray(report.attachments) ? report.attachments : [];
+  const imageAttachments = [];
+  const docAttachments = [];
+
+  rawAttachments.forEach((att) => {
+    if (isImageAttachment(att)) {
+      imageAttachments.push(att);
+    } else {
+      docAttachments.push(att);
+    }
+  });
+
+  // 1. EMBED ACTUAL IMAGES
+  if (imageAttachments.length > 0) {
+    if (currY > 240) {
+      doc.addPage();
+      currY = 25;
+    }
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(15, 23, 42);
+    doc.text(`Attached Images (${imageAttachments.length}):`, 14, currY);
+    currY += 8;
+
+    for (let i = 0; i < imageAttachments.length; i++) {
+      const att = imageAttachments[i];
+      const imageUrl = typeof att === "string" ? att : att.url || att.path || "";
+      const filename = typeof att === "object" ? att.originalName || att.name || `Image ${i + 1}` : `Image ${i + 1}`;
+
+      const loadedImg = await loadImageAsDataUrl(imageUrl);
+
+      if (loadedImg && loadedImg.dataUrl) {
+        // Maintain exact aspect ratio without stretching or cropping
+        const maxW = 182; // mm
+        const maxH = 115; // mm
+        let drawW = maxW;
+        let drawH = drawW / loadedImg.aspectRatio;
+
+        if (drawH > maxH) {
+          drawH = maxH;
+          drawW = drawH * loadedImg.aspectRatio;
+        }
+
+        // Page break if image overflows current page height
+        if (currY + drawH + 14 > 270) {
+          doc.addPage();
+          currY = 25;
+        }
+
+        // Draw image border / frame
+        doc.setDrawColor(226, 232, 240);
+        doc.rect(13.5, currY - 0.5, drawW + 1, drawH + 1);
+
+        try {
+          doc.addImage(loadedImg.dataUrl, "JPEG", 14, currY, drawW, drawH);
+        } catch (imgErr) {
+          console.warn("Failed to insert image into PDF:", imgErr);
+        }
+
+        currY += drawH + 5;
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100, 116, 139);
+        doc.text(`Figure ${i + 1}: ${filename}`, 14, currY);
+        currY += 10;
+      } else {
+        // Fallback placeholder box for missing/broken/CORS-restricted image
+        if (currY + 22 > 270) {
+          doc.addPage();
+          currY = 25;
+        }
+
+        doc.setFillColor(241, 245, 249);
+        doc.setDrawColor(203, 213, 225);
+        doc.roundedRect(14, currY, 182, 18, 2, 2, "FD");
+
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(71, 85, 105);
+        doc.text(`[Attached Image Reference]: ${filename}`, 18, currY + 11);
+
+        currY += 24;
+      }
+    }
+  }
+
+  // 2. DOCUMENT / PDF ATTACHMENTS SECTION
+  if (docAttachments.length > 0) {
+    if (currY > 240) {
+      doc.addPage();
+      currY = 25;
+    }
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(15, 23, 42);
+    doc.text(`Document & File Attachments (${docAttachments.length}):`, 14, currY);
+    currY += 8;
+
+    docAttachments.forEach((att, idx) => {
+      if (currY + 16 > 270) {
+        doc.addPage();
+        currY = 25;
+      }
+
+      const filename = typeof att === "object" ? att.originalName || att.name || `Document ${idx + 1}` : `Document ${idx + 1}`;
+      const fileUrl = typeof att === "string" ? att : att.url || att.path || "N/A";
+
+      doc.setFillColor(248, 250, 252);
+      doc.setDrawColor(226, 232, 240);
+      doc.roundedRect(14, currY, 182, 14, 2, 2, "FD");
+
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(79, 70, 229);
+      doc.text(`Document ${idx + 1}: ${filename}`, 18, currY + 9);
+
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(100, 116, 139);
+      const shortUrl = fileUrl.length > 60 ? `${fileUrl.slice(0, 57)}...` : fileUrl;
+      doc.text(`URL: ${shortUrl}`, 110, currY + 9);
+
+      currY += 18;
+    });
+  }
+
+  // Multi-page Footer Page Numbering
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
