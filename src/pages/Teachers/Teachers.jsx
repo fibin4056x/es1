@@ -99,6 +99,19 @@ function Teachers() {
   const [selectedDetailTeacher, setSelectedDetailTeacher] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  const extractDataArray = (res) => {
+    if (!res) return [];
+    if (Array.isArray(res)) return res;
+    if (Array.isArray(res.data)) return res.data;
+    if (Array.isArray(res.teachers)) return res.teachers;
+    if (Array.isArray(res.data?.teachers)) return res.data.teachers;
+    if (Array.isArray(res.divisions)) return res.divisions;
+    if (Array.isArray(res.data?.divisions)) return res.data.divisions;
+    if (Array.isArray(res.students)) return res.students;
+    if (Array.isArray(res.data?.students)) return res.data.students;
+    return [];
+  };
+
   const loadAllData = useCallback(async () => {
     try {
       setLoading(true);
@@ -116,9 +129,9 @@ function Teachers() {
         }),
       ]);
 
-      setTeachers(teachersRes.data || []);
-      setDivisions(divisionsRes.data || []);
-      setStudents(studentsRes.data || []);
+      setTeachers(extractDataArray(teachersRes));
+      setDivisions(extractDataArray(divisionsRes));
+      setStudents(extractDataArray(studentsRes));
     } catch (err) {
       console.error("Error loading teachers data:", err);
       setError("Failed to fetch teacher records. Please try again.");
@@ -134,7 +147,7 @@ function Teachers() {
   const loadTeachers = useCallback(async () => {
     try {
       const res = await getTeachers();
-      setTeachers(res.data || []);
+      setTeachers(extractDataArray(res));
     } catch (err) {
       console.error(err);
     }
@@ -146,8 +159,8 @@ function Teachers() {
         getDivisions().catch(() => ({ data: [] })),
         getStudents().catch(() => ({ data: [] })),
       ]);
-      setDivisions(divisionsRes.data || []);
-      setStudents(studentsRes.data || []);
+      setDivisions(extractDataArray(divisionsRes));
+      setStudents(extractDataArray(studentsRes));
     } catch (err) {
       console.error(err);
     }

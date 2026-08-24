@@ -23,9 +23,20 @@ function TeacherForm({
 
   useEffect(() => {
     if (isEdit && teacher) {
+      const extractedName =
+        teacher.name ||
+        teacher.fullName ||
+        teacher.user?.name ||
+        teacher.user?.fullName ||
+        "";
+      const extractedEmail =
+        teacher.email ||
+        teacher.user?.email ||
+        "";
+
       setForm({
-        name: teacher.name || teacher.fullName || "",
-        email: teacher.email || "",
+        name: extractedName,
+        email: extractedEmail,
         password: "",
       });
     } else {
@@ -59,10 +70,18 @@ function TeacherForm({
       return;
     }
 
+    const cleanName = form.name.trim();
+    const cleanEmail = form.email.trim().toLowerCase();
+
     const payload = {
-      name: form.name.trim(),
-      fullName: form.name.trim(),
-      email: form.email.trim().toLowerCase(),
+      name: cleanName,
+      fullName: cleanName,
+      email: cleanEmail,
+      user: {
+        name: cleanName,
+        fullName: cleanName,
+        email: cleanEmail,
+      },
     };
 
     if (!isEdit || form.password.trim()) {
@@ -73,7 +92,12 @@ function TeacherForm({
 
     try {
       if (isEdit) {
-        const teacherId = teacher?._id || teacher?.id;
+        const teacherId =
+          teacher?._id ||
+          teacher?.id ||
+          teacher?.user?._id ||
+          teacher?.user?.id;
+
         if (!teacherId) {
           toast.error("Teacher ID is missing.");
           setLoading(false);

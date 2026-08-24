@@ -43,17 +43,41 @@ export const updateTeacherStatus = async (id, status) => {
 ========================================= */
 
 export const updateTeacher = async (id, data) => {
-  const teacherId = typeof id === "object" ? (id?._id || id?.id) : id;
-  try {
-    const res = await api.patch(`/teachers/${teacherId}`, data);
-    return res.data;
-  } catch (err) {
-    if (err?.response?.status === 404 || err?.response?.status === 405) {
-      const res = await api.put(`/teachers/${teacherId}`, data);
+  const teacherId =
+    typeof id === "object"
+      ? id?._id || id?.id || id?.user?._id || id?.user?.id
+      : id;
+
+  const endpoints = [
+    `/teachers/${teacherId}`,
+    `/teacher/${teacherId}`,
+    `/teachers/profile/${teacherId}`,
+    `/auth/teacher/${teacherId}`,
+  ];
+
+  let lastError = null;
+
+  for (const endpoint of endpoints) {
+    try {
+      const res = await api.patch(endpoint, data);
       return res.data;
+    } catch (err) {
+      lastError = err;
+      const status = err?.response?.status;
+      if (status === 404 || status === 405) {
+        try {
+          const res = await api.put(endpoint, data);
+          return res.data;
+        } catch (putErr) {
+          lastError = putErr;
+        }
+      } else {
+        throw err;
+      }
     }
-    throw err;
   }
+
+  throw lastError;
 };
 
 /* =========================================
