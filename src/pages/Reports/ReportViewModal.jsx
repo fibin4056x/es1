@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Modal from "../../components/common/Modal/Modal";
 import ConfirmModal from "../../components/common/Modal/ConfirmModal";
 import { getReportById, markReportRead, deleteReport } from "../../services/reportService";
+import { exportReportDetailPDF } from "../../util/pdfExport";
 import { toast } from "react-toastify";
 
 export default function ReportViewModal({ isOpen, onClose, reportId, onReportDeleted }) {
@@ -9,6 +10,7 @@ export default function ReportViewModal({ isOpen, onClose, reportId, onReportDel
   const [loading, setLoading] = useState(true);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     if (!isOpen || !reportId) return;
@@ -52,6 +54,20 @@ export default function ReportViewModal({ isOpen, onClose, reportId, onReportDel
       toast.success(`Marked report as ${newStatus ? "read" : "unread"}.`);
     } catch {
       toast.error("Failed to update read status.");
+    }
+  };
+
+  const handleExportPDF = () => {
+    if (!report) return;
+    try {
+      setExporting(true);
+      exportReportDetailPDF(report);
+      toast.success("PDF generated successfully.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate PDF.");
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -151,6 +167,16 @@ export default function ReportViewModal({ isOpen, onClose, reportId, onReportDel
               </button>
 
               <div style={{ display: "flex", gap: "10px" }}>
+                <button
+                  type="button"
+                  className="report-btn-secondary btn-press"
+                  onClick={handleExportPDF}
+                  disabled={exporting}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>picture_as_pdf</span>
+                  {exporting ? "Exporting..." : "Export PDF"}
+                </button>
+
                 <button
                   type="button"
                   className="report-btn-secondary btn-press"

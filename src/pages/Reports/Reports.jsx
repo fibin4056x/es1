@@ -6,6 +6,7 @@ import ReportComposeModal from "./ReportComposeModal";
 import ReportViewModal from "./ReportViewModal";
 import { getReports, getInboxReports, getSentReports } from "../../services/reportService";
 import { useAuth } from "../../hooks/UseAuth";
+import { exportReportsListPDF } from "../../util/pdfExport";
 
 import "./Reports.css";
 
@@ -15,6 +16,7 @@ function Reports() {
   // Communication Reports State
   const [reportsList, setReportsList] = useState([]);
   const [reportsLoading, setReportsLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [reportsPagination, setReportsPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -26,6 +28,23 @@ function Reports() {
   const [composeOpen, setComposeOpen] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+
+  const handleExportPDF = () => {
+    if (reportsList.length === 0) {
+      toast.warning("No reports available to export.");
+      return;
+    }
+    try {
+      setIsExporting(true);
+      exportReportsListPDF(reportsList, reportsSearch);
+      toast.success("PDF report generated successfully.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate PDF document.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Fetch Reports List
   const fetchReports = useCallback(async () => {
@@ -119,14 +138,38 @@ function Reports() {
             View and submit student academic, attendance, and behavioral reports.
           </p>
         </div>
-        <button
-          type="button"
-          className="reports-tab-btn compose-tab-btn btn-press"
-          onClick={() => setComposeOpen(true)}
-        >
-          <span className="material-symbols-outlined">add</span>
-          Create Report
-        </button>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <button
+            type="button"
+            className="btn-press"
+            onClick={handleExportPDF}
+            disabled={isExporting || reportsList.length === 0}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "10px 16px",
+              borderRadius: "8px",
+              background: "var(--surface-light, #1e293b)",
+              color: "var(--text-main, #f8fafc)",
+              border: "1px solid var(--border-main, rgba(255, 255, 255, 0.12))",
+              fontWeight: 600,
+              fontSize: "14px",
+              cursor: "pointer",
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>picture_as_pdf</span>
+            {isExporting ? "Exporting..." : "Export PDF"}
+          </button>
+          <button
+            type="button"
+            className="reports-tab-btn compose-tab-btn btn-press"
+            onClick={() => setComposeOpen(true)}
+          >
+            <span className="material-symbols-outlined">add</span>
+            Create Report
+          </button>
+        </div>
       </div>
 
       {/* REPORTS LIST CONTAINER */}
