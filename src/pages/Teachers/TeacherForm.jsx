@@ -24,7 +24,7 @@ function TeacherForm({
   useEffect(() => {
     if (isEdit && teacher) {
       setForm({
-        name: teacher.name || "",
+        name: teacher.name || teacher.fullName || "",
         email: teacher.email || "",
         password: "",
       });
@@ -61,6 +61,7 @@ function TeacherForm({
 
     const payload = {
       name: form.name.trim(),
+      fullName: form.name.trim(),
       email: form.email.trim().toLowerCase(),
     };
 
@@ -72,7 +73,13 @@ function TeacherForm({
 
     try {
       if (isEdit) {
-        await updateTeacher(teacher._id, payload);
+        const teacherId = teacher?._id || teacher?.id;
+        if (!teacherId) {
+          toast.error("Teacher ID is missing.");
+          setLoading(false);
+          return;
+        }
+        await updateTeacher(teacherId, payload);
         toast.success("Teacher profile updated successfully.");
       } else {
         await createTeacher(payload);

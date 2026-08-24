@@ -43,8 +43,17 @@ export const updateTeacherStatus = async (id, status) => {
 ========================================= */
 
 export const updateTeacher = async (id, data) => {
-  const res = await api.patch(`/teachers/${id}`, data);
-  return res.data;
+  const teacherId = typeof id === "object" ? (id?._id || id?.id) : id;
+  try {
+    const res = await api.patch(`/teachers/${teacherId}`, data);
+    return res.data;
+  } catch (err) {
+    if (err?.response?.status === 404 || err?.response?.status === 405) {
+      const res = await api.put(`/teachers/${teacherId}`, data);
+      return res.data;
+    }
+    throw err;
+  }
 };
 
 /* =========================================
