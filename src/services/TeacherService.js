@@ -62,7 +62,6 @@ export const updateTeacher = async (id, data) => {
       const res = await api.patch(endpoint, data);
       return res.data;
     } catch (err) {
-      lastError = err;
       const status = err?.response?.status;
       if (status === 404 || status === 405) {
         try {
@@ -77,7 +76,10 @@ export const updateTeacher = async (id, data) => {
     }
   }
 
-  throw lastError;
+  if (lastError) {
+    throw lastError;
+  }
+  throw new Error("Unable to update teacher profile.");
 };
 
 /* =========================================
