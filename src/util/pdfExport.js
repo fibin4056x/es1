@@ -1,5 +1,4 @@
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 
 /**
  * Formats date into readable string
@@ -89,131 +88,39 @@ const isImageAttachment = (att) => {
 };
 
 /**
- * Export reports list to PDF document with autoTable
+ * Shared Detailed Report Renderer
+ * Renders a full detailed report section into a jsPDF document
  */
-export const exportReportsListPDF = async (reportsList = [], searchFilter = "") => {
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+const renderReportSection = async (doc, report, isFirstReport = false) => {
+  if (!report) return;
+
+  if (!isFirstReport) {
+    doc.addPage();
+  }
+
+  let currY = 14;
   const primaryColor = [79, 70, 229]; // Indigo #4f46e5
 
-  // Header Banner
+  // Header Banner for Report Section
   doc.setFillColor(...primaryColor);
-  doc.rect(0, 0, 297, 24, "F");
+  doc.rect(0, currY - 14, 210, 24, "F");
 
-  // Title
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(16);
+  doc.setFontSize(15);
   doc.setFont("helvetica", "bold");
-  doc.text("EduTrack SLMS • School Reports Overview", 14, 15);
+  doc.text("EduTrack SLMS • Communication Report", 14, currY);
 
-  // Sub-header metadata
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
   const generatedAt = new Date().toLocaleString();
-  doc.text(`Generated: ${generatedAt}`, 283, 15, { align: "right" });
+  doc.text(`Generated: ${generatedAt}`, 196, currY, { align: "right" });
 
-  // Filter Information
-  doc.setTextColor(51, 65, 85);
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "bold");
-  doc.text("Report Parameters:", 14, 32);
-
-  doc.setFont("helvetica", "normal");
-  const filterText = searchFilter ? `Search Query: "${searchFilter}"` : "Filter: All Reports";
-  doc.text(`${filterText} | Total Records: ${reportsList.length}`, 14, 38);
-
-  // Table Columns & Rows
-  const head = [["#", "Student Name", "Report Subject / Title", "Submitted By", "Date", "Attachments"]];
-
-  const body = reportsList.map((r, index) => {
-    const studentName = r.studentId?.nameEnglish || r.studentId?.name || "Student";
-    const subject = r.subject || r.title || "No Subject";
-    const submittedBy =
-      r.senderId?.name ||
-      r.senderId?.fullName ||
-      r.creatorId?.name ||
-      r.creatorId?.fullName ||
-      r.submittedBy?.name ||
-      r.submittedBy ||
-      "Staff";
-    const dateStr = formatDate(r.createdAt);
-    const attCount = Array.isArray(r.attachments) && r.attachments.length > 0 ? `${r.attachments.length} File(s)` : "None";
-
-    return [index + 1, studentName, subject, submittedBy, dateStr, attCount];
-  });
-
-  // Render Table
-  autoTable(doc, {
-    startY: 44,
-    head: head,
-    body: body,
-    theme: "striped",
-    headStyles: {
-      fillColor: primaryColor,
-      textColor: 255,
-      fontStyle: "bold",
-      fontSize: 10,
-    },
-    bodyStyles: {
-      fontSize: 9,
-      textColor: [30, 41, 59],
-    },
-    alternateRowStyles: {
-      fillColor: [248, 250, 252],
-    },
-    columnStyles: {
-      0: { cellWidth: 12, halign: "center" },
-      1: { cellWidth: 55 },
-      2: { cellWidth: 110 },
-      3: { cellWidth: 50 },
-      4: { cellWidth: 30, halign: "center" },
-      5: { cellWidth: 26, halign: "center" },
-    },
-    didDrawPage: (data) => {
-      // Footer page number
-      const pageCount = doc.internal.getNumberOfPages();
-      doc.setFontSize(8);
-      doc.setTextColor(148, 163, 184);
-      doc.text(
-        `Page ${data.pageNumber} of ${pageCount}`,
-        283,
-        202,
-        { align: "right" }
-      );
-      doc.text(
-        "EduTrack Enterprise SLMS — Confidential School Report",
-        14,
-        202
-      );
-    },
-  });
-
-  // Download PDF
-  const filename = `SLMS_School_Reports_${new Date().toISOString().split("T")[0]}.pdf`;
-  doc.save(filename);
-};
-
-/**
- * Export single report detail to PDF document including embedded images & document attachment references
- */
-export const exportReportDetailPDF = async (report) => {
-  if (!report) return;
-
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  const primaryColor = [79, 70, 229];
-
-  // Header Banner
-  doc.setFillColor(...primaryColor);
-  doc.rect(0, 0, 210, 28, "F");
-
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.text("EduTrack SLMS • Communication Report", 14, 18);
+  currY += 16;
 
   // Metadata Card Block
   doc.setFillColor(248, 250, 252);
   doc.setDrawColor(226, 232, 240);
-  doc.roundedRect(14, 34, 182, 38, 3, 3, "FD");
+  doc.roundedRect(14, currY, 182, 38, 3, 3, "FD");
 
   const studentName = report.studentId?.nameEnglish || report.studentId?.name || "Student";
   const admNum = report.studentId?.admissionNumber || "N/A";
@@ -233,37 +140,40 @@ export const exportReportDetailPDF = async (report) => {
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
 
-  doc.text(`Student:`, 20, 43);
+  doc.text(`Student:`, 20, currY + 9);
   doc.setFont("helvetica", "normal");
-  doc.text(`${studentName} (Adm No: ${admNum})`, 48, 43);
+  doc.text(`${studentName} (Adm No: ${admNum})`, 48, currY + 9);
 
   doc.setFont("helvetica", "bold");
-  doc.text(`Submitted By:`, 20, 51);
+  doc.text(`Submitted By:`, 20, currY + 17);
   doc.setFont("helvetica", "normal");
-  doc.text(`${submittedBy} (${roleStr})`, 48, 51);
+  doc.text(`${submittedBy} (${roleStr})`, 48, currY + 17);
 
   doc.setFont("helvetica", "bold");
-  doc.text(`Date & Time:`, 20, 59);
+  doc.text(`Date & Time:`, 20, currY + 25);
   doc.setFont("helvetica", "normal");
-  doc.text(`${dateStr} | Status: ${statusStr}`, 48, 59);
+  doc.text(`${dateStr} | Status: ${statusStr}`, 48, currY + 25);
+
+  currY += 46;
 
   // Subject Section
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.setTextColor(15, 23, 42);
-  doc.text("Subject / Title:", 14, 80);
+  doc.text("Subject / Title:", 14, currY);
 
   doc.setFontSize(11);
   doc.setFont("helvetica", "normal");
   const splitTitle = doc.splitTextToSize(report.subject || report.title || "No Subject", 182);
-  doc.text(splitTitle, 14, 87);
+  doc.text(splitTitle, 14, currY + 7);
 
   const titleHeight = splitTitle.length * 6;
-  let currY = 87 + titleHeight + 6;
+  currY = currY + 7 + titleHeight + 4;
 
   // Body Content Section
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
+  doc.setTextColor(15, 23, 42);
   doc.text("Report Details:", 14, currY);
 
   doc.setFont("helvetica", "normal");
@@ -310,7 +220,6 @@ export const exportReportDetailPDF = async (report) => {
       const loadedImg = await loadImageAsDataUrl(imageUrl);
 
       if (loadedImg && loadedImg.dataUrl) {
-        // Maintain exact aspect ratio without stretching or cropping
         const maxW = 182; // mm
         const maxH = 115; // mm
         let drawW = maxW;
@@ -321,13 +230,11 @@ export const exportReportDetailPDF = async (report) => {
           drawW = drawH * loadedImg.aspectRatio;
         }
 
-        // Page break if image overflows current page height
         if (currY + drawH + 14 > 270) {
           doc.addPage();
           currY = 25;
         }
 
-        // Draw image border / frame
         doc.setDrawColor(226, 232, 240);
         doc.rect(13.5, currY - 0.5, drawW + 1, drawH + 1);
 
@@ -344,7 +251,6 @@ export const exportReportDetailPDF = async (report) => {
         doc.text(`Figure ${i + 1}: ${filename}`, 14, currY);
         currY += 10;
       } else {
-        // Fallback placeholder box for missing/broken/CORS-restricted image
         if (currY + 22 > 270) {
           doc.addPage();
           currY = 25;
@@ -408,8 +314,45 @@ export const exportReportDetailPDF = async (report) => {
       currY += cardHeight + 4;
     });
   }
+};
 
-  // Multi-page Footer Page Numbering
+/**
+ * Export all reports list to a single multi-page detailed PDF document
+ */
+export const exportReportsListPDF = async (reportsList = []) => {
+  if (!Array.isArray(reportsList) || reportsList.length === 0) return;
+
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+  for (let i = 0; i < reportsList.length; i++) {
+    const report = reportsList[i];
+    await renderReportSection(doc, report, i === 0);
+  }
+
+  // Footer Page Numbering across all pages
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(148, 163, 184);
+    doc.text(`Page ${i} of ${pageCount}`, 196, 287, { align: "right" });
+    doc.text("EduTrack Enterprise SLMS — All Confidential School Reports", 14, 287);
+  }
+
+  const filename = `SLMS_All_School_Reports_${new Date().toISOString().split("T")[0]}.pdf`;
+  doc.save(filename);
+};
+
+/**
+ * Export single report detail to PDF document
+ */
+export const exportReportDetailPDF = async (report) => {
+  if (!report) return;
+
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  await renderReportSection(doc, report, true);
+
+  // Footer Page Numbering across all pages
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
