@@ -12,7 +12,7 @@ function PrivateRoute({ children, allowedRoles }) {
           minHeight: "100vh",
           display: "flex",
           alignItems: "center",
-          justify: "center",
+          justifyContent: "center",
           background: "var(--bg-main, #0b0f19)",
           color: "#ffffff",
         }}

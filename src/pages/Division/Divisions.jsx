@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { getDivisions } from "../../services/DivisionService";
 import DivisionTable from "./DivisionTable";
-import DivisionModal from "./DivisionModel";
-import EditDivisionModal from "./EditDivisionModel";
+import DivisionModal from "./DivisionModal";
+import EditDivisionModal from "./EditDivisionModal";
 import Pagination from "../../components/common/pagination/Pagination";
 import Loader from "../../components/common/Loader/Loader";
 import { getApiErrorMessage } from "../../services/api";

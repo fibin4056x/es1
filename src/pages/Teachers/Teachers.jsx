@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import TeacherToolbar from "./TeacherToolbar";
 import TeacherTable from "./TeacherTable";
 import TeacherModal from "./TeacherModal";
-import EditTeacherModal from "./EditTeacherModel";
+import EditTeacherModal from "./EditTeacherModal";
 import AssignClassModal from "./AssignClassModal";
 import "./Teachers.css";
 
